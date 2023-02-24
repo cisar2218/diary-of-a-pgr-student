@@ -7,3 +7,14 @@ I am not very interested in computer graphic, that's why I created this repozito
 2. By explanation I will make sure that I understand the topic completely.
 3. Can potentialy help others in future.
 4. What is public usualy makes pressure for perfection.
+
+## Knowladge base
+### 1) Week
+
+
+## Practices
+### 1) Hello World
+This is just simple hello word which draws single triagle. Main purpose is that many small things have to be adjusted before projects can run. These tweaks can be found [here](https://cent.felk.cvut.cz/courses/PGR/). But in general this configuration is specific (yours will be different).
+
+## Credits
+I believe that all materials I will be sharing in this repository can be found publicaly at https://cent.felk.cvut.cz/courses/PGR/ at the time that I am making the repo. Materials which are not from this site are created / adjusted by me. Otherwise I am linking the source.

@@ -15,30 +15,14 @@ GLuint shaderProgram = 0;
 GLuint arrayBuffer = 0;
 GLuint vao = 0;
 
-std::string vertexShaderSrc =
-    "#version 140\n"
-    "in vec2 position;\n"
-    "void main() {\n"
-    "  gl_Position = vec4(position, 0.0f, 1.0f);\n"
-    "}\n"
-    ;
-
-std::string fragmentShaderSrc =
-    "#version 140\n"
-    "out vec4 color;"
-    "void main() {\n"
-    "  color = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
-    "}\n"
-    ;
-
 void init() {
   glClearColor(0.2f, 0.1f, 0.3f, 1.0f);
   glEnable(GL_DEPTH_TEST);
   glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
 
   GLuint shaders [] = {
-    pgr::createShaderFromSource(GL_VERTEX_SHADER, vertexShaderSrc),
-    pgr::createShaderFromSource(GL_FRAGMENT_SHADER, fragmentShaderSrc),
+    pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vert"),
+    pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.frag"),
     0
   };
   shaderProgram = pgr::createProgram(shaders);

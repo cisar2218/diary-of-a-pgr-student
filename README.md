@@ -31,6 +31,15 @@ I will describe list of topics. If topic is advance I will go into more details.
 - *swizzling* - for example if i want to swap `vec.x` and `vec.z` I can do `vec = vec.zyx`
 - I may describe how to use shader in opengl by example in the future. Maybe I will copy and comment parts of code that I will write in the future.
 
+### 2) Week - recap of linear algebra
+- **Rotation** matrix (MX) (cheat sheet bellow)
+![image](https://user-images.githubusercontent.com/69775422/222754955-a7eb850f-e41d-4673-8299-635ce212c32c.png)
+- **Transformation** MX and **Translation** MX (cheat sheet bellow): middle one is translation matrix. The last one is transformation matrix.
+![image](https://user-images.githubusercontent.com/69775422/222755585-8dcc59a5-f5b5-4290-b936-e817906c950c.png)
+- Vector space
+- Linear independence
+- Basis, [change of basis](https://youtu.be/P2LTAUO1TdA)
+
 ## Practices
 ### 1) Hello World
 This is just simple hello word which draws single triagle. Main purpose is that many small things have to be adjusted before projects can run. These tweaks can be found [here](https://cent.felk.cvut.cz/courses/PGR/). But in general this configuration is specific (yours will be different).
@@ -77,6 +86,7 @@ uniform int iTask;     // task number
 ## Abbreviations
 VS - Vertex Shader
 FS - Fragment Shader
+MX - Matrix
 var(s) - variables
 
 ## Credits

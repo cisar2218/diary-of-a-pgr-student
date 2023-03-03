@@ -34,6 +34,50 @@ I will describe list of topics. If topic is advance I will go into more details.
 ## Practices
 ### 1) Hello World
 This is just simple hello word which draws single triagle. Main purpose is that many small things have to be adjusted before projects can run. These tweaks can be found [here](https://cent.felk.cvut.cz/courses/PGR/). But in general this configuration is specific (yours will be different).
+### 2) Shaders
+Focused on GLSL - how to use `in`, `out` and `uniform` variables.
+- How to bind `uniform` in cpp program.
+  - (1) **.vert file:** Define in and uniform vars in your .vert file
+```glsl
+#version 140
+in vec3 position;
+
+uniform mat4  mPVM;   // transformation matrix
+uniform int iTask;     // task number
+```
+  - (2.1) **cpp file:** Define `GLint` varibles. In these references to VS in and uniform will be stored like so:
+  ```cpp
+  struct Locations {
+    // attributes
+    GLint position;
+    // uniforms
+    GLint PVMMatrix;
+    GLint task;  // task number
+  } locations;
+```
+  - (2.2) **cpp file:** After creating shaders, get locations of attributes (see bellow). Reference to where to pass the in, uniform is now stored in locations.XXX variables.
+  ```cpp
+  // locations to shader input(s)
+  // VS attribute
+  locations.position = glGetAttribLocation(resources.program, "position");
+
+  // uniforms
+  locations.PVMMatrix = glGetUniformLocation(resources.program, "mPVM");
+  locations.task      = glGetUniformLocation(resources.program, "iTask");
+  ```
+  - (2.2) **cpp file:** When needed set in/uniform like so. Use glUniform'N'TYPE'(GLint location, 'TYPE' value);
+  ```cpp
+  // '1i' stands for 'one integer'
+  glUniform1i( locations.task, 8 );
+  // to pass different datatype see documentation (and use brain)  
+  ```
+  
+- Passing data from VS to FS (in, out variables). I won't go into detailes, because it's simple. Create `out` var in VS. Create `in` of same datatype in FS. These will be automaticaly binded. This way you can pass var from VS to FS with EZ.
+
+## Abbreviations
+VS - Vertex Shader
+FS - Fragment Shader
+var(s) - variables
 
 ## Credits
 I believe that all materials I will be sharing in this repository can be found publicaly at https://cent.felk.cvut.cz/courses/PGR/ at the time that I am making the repo. Materials which are not from this site are created / adjusted by me. Otherwise I am linking the source.

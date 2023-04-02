@@ -1,0 +1,18 @@
+# MTL (Wavefront Material Template Library)
+# Material Count: 1
+
+newmtl ShapeMaterial
+# ambient color
+Ka 0.640000 0.640000 0.640000
+# diffuse color
+Kd 0.640000 0.640000 0.640000
+# specular color
+Ks 0.640000 0.640000 0.640000
+# the focus of specular highlights (specular exponent)
+Ns 96.078431
+# optical density (index of refraction)
+Ni 1.000000
+# how much material dissolves into the background (1.0 is fully opaque, 0.0 is completely transparent)
+d 1.000000
+# illumination model
+illum 0

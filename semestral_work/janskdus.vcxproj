@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{da9b6b35-4af3-427d-ba29-dfa2219047cd}</ProjectGuid>
-    <RootNamespace>skeleton</RootNamespace>
+    <RootNamespace>janskdus</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -154,13 +154,19 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="singlemesh.cpp" />
-    <ClCompile Include="skeleton.cpp" />
+    <ClCompile Include="janskdus.cpp" />
+    <ClCompile Include="square.cpp" />
     <ClCompile Include="triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="object.h" />
     <ClInclude Include="singlemesh.h" />
+    <ClInclude Include="square.h" />
     <ClInclude Include="triangle.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="simple.fs" />
+    <None Include="simple.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

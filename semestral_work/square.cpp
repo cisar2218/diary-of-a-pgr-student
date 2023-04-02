@@ -1,8 +1,8 @@
 #include <iostream>
-#include "triangle.h"
+#include "square.h"
 
 
-void Triangle::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
+void Square::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// instance specific stuff
 // ======== BEGIN OF SOLUTION - TASK 1_0-3 ======== //
 // ========  END OF SOLUTION - TASK 1_0-3  ======== //
@@ -11,15 +11,15 @@ void Triangle::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
 }
 
-void Triangle::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+void Square::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
-	if(initialized && (shaderProgram != nullptr)) {
+	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
 		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		glBindVertexArray(0);
 	}
 	else {
@@ -27,7 +27,7 @@ void Triangle::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatr
 	}
 }
 
-Triangle::Triangle(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
+Square::Square(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
 {
 	geometry = new ObjectGeometry;
 
@@ -35,6 +35,7 @@ Triangle::Triangle(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialize
 	  0.0f,  0.5f,
 	 -0.5f, -0.5f,
 	  0.5f, -0.5f,
+	  0.0f, -1.0f,
 	};
 
 	geometry->numTriangles = 1;
@@ -57,7 +58,7 @@ Triangle::Triangle(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialize
 	}
 }
 
-Triangle::~Triangle() {
+Square::~Square() {
 	glDeleteVertexArrays(1, &(geometry->vertexArrayObject));
 	glDeleteBuffers(1, &(geometry->elementBufferObject));
 	glDeleteBuffers(1, &(geometry->vertexBufferObject));

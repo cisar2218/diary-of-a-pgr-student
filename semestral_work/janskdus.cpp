@@ -1,10 +1,10 @@
 //----------------------------------------------------------------------------------------
 /**
- * \file    skeleton.cpp : This file contains the 'main' function and callbacks.
+ * \file    toyshop.cpp : This file contains the 'main' function and callbacks.
 			Program execution begins and ends there.
- * \author  Jaroslav Sloup, Petr Felkel
- * \date    2022/03/03
- * \brief   Prepared for the Computer graphics course on FEE and FIT CTU in Prague CZ
+ * \author  Dušan Jánsky
+ * \date    2022/04/02
+ * \brief   Semestral work for PGR class.
  */
 
  /**
@@ -36,7 +36,9 @@
 #include "pgr.h"
 #include "object.h"
 #include "triangle.h"
+#include "square.h"
 #include "singlemesh.h"
+using namespace std;
 
 
 constexpr int WINDOW_WIDTH = 500;
@@ -56,26 +58,9 @@ ShaderProgram commonShaderProgram;
  */
 void loadShaderPrograms()
 {
-	std::string vertexShaderSrc =
-		"#version 140\n"
-		"in vec2 position;\n"
-		"uniform mat4 PVM;\n"
-		"void main() {\n"
-		"  gl_Position = PVM * vec4(position, 0.0f, 1.0f);\n"
-		"}\n"
-		;
-
-	std::string fragmentShaderSrc =
-		"#version 140\n"
-		"out vec4 fragmentColor;"
-		"void main() {\n"
-		"  fragmentColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n"
-		"}\n"
-		;
-
 	GLuint shaders[] = {
-	  pgr::createShaderFromSource(GL_VERTEX_SHADER, vertexShaderSrc),
-	  pgr::createShaderFromSource(GL_FRAGMENT_SHADER, fragmentShaderSrc),
+	  pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vs"),
+	  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.fs"),
 	  0
 	};
 
@@ -159,6 +144,7 @@ void keyboardCb(unsigned char keyPressed, int mouseX, int mouseY) {
 		glutLeaveMainLoop();
 		exit(EXIT_SUCCESS);
 	}
+	cout << "Pressed key: " << keyPressed << endl;
 }
 
 // Called whenever a key on the keyboard was released. The key is given by
@@ -263,7 +249,9 @@ void initApplication() {
 	// - all programs (shaders), buffers, textures, ...
 	loadShaderPrograms();
 
-	objects.push_back(new Triangle(&commonShaderProgram));
+	//objects.push_back(new Triangle(&commonShaderProgram));
+	//objects.push_back(new Square(&commonShaderProgram));
+	objects.push_back(new SingleMesh(&commonShaderProgram));
 	// objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application

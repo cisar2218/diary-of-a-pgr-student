@@ -44,6 +44,7 @@ struct Locations {
   GLint position;
 // ======== BEGIN OF SOLUTION - TASK 3-1 ======== //
   // declare handle to the aNextPosition shader input 
+  GLint aNextPosition;
 // ========  END OF SOLUTION - TASK 3-1  ======== //
   GLint PVM;
 // ======== BEGIN OF SOLUTION - TASK 2-1 ======== //
@@ -58,6 +59,7 @@ const char * srcVertexShader =
   "#version 140\n"
   "in vec3 aPosition;\n"
 // ======== BEGIN OF SOLUTION - TASK 3-2 ======== //
+   "in vec3 aNextPosition;\n"
   // declare the aNextPosition input vec3 variable 
 // ========  END OF SOLUTION - TASK 3-2  ======== //
   "uniform mat4 PVM;\n"
@@ -70,7 +72,7 @@ const char * srcVertexShader =
 // ======== BEGIN OF SOLUTION - TASK 3-3 ======== //
   // you can use the mix() glsl function to interpolate between aPosition and aNextPosition 
   // use the uniform variable t as the interpolation parameter 
-  "  vec3 pos = aPosition;\n"
+  "  vec3 pos = mix(aNextPosition, aPosition, t);\n"
 // ========  END OF SOLUTION - TASK 3-3  ======== //
 // ======== BEGIN OF SOLUTION - TASK 2-3 ======== //
   // enlarge/shrink vertex position by a given scale (uniform parameter)  

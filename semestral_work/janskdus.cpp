@@ -49,7 +49,11 @@ ObjectList objects;
 
 // shared shader programs
 ShaderProgram commonShaderProgram;
-
+glm::mat4 vm = glm::lookAt(
+	glm::vec3(0.0f, 0.0f, 0.0f), // the position of your camera, in world space
+	glm::vec3(0.0f, 0.0f, 1.0f), // camera target
+	glm::vec3(0.0f, 1.0f, 0.0f) // upvector
+);
 
 // -----------------------  OpenGL stuff ---------------------------------
 
@@ -90,12 +94,20 @@ void cleanupShaderPrograms(void) {
  */
 void drawScene(void)
 {
-	glm::mat4 viewMatrix = glm::mat4(1.0f);
-	glm::mat4 projectionMatrix = glm::mat4(1.0f);
+	
+	//glm::mat4 viewMatrix = glm::mat4(1.0f);
+	//glm::mat4 viewMatrix = glm::mat4( 
+		//glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
+		//glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
+		//glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
+		//glm::vec4(0.0f, 0.0f, 150.0f, 1.0f)
+		//);
+	//glm::mat4 projectionMatrix = glm::mat4(1.0f);
+	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 1.0f, 150.0f);
 
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
-			object->draw(viewMatrix, projectionMatrix);
+			object->draw(vm, projectionMatrix);
 	}
 }
 
@@ -223,6 +235,16 @@ void timerCb(int)
 	const glm::mat4 sceneRootMatrix = glm::mat4(1.0f);
 
 	float elapsedTime = 0.001f * static_cast<float>(glutGet(GLUT_ELAPSED_TIME)); // milliseconds => seconds
+
+	while (elapsedTime > 30) {
+		elapsedTime -= 5;
+	}
+
+	vm = glm::lookAt(
+		glm::vec3(0.0f, 0.0f, 2+elapsedTime), // the position of your camera, in world space
+		glm::vec3(0.0f, 0.0f, 1.0f), // camera target
+		glm::vec3(0.0f, 1.0f, 0.0f) // upvector
+	);
 
 	// update the application state
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {

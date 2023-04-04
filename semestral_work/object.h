@@ -103,12 +103,11 @@ public:
 	virtual void draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 		// draw instance geometry using globalModelMatrix
 		// ...
-
+		
 		// process all children
 		for (ObjectInstance* child : children) {   //for (auto child : children) {
 			if (child != nullptr)
 				child->draw(viewMatrix, projectionMatrix);
 		}
 	}
-
 };

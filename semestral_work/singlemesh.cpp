@@ -1,9 +1,24 @@
 #include <iostream>
 #include "singlemesh.h"
 
+using namespace std;
+
 
 void SingleMesh::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// instance specific stuff
+	float rotationSpeed = 1.0f;
+	float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
+
+	glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angle, xAxis);
+
+	glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angle, yAxis);
+
+	glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
+	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
+
+	this->localModelMatrix = rotationMatrixX;
 
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
@@ -14,7 +29,8 @@ void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
-		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
+		//glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(PVM));
+		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix*viewMatrix*globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
 		glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);

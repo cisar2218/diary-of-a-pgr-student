@@ -55,9 +55,10 @@ vec4 spotLight(Light light, Material material, vec3 vertexPosition, vec3 vertexN
 
 // ======== BEGIN OF SOLUTION - TASK 3_3-2 ======== //
 
-  // vec3 L = ...
-  // vec3 R = ...
-  // vec3 V = ...
+  vec3 L = light.position - vertexPosition;
+  vec3 R = reflect(light.position, vertexNormal);
+  vec3 V = - vertexPosition;
+  //ret += material.diffuse * light.diffuse * max(dot(L, vertexNormal), 0);
 
 // ========  END OF SOLUTION - TASK 3_3-2  ======== //
 
@@ -77,11 +78,14 @@ vec4 directionalLight(Light light, Material material, vec3 vertexPosition, vec3 
 
 // ======== BEGIN OF SOLUTION - TASK 3_2-1 ======== //
 
-  // vec3 L = ...
-  // vec3 R = ...
-  // vec3 V = ...
+  vec3 L = normalize(light.position);
+  vec3 R = reflect(-L, vertexNormal);
+  vec3 V = normalize(-vertexPosition);
 
-  // ret += material.diffuse * light.diffuse * ...
+  // PHONG
+  ret += material.diffuse * light.diffuse * max(dot(L, vertexNormal), 0);
+  //ret += material.specular * light.specular * max(dot(R,V), 0);
+  //ret += material.ambient * light.ambient;
 
 // ========  END OF SOLUTION - TASK 3_2-1  ======== //
 
@@ -90,7 +94,7 @@ vec4 directionalLight(Light light, Material material, vec3 vertexPosition, vec3 
 
 // hardcoded lights
 Light sun;
-float sunSpeed = 0.5f;
+float sunSpeed = 1.5f;
 Light spaceShipReflector;
 
 void setupLights() {
@@ -105,7 +109,9 @@ void setupLights() {
   // calculate correct direction to the sun using the time and sunSpeed variables
   // sun has to rotate in XZ plane in world coordinates
   // dont forget to translate the direction to the view coordinates (using Vmatrix)
-  sun.position = vec3(0.0, 1.0, 0.0);
+
+  // sun.position = vec3(0.0, 1.0, 0.0);
+  sun.position = vec3(cos(time*sunSpeed), 0.0, sin(time*sunSpeed));
 
 // ========  END OF SOLUTION - TASK 3_2-2  ======== //
 
@@ -121,8 +127,8 @@ void setupLights() {
   // set properly reflector direction and position taking into account reflectorPosition
   // and reflectorDirection uniforms
 
-  // spaceShipReflector.position = ...
-  // spaceShipReflector.spotDirection = ...
+  spaceShipReflector.position = reflectorPosition;
+  spaceShipReflector.spotDirection = reflectorDirection;
 
 // ========  END OF SOLUTION - TASK 3_3-3  ======== //
 }

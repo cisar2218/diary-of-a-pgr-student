@@ -329,7 +329,9 @@ void drawWindowContents() {
   // set correct position and direction of the reflector to the shaders
   // use reflectorPosition and reflectorDirection uniforms
 
-  // glUniform...
+  glUniform3fv(shaderProgram.reflectorPositionLocation, 1, glm::value_ptr(gameObjects.spaceShip->position));
+  glUniform3fv(shaderProgram.reflectorDirectionLocation, 1, glm::value_ptr(gameObjects.spaceShip->direction));
+
 
 // ========  END OF SOLUTION - TASK 3_3-1  ======== //
   glUseProgram(0);
@@ -404,7 +406,7 @@ void updateObjects(float elapsedTime) {
       float timeDelta = elapsedTime - asteroid->currentTime;
 
       asteroid->currentTime = elapsedTime;
-      asteroid->position += timeDelta * asteroid->speed * asteroid->direction;
+      //asteroid->position += timeDelta * asteroid->speed * asteroid->direction;
 
       ++it;
     }

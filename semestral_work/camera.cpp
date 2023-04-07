@@ -4,34 +4,57 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-Camera::Camera(const glm::vec3& startPosition, const glm::vec3& startOrientation,
-    float startFov, float startAspectRatio, float startNearPlane, float startFarPlane) {
+Camera::Camera()
+{
+    this->position = glm::vec3(0.0f, 0.0f, 0.0f);
+    this->direction = glm::vec3(0.0f, 0.0f, 1.0f);
+    this->upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+}
+
+Camera::Camera(const glm::vec3& startPosition, const glm::vec3& startDirection, const glm::vec3& worldUp) {
     this->position = startPosition;
-    this->direction = startOrientation;
-    this->fov = startFov;
-    this->aspectRatio = startAspectRatio;
-    this->nearPlane = startNearPlane;
-    this->farPlane = startFarPlane;
+    this->direction = startDirection;
+    this->upVector = worldUp;
+}
+
+void Camera::rotate(float angle, const glm::vec3& axis)
+{
+    // TODO need to be implemented
+}
+
+void Camera::move(glm::vec3 movement) {
+    this->position += movement;
+}
+
+void Camera::moveRight(float movement) {
+    glm::vec3 left = glm::cross(this->direction, this->upVector);
+    this->move(left * -movement);
+}
+
+void Camera::moveLeft(float movement)
+{
+    glm::vec3 left = glm::cross(this->direction, this->upVector);
+    this->move(left * movement);
+}
+
+void Camera::moveForward(float movement)
+{
+    this->move(direction * -movement);
+}
+
+void Camera::moveBackward(float movement)
+{
+    this->move(direction * movement);
 }
 
 glm::mat4 Camera::getViewMatrix() const {
-    return glm::lookAt(position, position + direction, getUp());
+    return glm::lookAt(
+        this->position,
+        this->position - this->direction,
+        this->upVector
+    );
 }
 
 glm::mat4 Camera::getProjectionMatrix() const {
-    return glm::perspective(glm::radians(fov), aspectRatio, nearPlane, farPlane);
+    return this->projectionMatrix;
 }
-
-void Camera::rotate(float angle, const glm::vec3& axis) {
-    glm::quat rotation = glm::angleAxis(glm::radians(angle), axis);
-    direction = glm::normalize(rotation * direction);
-}
-
-glm::vec3 Camera::getUp() const {
-    return glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
-glm::vec3 Camera::getRight() const {
-    return glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f));
-}
-

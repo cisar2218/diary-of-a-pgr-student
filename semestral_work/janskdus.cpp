@@ -38,6 +38,7 @@
 #include "triangle.h"
 #include "square.h"
 #include "singlemesh.h"
+#include "camera.h"
 using namespace std;
 
 
@@ -49,11 +50,8 @@ ObjectList objects;
 
 // shared shader programs
 ShaderProgram commonShaderProgram;
-glm::mat4 vm = glm::lookAt(
-	glm::vec3(0.0f, 0.0f, 0.0f), // the position of your camera, in world space
-	glm::vec3(0.0f, 0.0f, 1.0f), // camera target
-	glm::vec3(0.0f, 1.0f, 0.0f) // upvector
-);
+
+Camera camera = Camera();
 
 // -----------------------  OpenGL stuff ---------------------------------
 
@@ -103,11 +101,11 @@ void drawScene(void)
 		//glm::vec4(0.0f, 0.0f, 150.0f, 1.0f)
 		//);
 	//glm::mat4 projectionMatrix = glm::mat4(1.0f);
-	glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 1.0f, 150.0f);
+	//glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 1.0f, 150.0f);
 
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
-			object->draw(vm, projectionMatrix);
+			object->draw(camera.getViewMatrix(), camera.getProjectionMatrix());
 	}
 }
 
@@ -240,12 +238,9 @@ void timerCb(int)
 		elapsedTime -= 5;
 	}
 
-	vm = glm::lookAt(
-		glm::vec3(0.0f, 0.0f, 2+elapsedTime), // the position of your camera, in world space
-		glm::vec3(0.0f, 0.0f, 1.0f), // camera target
-		glm::vec3(0.0f, 1.0f, 0.0f) // upvector
-	);
-
+	camera.moveRight(0.1f);
+	camera.moveForward(0.1f);
+	
 	// update the application state
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
@@ -278,6 +273,7 @@ void initApplication() {
 
 	// init your Application
 	// - setup the initial application state
+	camera.move(glm::vec3(0.0f, 0.0f, 5.0f));
 }
 
 /**

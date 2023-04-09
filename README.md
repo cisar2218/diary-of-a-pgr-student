@@ -40,6 +40,15 @@ I will describe list of topics. If topic is advance I will go into more details.
 - Linear independence
 - Basis, [change of basis](https://youtu.be/P2LTAUO1TdA)
 
+## Semestral work
+### Bindings
+- **F1** - switch to free camera
+- **F2** - switch to 1st static camera
+- **F3** - switch to 2nd static camera
+- **ARROWS** - free camera movement
+- **MOUSE MOVEMENT** - free camera rotation
+
+
 ## Practices
 ### 1) Hello World
 This is just simple hello word which draws single triagle. Main purpose is that many small things have to be adjusted before projects can run. These tweaks can be found [here](https://cent.felk.cvut.cz/courses/PGR/). But in general this configuration is specific (yours will be different).

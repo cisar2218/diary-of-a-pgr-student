@@ -161,7 +161,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="janskdus.h" />
     <ClInclude Include="object.h" />
+    <ClInclude Include="parameters.h" />
     <ClInclude Include="singlemesh.h" />
     <ClInclude Include="square.h" />
     <ClInclude Include="triangle.h" />

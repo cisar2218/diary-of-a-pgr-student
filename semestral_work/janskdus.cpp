@@ -39,8 +39,12 @@
 #include "square.h"
 #include "singlemesh.h"
 #include "camera.h"
+#include "parameters.h"
+#include "janskdus.h"
 using namespace std;
 
+enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
+enum { CAMERA_FREE_IDX, CAMERA_2_IDX, CAMERA_3_IDX, CAMERA_COUNT };
 
 constexpr int WINDOW_WIDTH = 500;
 constexpr int WINDOW_HEIGHT = 500;
@@ -51,7 +55,17 @@ ObjectList objects;
 // shared shader programs
 ShaderProgram commonShaderProgram;
 
-Camera camera = Camera();
+Camera cameras[CAMERA_COUNT];
+
+struct GameState {
+	int windowWidth;    // set by reshape callback
+	int windowHeight;   // set by reshape callback
+
+	int activeCamera = CAMERA_FREE_IDX;
+	float cameraElevationAngle; // in degrees = initially 0.0f
+
+	bool keyMap[KEYS_COUNT];    // false
+} gameState;
 
 // -----------------------  OpenGL stuff ---------------------------------
 
@@ -92,20 +106,11 @@ void cleanupShaderPrograms(void) {
  */
 void drawScene(void)
 {
-	
-	//glm::mat4 viewMatrix = glm::mat4(1.0f);
-	//glm::mat4 viewMatrix = glm::mat4( 
-		//glm::vec4(1.0f, 0.0f, 0.0f, 0.0f),
-		//glm::vec4(0.0f, 1.0f, 0.0f, 0.0f),
-		//glm::vec4(0.0f, 0.0f, 1.0f, 0.0f),
-		//glm::vec4(0.0f, 0.0f, 150.0f, 1.0f)
-		//);
-	//glm::mat4 projectionMatrix = glm::mat4(1.0f);
-	//glm::mat4 projectionMatrix = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 1.0f, 150.0f);
+	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
 
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
-			object->draw(camera.getViewMatrix(), camera.getProjectionMatrix());
+			object->draw(viewMatrix, cameras[gameState.activeCamera].getProjectionMatrix());
 	}
 }
 
@@ -136,6 +141,59 @@ void reshapeCb(int newWidth, int newHeight) {
 
 	// glViewport(...);
 };
+
+// -----------------------  Mouse ---------------------------------
+// three events - mouse click, mouse drag, and mouse move with no button pressed
+
+// 
+/**
+ * \brief React to mouse button press and release (mouse click).
+ * When the user presses and releases mouse buttons in the window, each press
+ * and each release generates a mouse callback (including release after dragging).
+ *
+ * \param buttonPressed button code (GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, or GLUT_RIGHT_BUTTON)
+ * \param buttonState GLUT_DOWN when pressed, GLUT_UP when released
+ * \param mouseX mouse (cursor) X position
+ * \param mouseY mouse (cursor) Y position
+ */
+void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
+}
+
+/**
+ * \brief Handle mouse dragging (mouse move with any button pressed).
+ *        This event follows the glutMouseFunc(mouseCb) event.
+ * \param mouseX mouse (cursor) X position
+ * \param mouseY mouse (cursor) Y position
+ */
+void mouseMotionCb(int mouseX, int mouseY) {
+}
+
+/**
+ * \brief Handle mouse movement over the window (with no button pressed).
+ * \param mouseX mouse (cursor) X position
+ * \param mouseY mouse (cursor) Y position
+ */
+void passiveMouseMotionCb(int mouseX, int mouseY) {
+
+	switch (gameState.activeCamera)
+	{
+		case CAMERA_FREE_IDX: {
+			glutWarpPointer(WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+			glutSetCursor(GLUT_CURSOR_NONE);
+
+			cameras[CAMERA_FREE_IDX].increaseElevation((float)(WINDOW_HEIGHT / 2 - (float)mouseY) / 10);
+			cameras[CAMERA_FREE_IDX].rotateHorizontal(((float)mouseX - WINDOW_WIDTH / 2) / 1000);
+		}
+		default: {
+			glutSetCursor(GLUT_CURSOR_RIGHT_ARROW);
+			break;
+		}
+	}
+
+	// create display event to redraw window contents if needed (and not handled in the timer callback)
+	// glutPostRedisplay();
+}
+
 
 // -----------------------  Keyboard ---------------------------------
 
@@ -178,48 +236,89 @@ void keyboardUpCb(unsigned char keyReleased, int mouseX, int mouseY) {
  * \param mouseY mouse (cursor) Y position
  */
 void specialKeyboardCb(int specKeyPressed, int mouseX, int mouseY) {
+	switch (specKeyPressed) {
+		case GLUT_KEY_RIGHT:
+			gameState.keyMap[KEY_RIGHT_ARROW] = true;
+			break;
+		case GLUT_KEY_LEFT:
+			gameState.keyMap[KEY_LEFT_ARROW] = true;
+			break;
+		case GLUT_KEY_UP:
+			gameState.keyMap[KEY_UP_ARROW] = true;
+			break;
+		case GLUT_KEY_DOWN:
+			gameState.keyMap[KEY_DOWN_ARROW] = true;
+			break;
+		case GLUT_KEY_F1:
+			gameState.activeCamera = CAMERA_FREE_IDX;
+			break;
+		case GLUT_KEY_F2:
+			gameState.activeCamera = CAMERA_2_IDX;
+			break;
+		case GLUT_KEY_F3:
+			gameState.activeCamera = CAMERA_3_IDX;
+			break;
+		default:
+			break;
+	}
 }
 
 void specialKeyboardUpCb(int specKeyReleased, int mouseX, int mouseY) {
-} // key released
-
-// -----------------------  Mouse ---------------------------------
-// three events - mouse click, mouse drag, and mouse move with no button pressed
-
-// 
-/**
- * \brief React to mouse button press and release (mouse click).
- * When the user presses and releases mouse buttons in the window, each press
- * and each release generates a mouse callback (including release after dragging).
- *
- * \param buttonPressed button code (GLUT_LEFT_BUTTON, GLUT_MIDDLE_BUTTON, or GLUT_RIGHT_BUTTON)
- * \param buttonState GLUT_DOWN when pressed, GLUT_UP when released
- * \param mouseX mouse (cursor) X position
- * \param mouseY mouse (cursor) Y position
- */
-void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
+	switch (specKeyReleased) {
+	case GLUT_KEY_RIGHT:
+		gameState.keyMap[KEY_RIGHT_ARROW] = false;
+		break;
+	case GLUT_KEY_LEFT:
+		gameState.keyMap[KEY_LEFT_ARROW] = false;
+		break;
+	case GLUT_KEY_UP:
+		gameState.keyMap[KEY_UP_ARROW] = false;
+		break;
+	case GLUT_KEY_DOWN:
+		gameState.keyMap[KEY_DOWN_ARROW] = false;
+		break;
+	default:
+		break;
+	}
 }
 
-/**
- * \brief Handle mouse dragging (mouse move with any button pressed).
- *        This event follows the glutMouseFunc(mouseCb) event.
- * \param mouseX mouse (cursor) X position
- * \param mouseY mouse (cursor) Y position
- */
-void mouseMotionCb(int mouseX, int mouseY) {
-}
+void updateCamera(int cameraIdx, float deltaTime) {
+	switch (cameraIdx)
+	{
+		case CAMERA_FREE_IDX:
+		{
 
-/**
- * \brief Handle mouse movement over the window (with no button pressed).
- * \param mouseX mouse (cursor) X position
- * \param mouseY mouse (cursor) Y position
- */
-void passiveMouseMotionCb(int mouseX, int mouseY) {
+			// cameraMovement direction
+			glm::vec3 moveDir = glm::vec3(0.0f);
 
-	// mouse hovering over window
+			if (gameState.keyMap[KEY_LEFT_ARROW] == true) {
+				moveDir += cameras[CAMERA_FREE_IDX].getLeft();
+			}
 
-	// create display event to redraw window contents if needed (and not handled in the timer callback)
-	// glutPostRedisplay();
+			if (gameState.keyMap[KEY_RIGHT_ARROW] == true) {
+				moveDir -= cameras[CAMERA_FREE_IDX].getLeft();
+			}
+
+			if (gameState.keyMap[KEY_UP_ARROW] == true) {
+				moveDir -= cameras[CAMERA_FREE_IDX].getFront();
+			}
+
+			if (gameState.keyMap[KEY_DOWN_ARROW] == true) {
+				moveDir += cameras[CAMERA_FREE_IDX].getFront();
+				cout << "here" << endl;
+			}
+			if (moveDir.length() != 0.0f) {
+				glm::normalize(moveDir);
+				cameras[CAMERA_FREE_IDX].move(moveDir * CAMERA_FREE_SPEED * deltaTime);
+			}
+			break;
+		}
+		case CAMERA_2_IDX:
+		case CAMERA_3_IDX:
+		default:
+			cerr << "update of camera num: " << cameraIdx << " not yet implemented" << endl;
+			break;
+	}
 }
 
 // -----------------------  Timer ---------------------------------
@@ -231,16 +330,18 @@ void timerCb(int)
 {
 #ifndef SKELETON // @task_1_0
 	const glm::mat4 sceneRootMatrix = glm::mat4(1.0f);
-
 	float elapsedTime = 0.001f * static_cast<float>(glutGet(GLUT_ELAPSED_TIME)); // milliseconds => seconds
 
-	while (elapsedTime > 30) {
-		elapsedTime -= 5;
+	// update camera
+	float cameraDeltaTime = elapsedTime - cameras[0].currentTime;
+	updateCamera(gameState.activeCamera, cameraDeltaTime);
+
+	for (int i = 0; i < CAMERA_COUNT; ++i) {
+		cameras[i].currentTime = elapsedTime;
 	}
 
-	camera.moveRight(0.1f);
-	camera.moveForward(0.1f);
 	
+
 	// update the application state
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
@@ -273,7 +374,11 @@ void initApplication() {
 
 	// init your Application
 	// - setup the initial application state
-	camera.move(glm::vec3(0.0f, 0.0f, 5.0f));
+	
+	// CAMERAS
+	cameras[CAMERA_FREE_IDX] = Camera(CAMERA_FREE_INIT_POSITION);
+	cameras[CAMERA_2_IDX] = Camera(CAMERA_2_INIT_POSITION, CAMERA_2_INIT_DIRECTION);
+	cameras[CAMERA_3_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
 }
 
 /**
@@ -318,17 +423,19 @@ int main(int argc, char** argv) {
 		glutReshapeFunc(reshapeCb);
 		glutKeyboardFunc(keyboardCb);
 		// glutKeyboardUpFunc(keyboardUpCb);
-		// glutSpecialFunc(specialKeyboardCb);     // key pressed
-		// glutSpecialUpFunc(specialKeyboardUpCb); // key released
+		glutSpecialFunc(specialKeyboardCb);     // key pressed
+		glutSpecialUpFunc(specialKeyboardUpCb); // key released
 		// glutMouseFunc(mouseCb);
 		// glutMotionFunc(mouseMotionCb);
+		glutPassiveMotionFunc(passiveMouseMotionCb);
+
 #ifndef SKELETON // @task_1_0
 		glutTimerFunc(33, timerCb, 0);
 #else
 		// glutTimerFunc(33, timerCb, 0);
 #endif // task_1_0
 
-	}
+}
 	// end for each window 
 
 	// initialize pgr-framework (GL, DevIl, etc.)

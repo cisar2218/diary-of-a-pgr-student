@@ -27,6 +27,8 @@
     <ClInclude Include="square.h">
       <Filter>Objects</Filter>
     </ClInclude>
+    <ClInclude Include="parameters.h" />
+    <ClInclude Include="janskdus.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

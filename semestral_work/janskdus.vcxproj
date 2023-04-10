@@ -154,17 +154,21 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="circle.cpp" />
     <ClCompile Include="singlemesh.cpp" />
     <ClCompile Include="janskdus.cpp" />
+    <ClCompile Include="sphere.cpp" />
     <ClCompile Include="square.cpp" />
     <ClCompile Include="triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="circle.h" />
     <ClInclude Include="janskdus.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="parameters.h" />
     <ClInclude Include="singlemesh.h" />
+    <ClInclude Include="sphere.h" />
     <ClInclude Include="square.h" />
     <ClInclude Include="triangle.h" />
   </ItemGroup>

@@ -183,6 +183,7 @@ void passiveMouseMotionCb(int mouseX, int mouseY) {
 
 			cameras[CAMERA_FREE_IDX].increaseElevation((float)(WINDOW_HEIGHT / 2 - (float)mouseY) / 10);
 			cameras[CAMERA_FREE_IDX].rotateHorizontal(((float)mouseX - WINDOW_WIDTH / 2) / 1000);
+			break;
 		}
 		default: {
 			glutSetCursor(GLUT_CURSOR_RIGHT_ARROW);
@@ -208,11 +209,27 @@ void passiveMouseMotionCb(int mouseX, int mouseY) {
  */
 void keyboardCb(unsigned char keyPressed, int mouseX, int mouseY) {
 
-	if (keyPressed == 27) {
+	if (keyPressed == 27) { // escape
 		glutLeaveMainLoop();
 		exit(EXIT_SUCCESS);
 	}
 	cout << "Pressed key: " << keyPressed << endl;
+	switch (keyPressed) {
+	case 'd':
+		gameState.keyMap[KEY_RIGHT_ARROW] = true;
+		break;
+	case 'a':
+		gameState.keyMap[KEY_LEFT_ARROW] = true;
+		break;
+	case 'w':
+		gameState.keyMap[KEY_UP_ARROW] = true;
+		break;
+	case 's':
+		gameState.keyMap[KEY_DOWN_ARROW] = true;
+		break;
+	default:
+		break;
+	}
 }
 
 // Called whenever a key on the keyboard was released. The key is given by
@@ -224,6 +241,22 @@ void keyboardCb(unsigned char keyPressed, int mouseX, int mouseY) {
  * \param mouseY mouse (cursor) Y position
  */
 void keyboardUpCb(unsigned char keyReleased, int mouseX, int mouseY) {
+	switch (keyReleased) {
+	case 'd':
+		gameState.keyMap[KEY_RIGHT_ARROW] = false;
+		break;
+	case 'a':
+		gameState.keyMap[KEY_LEFT_ARROW] = false;
+		break;
+	case 'w':
+		gameState.keyMap[KEY_UP_ARROW] = false;
+		break;
+	case 's':
+		gameState.keyMap[KEY_DOWN_ARROW] = false;
+		break;
+	default:
+		break;
+	}
 }
 
 //
@@ -287,8 +320,6 @@ void updateCamera(int cameraIdx, float deltaTime) {
 	{
 		case CAMERA_FREE_IDX:
 		{
-
-			// cameraMovement direction
 			glm::vec3 moveDir = glm::vec3(0.0f);
 
 			if (gameState.keyMap[KEY_LEFT_ARROW] == true) {
@@ -316,7 +347,7 @@ void updateCamera(int cameraIdx, float deltaTime) {
 		case CAMERA_2_IDX:
 		case CAMERA_3_IDX:
 		default:
-			cerr << "update of camera num: " << cameraIdx << " not yet implemented" << endl;
+			//cerr << "update of camera num: " << cameraIdx << " not yet implemented" << endl;
 			break;
 	}
 }
@@ -422,7 +453,7 @@ int main(int argc, char** argv) {
 		glutDisplayFunc(displayCb);
 		glutReshapeFunc(reshapeCb);
 		glutKeyboardFunc(keyboardCb);
-		// glutKeyboardUpFunc(keyboardUpCb);
+		glutKeyboardUpFunc(keyboardUpCb);
 		glutSpecialFunc(specialKeyboardCb);     // key pressed
 		glutSpecialUpFunc(specialKeyboardUpCb); // key released
 		// glutMouseFunc(mouseCb);

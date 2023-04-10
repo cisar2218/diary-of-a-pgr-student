@@ -104,9 +104,9 @@ glm::mat4 Camera::getViewMatrixElevated()
     glm::vec3 newUpVector = glm::vec3(cameraTransform * glm::vec4(this->upVector, 0.0f));
     glm::vec3 cameraViewDirection = glm::vec3(cameraTransform * glm::vec4(this->direction, 0.0f));
 
-    cout << "--" << endl;
+   /* cout << "--" << endl;
     cout << "[position] x: " << this->position.x << " z: " << this->position.z << endl;
-    cout << "[direction] x: " << this->direction.x << " y: " << this->direction.y << " z: " << this->direction.z << endl;
+    cout << "[direction] x: " << this->direction.x << " y: " << this->direction.y << " z: " << this->direction.z << endl;*/
 
     return this->getViewMatrix(cameraViewDirection, newUpVector);
 }

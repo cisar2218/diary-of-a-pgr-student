@@ -12,6 +12,12 @@
     <ClCompile Include="camera.cpp">
       <Filter>Objects</Filter>
     </ClCompile>
+    <ClCompile Include="circle.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
+    <ClCompile Include="sphere.cpp">
+      <Filter>Objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="triangle.h" />
@@ -29,6 +35,12 @@
     </ClInclude>
     <ClInclude Include="parameters.h" />
     <ClInclude Include="janskdus.h" />
+    <ClInclude Include="circle.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
+    <ClInclude Include="sphere.h">
+      <Filter>Objects</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">

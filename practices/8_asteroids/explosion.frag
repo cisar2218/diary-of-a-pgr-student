@@ -21,7 +21,8 @@ vec4 sampleTexture(int frame) {
   // use the frame parameter to calculate offset of the uv coordinates
   // use the texture function, texSampler as a first parameter and your calculated uv coordinates
   // the pattern uniform stores number of frames stored in the texture (in rows/cols)
-  return vec4(1.0);
+  vec4 texColor = texture(texSampler, vec2((texCoord_v.x/8)*2, texCoord_v.y/2));
+  return texColor;
 // ========  END OF SOLUTION - TASK 4_2-3  ======== //
 }
 

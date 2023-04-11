@@ -278,7 +278,8 @@ void drawExplosion(ExplosionObject* explosion, const glm::mat4 & viewMatrix, con
     
 // ======== BEGIN OF SOLUTION - TASK 4_2-2 ======== //
   // enable blending and set proper blending function  
-  glBlendFunc(GL_ZERO, GL_ZERO);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
 // ========  END OF SOLUTION - TASK 4_2-2  ======== //
 
   glUseProgram(explosionShaderProgram.program);
@@ -350,7 +351,7 @@ void drawBanner(BannerObject* banner, const glm::mat4 & viewMatrix, const glm::m
 
 // ======== BEGIN OF SOLUTION - TASK 4_3-2 ======== //
   // enable blending and set proper blending function
-  glBlendFunc(GL_SRC_COLOR, GL_DST_COLOR);
+  glEnable(GL_BLEND);;
 // ========  END OF SOLUTION - TASK 4_3-2  ======== //
 
   glDisable(GL_DEPTH_TEST);

@@ -263,9 +263,9 @@ const float explosionVertexData[explosionNumQuadVertices * 5] = {
   // the explosion fragment shader -> see sampleTexture(frame) function
   // x      y     z     u     v
   -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-   1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-  -1.0f,  1.0f, 0.0f, 0.0f, 0.0f,
-   1.0f,  1.0f, 0.0f, 0.0f, 0.0f,
+   1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+  -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+   1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
 // ========  END OF SOLUTION - TASK 4_2-1  ======== //
 };
 

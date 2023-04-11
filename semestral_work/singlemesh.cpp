@@ -6,7 +6,7 @@ using namespace std;
 
 void SingleMesh::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// instance specific stuff
-	float rotationSpeed = 1.0f;
+	float rotationSpeed = 0.1f;
 	float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
 
 	glm::vec3 xAxis(1.0f, 0.0f, 0.0f);

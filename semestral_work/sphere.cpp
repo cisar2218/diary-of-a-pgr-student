@@ -1,10 +1,73 @@
 #include <iostream>
 #include "sphere.h"
 
+const unsigned sphereTriangles[] = {
+  0, 1, 2,
+  3, 4, 5,
+  6, 7, 8,
+  9, 10, 11,
+  12, 13, 14,
+  15, 16, 17,
+  18, 19, 20,
+  21, 22, 23,
+  24, 25, 26,
+  27, 28, 29,
+  30, 31, 32,
+  33, 34, 35,
+  36, 37, 38,
+  39, 40, 41,
+  42, 43, 44,
+  45, 46, 47,
+  48, 49, 50,
+  51, 52, 53,
+  54, 55, 56,
+  57, 58, 59,
+  60, 61, 62,
+  63, 64, 65,
+  66, 67, 68,
+  69, 70, 71,
+  72, 73, 74,
+  75, 76, 77,
+  78, 79, 80,
+  81, 82, 83,
+  84, 85, 86,
+  87, 88, 89,
+  90, 91, 92,
+  93, 94, 95,
+  0, 96, 1,
+  9, 97, 10,
+  15, 98, 16,
+  18, 99, 19,
+  30, 100, 31,
+  33, 101, 34,
+  36, 102, 37,
+  45, 103, 46,
+  48, 104, 49,
+  57, 105, 58,
+  60, 106, 61,
+  69, 107, 70,
+  72, 108, 73,
+  81, 109, 82,
+  84, 110, 85,
+  93, 111, 94,
+}; // end sphereTriangles
+
 
 void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// TODO instance specific stuff
-	
+	float rotationSpeed = 1.0f;
+	float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
+
+	glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
+	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angle, xAxis);
+
+	glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
+	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angle, yAxis);
+
+	glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
+	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
+
+	this->localModelMatrix = rotationMatrixY;
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
 }
@@ -14,10 +77,11 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
-		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
+		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 48);
+		glDrawElements(GL_TRIANGLES, 48*3, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
 	else {
@@ -147,56 +211,6 @@ Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(fa
 	  -0.5f,0.5f,0.707107f,-0.357407f,0.862856f,0.357407f,0.875f,0.75f,
 	}; // end sphereVertices
 
-	const unsigned sphereTriangles[] = {
-	  0, 1, 2,
-	  3, 4, 5,
-	  6, 7, 8,
-	  9, 10, 11,
-	  12, 13, 14,
-	  15, 16, 17,
-	  18, 19, 20,
-	  21, 22, 23,
-	  24, 25, 26,
-	  27, 28, 29,
-	  30, 31, 32,
-	  33, 34, 35,
-	  36, 37, 38,
-	  39, 40, 41,
-	  42, 43, 44,
-	  45, 46, 47,
-	  48, 49, 50,
-	  51, 52, 53,
-	  54, 55, 56,
-	  57, 58, 59,
-	  60, 61, 62,
-	  63, 64, 65,
-	  66, 67, 68,
-	  69, 70, 71,
-	  72, 73, 74,
-	  75, 76, 77,
-	  78, 79, 80,
-	  81, 82, 83,
-	  84, 85, 86,
-	  87, 88, 89,
-	  90, 91, 92,
-	  93, 94, 95,
-	  0, 96, 1,
-	  9, 97, 10,
-	  15, 98, 16,
-	  18, 99, 19,
-	  30, 100, 31,
-	  33, 101, 34,
-	  36, 102, 37,
-	  45, 103, 46,
-	  48, 104, 49,
-	  57, 105, 58,
-	  60, 106, 61,
-	  69, 107, 70,
-	  72, 108, 73,
-	  81, 109, 82,
-	  84, 110, 85,
-	  93, 111, 94,
-	}; // end sphereTriangles
 
 	geometry->numTriangles = 48;
 	geometry->elementBufferObject = 0;
@@ -208,10 +222,28 @@ Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(fa
 	glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+	glGenBuffers(1, &geometry->elementBufferObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry->elementBufferObject);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sphereTriangles), sphereTriangles, GL_STATIC_DRAW);
+
 	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1) && (shaderProgram->locations.PVMmatrix != -1)) {
-		glEnableVertexAttribArray(shaderProgram->locations.position);
-		glVertexAttribPointer(shaderProgram->locations.position, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		//glEnableVertexAttribArray(shaderProgram->locations.position);
+		//glVertexAttribPointer(shaderProgram->locations.position, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		initialized = true;
+
+		// Position attribute
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sphereNAttribsPerVertex * sizeof(float), (void*)0);
+
+		// Normal attribute
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sphereNAttribsPerVertex * sizeof(float), (void*)(3 * sizeof(float)));
+
+		// Texture coordinate attribute
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sphereNAttribsPerVertex * sizeof(float), (void*)(6 * sizeof(float)));
+
+		glBindVertexArray(0);
 	}
 	else {
 		std::cerr << "Sphere::Sphere(): shaderProgram struct not initialized!" << std::endl;

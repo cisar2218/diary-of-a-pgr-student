@@ -175,6 +175,7 @@
   <ItemGroup>
     <None Include="simple.fs" />
     <None Include="simple.vs" />
+    <None Include="sphere.vs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

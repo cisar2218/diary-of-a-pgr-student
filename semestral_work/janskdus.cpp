@@ -41,6 +41,7 @@
 #include "camera.h"
 #include "parameters.h"
 #include "janskdus.h"
+#include "sphere.h"
 using namespace std;
 
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
@@ -75,13 +76,15 @@ struct GameState {
 void loadShaderPrograms()
 {
 	GLuint shaders[] = {
-	  pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vs"),
+	  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vs"),
 	  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.fs"),
 	  0
 	};
 
 	commonShaderProgram.program = pgr::createProgram(shaders);
-	commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "position");
+	commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "aPos");
+	glGetAttribLocation(commonShaderProgram.program, "aNormal");
+	glGetAttribLocation(commonShaderProgram.program, "aTexCoord");
 
 	// other attributes and uniforms
 	commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "PVM");
@@ -336,8 +339,8 @@ void updateCamera(int cameraIdx, float deltaTime) {
 
 			if (gameState.keyMap[KEY_DOWN_ARROW] == true) {
 				moveDir += cameras[CAMERA_FREE_IDX].getFront();
-				cout << "here" << endl;
 			}
+
 			if (moveDir.length() != 0.0f) {
 				glm::normalize(moveDir);
 				cameras[CAMERA_FREE_IDX].move(moveDir * CAMERA_FREE_SPEED * deltaTime);
@@ -397,10 +400,12 @@ void initApplication() {
 	// init OpenGL
 	// - all programs (shaders), buffers, textures, ...
 	loadShaderPrograms();
+	glEnable(GL_DEPTH_TEST);
 
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
-	objects.push_back(new SingleMesh(&commonShaderProgram));
+	//objects.push_back(new SingleMesh(&commonShaderProgram));
+	objects.push_back(new Sphere(&commonShaderProgram));
 	// objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application

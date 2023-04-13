@@ -88,6 +88,7 @@ void loadShaderPrograms()
 
 	// other attributes and uniforms
 	commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "PVM");
+	//commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "material");
 
 	assert(commonShaderProgram.locations.PVMmatrix != -1);
 	assert(commonShaderProgram.locations.position != -1);

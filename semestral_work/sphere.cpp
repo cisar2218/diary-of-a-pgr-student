@@ -52,7 +52,6 @@ const unsigned sphereTriangles[] = {
   93, 111, 94,
 }; // end sphereTriangles
 
-
 void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// TODO instance specific stuff
 	float rotationSpeed = 1.0f;
@@ -77,10 +76,19 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
+		GLuint materialAmbientLocation = glGetUniformLocation(shaderProgram->program, "material.ambient");
+		GLuint materialDiffuseLocation = glGetUniformLocation(shaderProgram->program, "material.diffuse");
+		GLuint materialSpecularLocation = glGetUniformLocation(shaderProgram->program, "material.specular");
+		GLuint materialShininessLocation = glGetUniformLocation(shaderProgram->program, "material.shininess");
+
+		glUniform3f(materialAmbientLocation, 0.5f, 0.3f, 0.0f);
+		glUniform3f(materialDiffuseLocation, 1.0f, 0.7f, 0.0f);
+		glUniform3f(materialSpecularLocation, 1.0f, 1.0f, 1.0f);
+		glUniform1f(materialShininessLocation, 64.0f);
+
 		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
-		//glDrawArrays(GL_TRIANGLE_STRIP, 0, 48);
 		glDrawElements(GL_TRIANGLES, 48*3, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
 	}
@@ -210,7 +218,6 @@ Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(fa
 	  0.0f,1.0f,-4.37114e-08f,-0.357407f,0.862856f,-0.357407f,0.75f,0.5f,
 	  -0.5f,0.5f,0.707107f,-0.357407f,0.862856f,0.357407f,0.875f,0.75f,
 	}; // end sphereVertices
-
 
 	geometry->numTriangles = 48;
 	geometry->elementBufferObject = 0;

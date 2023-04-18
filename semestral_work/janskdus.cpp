@@ -392,7 +392,21 @@ void timerCb(int)
 }
 
 
+
 // -----------------------  Application ---------------------------------
+
+// --- OBJs
+void initObjects() {
+	// const char* ASTEROID_MODEL_NAME = "data/asteroid.obj";
+	//
+
+	if (loadSingleMesh(ASTEROID_MODEL_NAME, commonShaderProgram.program, &asteroidGeometry) != true) {
+		std::cerr << "initializeModels(): Asteroid model loading failed." << std::endl;
+	}
+	CHECK_GL_ERROR();
+	*/
+	
+}
 
 /**
  * \brief Initialize application data and OpenGL stuff.
@@ -402,6 +416,8 @@ void initApplication() {
 	// - all programs (shaders), buffers, textures, ...
 	loadShaderPrograms();
 	glEnable(GL_DEPTH_TEST);
+	initObjects();
+
 
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));

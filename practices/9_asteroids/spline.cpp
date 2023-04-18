@@ -101,7 +101,13 @@ glm::vec3 evaluateCurveSegment(
   // for the given value of parameter t
 
 // ======== BEGIN OF SOLUTION - TASK 5_2-1 ======== //
-  // result = ...
+  const glm::mat4 mat = glm::mat4x4(
+      glm::vec4(-1.0f, 2.0f, -1.0f, 0.0f), 
+      glm::vec4(3.0f, -5.0f, 0.0f, 2.0f), 
+      glm::vec4(-3.0f, 4.0f, 1.0f, 0.0f), 
+      glm::vec4(1.0f, -1.0f, 0.0f, 0.0f)
+  );
+  result = 0.5f * glm::vec4(t*t*t, t*t, t, 1) * mat * glm::transpose(glm::mat4x3(P0, P1, P2, P3));
 // ========  END OF SOLUTION - TASK 5_2-1  ======== //
 
   return result;
@@ -124,13 +130,20 @@ glm::vec3 evaluateCurveSegment_1stDerivative(
     const glm::vec3& P3,
     const float t
 ) {
-  glm::vec3 result(1.0, 0.0, 0.0);
 
+
+// ======== BEGIN OF SOLUTION - TASK 5_2-2 ======== //
+  glm::vec3 result(1.0, 0.0, 0.0);
+  const glm::mat4 mat = glm::mat4x4(
+      glm::vec4(-1.0f, 2.0f, -1.0f, 0.0f),
+      glm::vec4(3.0f, -5.0f, 0.0f, 2.0f),
+      glm::vec4(-3.0f, 4.0f, 1.0f, 0.0f),
+      glm::vec4(1.0f, -1.0f, 0.0f, 0.0f)
+  );
+  result = 0.5f * glm::vec4(3*t*t, 2*t, 1, 0) * mat * glm::transpose(glm::mat4x3(P0, P1, P2, P3));
   // evaluate first derivative for a point on a curve segment (defined by the control points P0...P3)
   // for the given value of parameter t
 
-// ======== BEGIN OF SOLUTION - TASK 5_2-2 ======== //
-  // result = ...
 // ========  END OF SOLUTION - TASK 5_2-2  ======== //
 
   return result;
@@ -157,8 +170,19 @@ glm::vec3 evaluateClosedCurve(
   // and then call evaluateCurveSegment function with proper parameters to get a point on a closed curve
 
 // ======== BEGIN OF SOLUTION - TASK 5_3-1 ======== //
-  // size_t i = ...
-  // result = evaluateCurveSegment(...);
+  float t_cp = t;
+  size_t i = 0;
+  while (t_cp > 1) {
+      t_cp--;
+      i++;
+  }
+   result = evaluateCurveSegment(
+       points[i%count], 
+       points[(i + 1) % count],
+       points[(i + 2) % count],
+       points[(i + 3) % count],
+       t_cp
+   );
 // ========  END OF SOLUTION - TASK 5_3-1  ======== //
 
   return result;
@@ -186,8 +210,19 @@ glm::vec3 evaluateClosedCurve_1stDerivative(
   // to get a derivative for the given point on a closed curve
 
 // ======== BEGIN OF SOLUTION - TASK 5_3-2 ======== //
-  // size_t i = ...
-  // result = evaluateCurveSegment_1stDerivative(...);
+   float t_cp = t;
+  size_t i = 0;
+  while (t_cp > 1) {
+      t_cp--;
+      i++;
+  }
+   result = evaluateCurveSegment_1stDerivative(
+       points[i % count],
+       points[(i + 1) % count],
+       points[(i + 2) % count],
+       points[(i + 3) % count],
+       t_cp
+   );
 // ========  END OF SOLUTION - TASK 5_3-2  ======== //
 
   return result;

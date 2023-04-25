@@ -80,7 +80,20 @@ struct SkyboxFarPlaneShaderProgram {
  \return                    Valid position inside a scene.
 */
 glm::vec3 checkBounds(const glm::vec3 &position, float objectSize) {
- glm::vec3 newPosition = position;
+
+    glm::vec3 newPosition = position;
+    if (position.x + objectSize > SCENE_WIDTH) {
+        newPosition.x -= 2 * SCENE_WIDTH;    
+    } else if (position.x + objectSize < -SCENE_WIDTH) {
+        newPosition.x += 2 * SCENE_WIDTH;
+    }
+
+    if (position.y + objectSize > SCENE_HEIGHT) {
+        newPosition.y -= 2 * SCENE_HEIGHT;
+    }
+    else if (position.y + objectSize < -SCENE_HEIGHT) {
+        newPosition.y += 2 * SCENE_HEIGHT;
+    }
 
 // ======== BEGIN OF SOLUTION - TASK 6_1-1 ======== //
   // wrap a given position (object center) to be inside a scene

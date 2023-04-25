@@ -59,10 +59,8 @@ struct GameObjects {
 bool pointInSphere(const glm::vec3 &point, const glm::vec3 &center, float radius) {
 // ======== BEGIN OF SOLUTION - TASK 6_2-1 ======== //
   // check whether the given point lies within a sphere of given radius or not
-
+    return radius <= glm::distance(point, center);
 // ========  END OF SOLUTION - TASK 6_2-1  ======== //
-
-  return false;
 }
 
 //**************************************************************************************************
@@ -77,10 +75,8 @@ bool pointInSphere(const glm::vec3 &point, const glm::vec3 &center, float radius
 bool spheresIntersection(const glm::vec3 &center1, float radius1, const glm::vec3 &center2, float radius2) {
 // ======== BEGIN OF SOLUTION - TASK 6_2-2 ======== //
   // check whether given spheres are intersecting each other or not
-
+    return glm::distance(center1, center2) <= radius1 + radius2;
 // ========  END OF SOLUTION - TASK 6_2-2  ======== //
-
-  return false;
 }
 
 void insertExplosion(const glm::vec3 &position) {
@@ -425,7 +421,8 @@ void drawWindowContents() {
 
 // ======== BEGIN OF SOLUTION - TASK 6_3-1 ======== //
   // enable stencil test
-
+  glEnable(GL_STENCIL_TEST);
+  glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
   // set the stencil operations - if the stencil test and depth test are passed than
   // value in the stencil buffer is replaced with the object ID (byte 1..255, 0 ... background)
 
@@ -437,7 +434,7 @@ void drawWindowContents() {
 // ======== BEGIN OF SOLUTION - TASK 6_3-2 ======== //
     // set the stencil test function
     // -> stencil test always passes and reference value for stencil test is set to be object ID (id+1)
-
+      glStencilFunc(GL_ALWAYS, id, -1);
 // ========  END OF SOLUTION - TASK 6_3-2  ======== //
     CHECK_GL_ERROR(); 
 
@@ -933,6 +930,10 @@ void mouseCallback(int buttonPressed, int buttonState, int mouseX, int mouseY ) 
     // store value from the stencil buffer (byte)
     unsigned char asteroidID = 0; 
 // ======== BEGIN OF SOLUTION - TASK 6_3-3 ======== //
+    const GLint winX = mouseX;
+    const GLint winY =  mouseY - WINDOW_HEIGHT + SCENE_HEIGHT;
+    glReadPixels(winX, winY, 1, 1,
+        GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, &asteroidID);
     // read value from the stencil buffer for one pixel under the mouse cursor into asteroidID variable
     // recalculate y, as glut has origin in upper left corner
 

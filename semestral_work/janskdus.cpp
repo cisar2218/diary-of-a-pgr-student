@@ -55,6 +55,7 @@ ObjectList objects;
 
 // shared shader programs
 ShaderProgram commonShaderProgram;
+ShaderProgram sphereShaderProgram;
 
 Camera cameras[CAMERA_COUNT];
 
@@ -70,31 +71,53 @@ struct GameState {
 
 // -----------------------  OpenGL stuff ---------------------------------
 
+void printErrIfNotSatisfied(const bool condition, const std::string& errMessage) {
+	if (!condition) {
+		cerr << errMessage << endl;
+	}
+}
+
 /**
  * \brief Load and compile shader programs. Get attribute locations.
  */
 void loadShaderPrograms()
 {
-	GLuint shaders[] = {
-	  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vs"),
-	  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.fs"),
-	  0
-	};
+	// sphere shaders 
+	{
+		GLuint shadersSphere[] = {
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vs"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "sphere.fs"),
+		  0
+		};
 
-	commonShaderProgram.program = pgr::createProgram(shaders);
-	commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "aPos");
-	glGetAttribLocation(commonShaderProgram.program, "aNormal");
-	glGetAttribLocation(commonShaderProgram.program, "aTexCoord");
+		sphereShaderProgram.program = pgr::createProgram(shadersSphere);
+		sphereShaderProgram.locations.position = glGetAttribLocation(sphereShaderProgram.program, "aPos");
+		sphereShaderProgram.locations.normal = glGetAttribLocation(sphereShaderProgram.program, "aNormal");
+		sphereShaderProgram.locations.texture = glGetAttribLocation(sphereShaderProgram.program, "aTexCoord");
 
-	// other attributes and uniforms
-	commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "PVM");
-	//commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "material");
+		// other attributes and uniforms
+		sphereShaderProgram.locations.PVMmatrix = glGetUniformLocation(sphereShaderProgram.program, "PVM");
+		sphereShaderProgram.locations.materialAmbient = glGetUniformLocation(sphereShaderProgram.program, "material.ambient");
+		sphereShaderProgram.locations.materialDiffuse = glGetUniformLocation(sphereShaderProgram.program, "material.diffuse");
+		sphereShaderProgram.locations.materialSpecular = glGetUniformLocation(sphereShaderProgram.program, "material.specular");
+		sphereShaderProgram.locations.materialShininess = glGetUniformLocation(sphereShaderProgram.program, "material.shininess");
 
-	assert(commonShaderProgram.locations.PVMmatrix != -1);
-	assert(commonShaderProgram.locations.position != -1);
-	// ...
+		//sphereShaderProgram.locations.PVMmatrix = glGetUniformLocation(sphereShaderProgram.program, "material");
 
-	commonShaderProgram.initialized = true;
+		// check for error INs
+		printErrIfNotSatisfied(sphereShaderProgram.locations.position != -1, "position attribLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.normal != -1, "normal attribLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.texture != -1, "texture attribLocation not found");
+		// check for error UNIFORMs
+		printErrIfNotSatisfied(sphereShaderProgram.locations.PVMmatrix != -1, "PVMmatrix attribLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(sphereShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
+		// ...
+
+		sphereShaderProgram.initialized = true;
+	}
 }
 
 /**
@@ -102,7 +125,7 @@ void loadShaderPrograms()
  */
 void cleanupShaderPrograms(void) {
 
-	pgr::deleteProgramAndShaders(commonShaderProgram.program);
+	pgr::deleteProgramAndShaders(sphereShaderProgram.program);
 }
 
 /**
@@ -399,13 +422,17 @@ void timerCb(int)
 void initObjects() {
 	// const char* ASTEROID_MODEL_NAME = "data/asteroid.obj";
 	//
-
+	/*
 	if (loadSingleMesh(ASTEROID_MODEL_NAME, commonShaderProgram.program, &asteroidGeometry) != true) {
 		std::cerr << "initializeModels(): Asteroid model loading failed." << std::endl;
 	}
 	CHECK_GL_ERROR();
 	*/
-	
+
+	// CAMERAS
+	cameras[CAMERA_FREE_IDX] = Camera(CAMERA_FREE_INIT_POSITION);
+	cameras[CAMERA_2_IDX] = Camera(CAMERA_2_INIT_POSITION, CAMERA_2_INIT_DIRECTION);
+	cameras[CAMERA_3_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
 }
 
 /**
@@ -422,16 +449,11 @@ void initApplication() {
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
 	//objects.push_back(new SingleMesh(&commonShaderProgram));
-	objects.push_back(new Sphere(&commonShaderProgram));
+	objects.push_back(new Sphere(&sphereShaderProgram));
 	// objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application
 	// - setup the initial application state
-	
-	// CAMERAS
-	cameras[CAMERA_FREE_IDX] = Camera(CAMERA_FREE_INIT_POSITION);
-	cameras[CAMERA_2_IDX] = Camera(CAMERA_2_INIT_POSITION, CAMERA_2_INIT_DIRECTION);
-	cameras[CAMERA_3_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
 }
 
 /**

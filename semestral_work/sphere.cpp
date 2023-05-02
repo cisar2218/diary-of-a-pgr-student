@@ -76,16 +76,13 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
-		GLuint materialAmbientLocation = glGetUniformLocation(shaderProgram->program, "material.ambient");
-		GLuint materialDiffuseLocation = glGetUniformLocation(shaderProgram->program, "material.diffuse");
-		GLuint materialSpecularLocation = glGetUniformLocation(shaderProgram->program, "material.specular");
-		GLuint materialShininessLocation = glGetUniformLocation(shaderProgram->program, "material.shininess");
+		// uniform material
+		glUniform3f(shaderProgram->locations.materialAmbient, material->ambient.x, material->ambient.y, material->ambient.z);
+		glUniform3f(shaderProgram->locations.materialDiffuse, material->diffuse.x, material->diffuse.y, material->diffuse.z);
+		glUniform3f(shaderProgram->locations.materialSpecular, material->specular.x, material->specular.y, material->specular.z);
+		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
 
-		glUniform3f(materialAmbientLocation, 0.5f, 0.3f, 0.0f);
-		glUniform3f(materialDiffuseLocation, 1.0f, 0.7f, 0.0f);
-		glUniform3f(materialSpecularLocation, 1.0f, 1.0f, 1.0f);
-		glUniform1f(materialShininessLocation, 64.0f);
-
+		// uniform PVM
 		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
@@ -97,8 +94,18 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 	}
 }
 
+void Sphere::setMaterial() {
+	material = new ObjectMaterial;
+	material->ambient = glm::vec3(0.5f, 0.3f, 0.0f);
+	material->diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
+	material->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	material->shininess = 64.0f;
+}
+
 Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
 {
+	setMaterial();
+
 	geometry = new ObjectGeometry;
 
 	const int sphereNAttribsPerVertex = 8;

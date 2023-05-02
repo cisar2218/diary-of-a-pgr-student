@@ -60,5 +60,8 @@
     <None Include="sphere.vs">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="sphere.fs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

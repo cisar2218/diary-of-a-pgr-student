@@ -118,6 +118,29 @@ void loadShaderPrograms()
 
 		sphereShaderProgram.initialized = true;
 	}
+	
+
+	// common shaders 
+	{
+		GLuint shadersSphere[] = {
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vs"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.fs"),
+		  0
+		};
+
+		commonShaderProgram.program = pgr::createProgram(shadersSphere);
+		commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "position");
+
+		// other attributes and uniforms
+		commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "PVM");
+
+		// check for error INs
+		printErrIfNotSatisfied(commonShaderProgram.locations.position != -1, "position attribLocation not found");
+		// check for error UNIFORMs
+		printErrIfNotSatisfied(commonShaderProgram.locations.PVMmatrix != -1, "PVMmatrix attribLocation not found");
+
+		commonShaderProgram.initialized = true;
+	}
 }
 
 /**
@@ -449,8 +472,8 @@ void initApplication() {
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
 	//objects.push_back(new SingleMesh(&commonShaderProgram));
-	objects.push_back(new Sphere(&sphereShaderProgram));
-	// objects.push_back(new SingleMesh(&commonShaderProgram));
+	//objects.push_back(new Sphere(&sphereShaderProgram));
+	 objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application
 	// - setup the initial application state

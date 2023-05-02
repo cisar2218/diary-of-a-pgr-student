@@ -111,6 +111,7 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 
 	if ((retValue = aiGetMaterialColor(mat, AI_MATKEY_COLOR_DIFFUSE, &color)) != AI_SUCCESS)
 		color = aiColor4D(0.0f, 0.0f, 0.0f, 0.0f);
+	
 
 	glGenVertexArrays(1, &((*geometry)->vertexArrayObject));
 	glBindVertexArray((*geometry)->vertexArrayObject);
@@ -140,7 +141,7 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 
 SingleMesh::SingleMesh(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
 {
-	const char* MODEL_FILE_NAME = "data/shape.obj";
+	const char* MODEL_FILE_NAME = "models/cube-yellow.obj";
 
 	if (!loadSingleMesh(MODEL_FILE_NAME, shdrPrg, &geometry)) {
 		if (geometry == nullptr) {

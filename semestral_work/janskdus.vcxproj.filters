@@ -42,13 +42,13 @@
     <ClInclude Include="square.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="janskdus.h">
-      <Filter>SourceFiles</Filter>
-    </ClInclude>
     <ClInclude Include="parameters.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="triangle.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="janskdus.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>

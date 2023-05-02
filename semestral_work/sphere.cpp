@@ -76,9 +76,9 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 		glUseProgram(shaderProgram->program);
 
 		// uniform material
-		glUniform3f(shaderProgram->locations.materialAmbient, material->ambient.x, material->ambient.y, material->ambient.z);
-		glUniform3f(shaderProgram->locations.materialDiffuse, material->diffuse.x, material->diffuse.y, material->diffuse.z);
-		glUniform3f(shaderProgram->locations.materialSpecular, material->specular.x, material->specular.y, material->specular.z);
+		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
+		glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
+		glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
 		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
 
 		// uniform PVM

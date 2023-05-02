@@ -1,53 +1,66 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="janskdus.cpp" />
-    <ClCompile Include="triangle.cpp" />
     <ClCompile Include="singlemesh.cpp">
-      <Filter>Objects</Filter>
+      <Filter>SourceFiles</Filter>
     </ClCompile>
     <ClCompile Include="square.cpp">
-      <Filter>Objects</Filter>
+      <Filter>SourceFiles</Filter>
     </ClCompile>
     <ClCompile Include="camera.cpp">
-      <Filter>Objects</Filter>
+      <Filter>SourceFiles</Filter>
     </ClCompile>
     <ClCompile Include="circle.cpp">
-      <Filter>Objects</Filter>
+      <Filter>SourceFiles</Filter>
     </ClCompile>
     <ClCompile Include="sphere.cpp">
-      <Filter>Objects</Filter>
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="triangle.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="janskdus.cpp">
+      <Filter>SourceFiles</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="triangle.h" />
+    <ClInclude Include="camera.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="circle.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
     <ClInclude Include="object.h">
-      <Filter>Objects</Filter>
+      <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="singlemesh.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="camera.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="square.h">
-      <Filter>Objects</Filter>
-    </ClInclude>
-    <ClInclude Include="parameters.h" />
-    <ClInclude Include="janskdus.h" />
-    <ClInclude Include="circle.h">
-      <Filter>Objects</Filter>
+      <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="sphere.h">
-      <Filter>Objects</Filter>
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="square.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="janskdus.h">
+      <Filter>SourceFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="parameters.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="triangle.h">
+      <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
       <UniqueIdentifier>{d52d2239-02e3-4b37-9626-712b7eaecc5d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Objects">
+    <Filter Include="SourceFiles">
       <UniqueIdentifier>{c17fba3e-fa1d-4c48-b6f2-8d5f123efda8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HeaderFiles">
+      <UniqueIdentifier>{3d584e62-f8d2-4652-9749-68eb37dc90db}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

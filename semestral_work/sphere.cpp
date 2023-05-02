@@ -53,7 +53,6 @@ const unsigned sphereTriangles[] = {
 }; // end sphereTriangles
 
 void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
-	// TODO instance specific stuff
 	float rotationSpeed = 1.0f;
 	float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
 

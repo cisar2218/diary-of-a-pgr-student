@@ -64,16 +64,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="simple.fs">
+    <None Include="simple.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="simple.vs">
+    <None Include="simple.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="sphere.vs">
+    <None Include="sphere.vert">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="sphere.fs">
+    <None Include="sphere.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -173,10 +173,10 @@
     <ClInclude Include="triangle.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="simple.fs" />
-    <None Include="simple.vs" />
-    <None Include="sphere.fs" />
-    <None Include="sphere.vs" />
+    <None Include="simple.frag" />
+    <None Include="simple.vert" />
+    <None Include="sphere.frag" />
+    <None Include="sphere.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

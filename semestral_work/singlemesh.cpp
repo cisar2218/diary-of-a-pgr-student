@@ -30,7 +30,7 @@ void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 		glUseProgram(shaderProgram->program);
 
 		//glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(PVM));
-		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix*viewMatrix*globalModelMatrix));
+		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix*viewMatrix*globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
 		glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -141,7 +141,7 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 
 SingleMesh::SingleMesh(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
 {
-	const char* MODEL_FILE_NAME = "models/cube-yellow.obj";
+	const char* MODEL_FILE_NAME = "models/floorcube.dae";
 
 	if (!loadSingleMesh(MODEL_FILE_NAME, shdrPrg, &geometry)) {
 		if (geometry == nullptr) {
@@ -152,7 +152,7 @@ SingleMesh::SingleMesh(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initia
 		}
 	}
 	else {
-		if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.PVMmatrix != -1)) {
+		if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.PVM != -1)) {
 			initialized = true;
 		}
 		else {

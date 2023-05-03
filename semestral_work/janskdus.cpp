@@ -85,8 +85,8 @@ void loadShaderPrograms()
 	// sphere shaders 
 	{
 		GLuint shadersSphere[] = {
-		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vs"),
-		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "sphere.fs"),
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "sphere.frag"),
 		  0
 		};
 
@@ -96,25 +96,34 @@ void loadShaderPrograms()
 		sphereShaderProgram.locations.texture = glGetAttribLocation(sphereShaderProgram.program, "aTexCoord");
 
 		// other attributes and uniforms
-		sphereShaderProgram.locations.PVMmatrix = glGetUniformLocation(sphereShaderProgram.program, "PVM");
+		// -> material
 		sphereShaderProgram.locations.materialAmbient = glGetUniformLocation(sphereShaderProgram.program, "material.ambient");
 		sphereShaderProgram.locations.materialDiffuse = glGetUniformLocation(sphereShaderProgram.program, "material.diffuse");
 		sphereShaderProgram.locations.materialSpecular = glGetUniformLocation(sphereShaderProgram.program, "material.specular");
 		sphereShaderProgram.locations.materialShininess = glGetUniformLocation(sphereShaderProgram.program, "material.shininess");
 
-		//sphereShaderProgram.locations.PVMmatrix = glGetUniformLocation(sphereShaderProgram.program, "material");
+		// -> matrixes
+		sphereShaderProgram.locations.PVM = glGetUniformLocation(sphereShaderProgram.program, "PVM");
+		sphereShaderProgram.locations.Vmatrix = glGetUniformLocation(sphereShaderProgram.program, "Vmatrix");
+		sphereShaderProgram.locations.Mmatrix = glGetUniformLocation(sphereShaderProgram.program, "Mmatrix");
+		sphereShaderProgram.locations.Nmatrix = glGetUniformLocation(sphereShaderProgram.program, "Nmatrix");
+		
 
 		// check for error INs
 		printErrIfNotSatisfied(sphereShaderProgram.locations.position != -1, "position attribLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.normal != -1, "normal attribLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.texture != -1, "texture attribLocation not found");
 		// check for error UNIFORMs
-		printErrIfNotSatisfied(sphereShaderProgram.locations.PVMmatrix != -1, "PVMmatrix attribLocation not found");
+		// -> material
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
-		// ...
+		// -> matrixes
+		printErrIfNotSatisfied(sphereShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
 
 		sphereShaderProgram.initialized = true;
 	}
@@ -123,8 +132,8 @@ void loadShaderPrograms()
 	// common shaders 
 	{
 		GLuint shadersSphere[] = {
-		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vs"),
-		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.fs"),
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vert"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.frag"),
 		  0
 		};
 
@@ -132,12 +141,12 @@ void loadShaderPrograms()
 		commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "position");
 
 		// other attributes and uniforms
-		commonShaderProgram.locations.PVMmatrix = glGetUniformLocation(commonShaderProgram.program, "PVM");
+		commonShaderProgram.locations.PVM = glGetUniformLocation(commonShaderProgram.program, "PVM");
 
 		// check for error INs
 		printErrIfNotSatisfied(commonShaderProgram.locations.position != -1, "position attribLocation not found");
 		// check for error UNIFORMs
-		printErrIfNotSatisfied(commonShaderProgram.locations.PVMmatrix != -1, "PVMmatrix attribLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.PVM != -1, "PVMmatrix attribLocation not found");
 
 		commonShaderProgram.initialized = true;
 	}
@@ -472,8 +481,8 @@ void initApplication() {
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
 	//objects.push_back(new SingleMesh(&commonShaderProgram));
-	//objects.push_back(new Sphere(&sphereShaderProgram));
-	 objects.push_back(new SingleMesh(&commonShaderProgram));
+	objects.push_back(new Sphere(&sphereShaderProgram));
+	 //objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application
 	// - setup the initial application state

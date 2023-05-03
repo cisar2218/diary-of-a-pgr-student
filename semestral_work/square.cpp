@@ -16,7 +16,7 @@ void Square::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
-		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
+		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -48,7 +48,7 @@ Square::Square(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(fa
 	glBindBuffer(GL_ARRAY_BUFFER, geometry->vertexBufferObject);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1) && (shaderProgram->locations.PVMmatrix != -1)) {
+	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1) && (shaderProgram->locations.PVM != -1)) {
 		glEnableVertexAttribArray(shaderProgram->locations.position);
 		glVertexAttribPointer(shaderProgram->locations.position, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		initialized = true;

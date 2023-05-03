@@ -20,7 +20,13 @@ typedef struct _ShaderProgram {
 		GLint normal;
 		GLint texture;
 		// uniforms locations
-		GLint PVMmatrix;
+		// -> matrixes
+		GLint PVM;
+		GLint Vmatrix;
+		GLint Mmatrix;
+		GLint Nmatrix;
+
+		// -> material
 		GLint materialAmbient;
 		GLint materialDiffuse;
 		GLint materialSpecular;
@@ -34,7 +40,7 @@ typedef struct _ShaderProgram {
 		locations.normal = -1;
 		locations.texture = -1;
 		
-		locations.PVMmatrix = -1;
+		locations.PVM = -1;
 		locations.materialAmbient = -1;
 		locations.materialDiffuse = -1;
 		locations.materialSpecular = -1;

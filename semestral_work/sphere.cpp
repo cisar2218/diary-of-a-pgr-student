@@ -70,6 +70,16 @@ void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
 }
 
+const glm::mat4 Sphere::getModelRotationMatrix() {
+	const glm::mat4 modelRotationMatrix = glm::mat4(
+		globalModelMatrix[0],
+		globalModelMatrix[1],
+		globalModelMatrix[2],
+		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+	);
+	return glm::transpose(glm::inverse(modelRotationMatrix));
+}
+
 void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	if (initialized && (shaderProgram != nullptr)) {
@@ -82,8 +92,13 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
 
 		// uniform PVM
-		glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
-
+		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
+		// uniform V matrix, M matrix, N matrix
+		glm::mat4 Nmatrix = getModelRotationMatrix();
+		glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
+		glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
+		
 		glBindVertexArray(geometry->vertexArrayObject);
 		glDrawElements(GL_TRIANGLES, 48*3, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
@@ -95,7 +110,8 @@ void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 
 void Sphere::setMaterial() {
 	material = new ObjectMaterial;
-	material->ambient = glm::vec3(0.5f, 0.3f, 0.0f);
+	//material->ambient = glm::vec3(0.5f, 0.3f, 0.0f);
+	material->ambient = glm::vec3(0.0f, 0.0f, 1.0f);
 	material->diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
 	material->specular = glm::vec3(1.0f, 1.0f, 1.0f);
 	material->shininess = 64.0f;
@@ -239,7 +255,7 @@ Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(fa
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, geometry->elementBufferObject);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sphereTriangles), sphereTriangles, GL_STATIC_DRAW);
 
-	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1) && (shaderProgram->locations.PVMmatrix != -1)) {
+	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1) && (shaderProgram->locations.PVM != -1)) {
 		//glEnableVertexAttribArray(shaderProgram->locations.position);
 		//glVertexAttribPointer(shaderProgram->locations.position, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		initialized = true;

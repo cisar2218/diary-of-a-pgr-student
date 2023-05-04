@@ -13,8 +13,9 @@ uniform mat4 Vmatrix;       // View                       --> world to eye coord
 uniform mat4 Mmatrix;       // Model                      --> model to world coordinates
 uniform mat4 Nmatrix;       // inverse transposed Mmatrix
 
-bool dirLight = true;
-bool spotLight = true;
+bool dirLight = false;
+bool pointLight = true;
+bool spotLight = false;
 
 
 struct Material {
@@ -27,6 +28,39 @@ struct Material {
 uniform Material material;
 
 vec4 getSpotLight(vec3 vertexPosition, vec3 vertexNormal)  {
+    vec3 ret = vec3(0.0);
+    vec3 lightPosition = (Vmatrix * vec4(2.0, 0.0, 0.0, 0.0)).xyz;
+
+    Material lightMaterial;
+    lightMaterial.ambient  = vec3(0.0);
+    lightMaterial.diffuse  = vec3(1.0, 1.0, 0.5f);
+    lightMaterial.specular = vec3(1.0);
+    
+    vec3 light_norm = normalize(lightPosition);
+    vec3 light_reflection = reflect(-light_norm, vertexNormal);
+    vec3 viewer = normalize(-vertexPosition);
+
+    // new 
+    vec3 spotDirection = vec3(-1.0,0.0,0.0);
+    float spotCoef = max(0.0, dot(-light_norm, spotDirection));
+    float spotCutOff = 0.95;
+    float spotExponent = 0.0;
+
+    ret += material.ambient * lightMaterial.ambient;
+    ret += material.diffuse * lightMaterial.diffuse * max(0.0, dot(vertexNormal, light_norm));
+    ret += material.specular * lightMaterial.specular * pow(max(0.0, dot(light_reflection, viewer)), material.shininess);
+
+
+    if (spotCoef < spotCutOff) {
+        ret *= 0.0;
+    } else {
+        ret *= pow(spotCoef, spotExponent);
+    }
+
+    return vec4(ret, 1.0);
+}
+
+vec4 getPointLight(vec3 vertexPosition, vec3 vertexNormal)  {
     vec3 ret = vec3(0.0);
     vec3 lightPosition = (Vmatrix * vec4(1.0, 0.0, 0.0, 0.0)).xyz;
 
@@ -85,8 +119,8 @@ void main()
     vec4 outputColor = vec4(material.ambient * globalAmbientLight, 0.0);
 
     if (dirLight) outputColor += getDirectionalLight(position_eye, normal_eye);
+    if (pointLight) outputColor += getPointLight(position_eye, normal_eye);
     if (spotLight) outputColor += getSpotLight(position_eye, normal_eye);
-
    
     gl_Position = PVM * vec4(aPos, 1);
     Color = outputColor;

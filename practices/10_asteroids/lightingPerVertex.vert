@@ -47,11 +47,6 @@ vec4 spotLight(Light light, Material material, vec3 vertexPosition, vec3 vertexN
 
   vec3 ret = vec3(0.0);
 
-  // use the material and light structures to obtain the surface and light properties
-  // the vertexPosition and vertexNormal variables contain transformed surface position and normal
-  // store the ambient, diffuse and specular terms to the ret variable
-  // for spot lights, light.position contains the light position
-  // everything is expressed in the view coordinate system -> eye/camera is in the origin
 
   vec3 L = normalize(light.position - vertexPosition);
   vec3 R = reflect(-L, vertexNormal);

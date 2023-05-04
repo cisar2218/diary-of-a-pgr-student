@@ -113,7 +113,7 @@ void Sphere::setMaterial() {
 	//material->ambient = glm::vec3(0.5f, 0.3f, 0.0f);
 	material->ambient = glm::vec3(0.0f, 0.0f, 1.0f);
 	material->diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
-	material->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	material->specular = glm::vec3(0.0f, 0.0f, 0.0f);
 	material->shininess = 64.0f;
 }
 

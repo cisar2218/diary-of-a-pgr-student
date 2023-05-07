@@ -65,6 +65,7 @@ void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
 	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
 
+	rotationMatrixY[3] = glm::vec4(this->localModelMatrix[3]);
 	this->localModelMatrix = rotationMatrixY;
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);

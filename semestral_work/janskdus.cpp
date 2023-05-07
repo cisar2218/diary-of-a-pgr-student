@@ -452,15 +452,6 @@ void timerCb(int)
 
 // --- OBJs
 void initObjects() {
-	// const char* ASTEROID_MODEL_NAME = "data/asteroid.obj";
-	//
-	/*
-	if (loadSingleMesh(ASTEROID_MODEL_NAME, commonShaderProgram.program, &asteroidGeometry) != true) {
-		std::cerr << "initializeModels(): Asteroid model loading failed." << std::endl;
-	}
-	CHECK_GL_ERROR();
-	*/
-
 	// CAMERAS
 	cameras[CAMERA_FREE_IDX] = Camera(CAMERA_FREE_INIT_POSITION);
 	cameras[CAMERA_2_IDX] = Camera(CAMERA_2_INIT_POSITION, CAMERA_2_INIT_DIRECTION);
@@ -481,7 +472,9 @@ void initApplication() {
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
 	objects.push_back(new SingleMesh(&sphereShaderProgram, "models/untitled.obj"));
-	//objects.push_back(new Sphere(&sphereShaderProgram));
+	auto sphere = new Sphere(&sphereShaderProgram);
+	sphere->setPosition(3.0f, 3.0f, 3.0f);
+	objects.push_back(sphere);
 	 //objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application

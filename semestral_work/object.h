@@ -39,7 +39,7 @@ typedef struct _ShaderProgram {
 		locations.position = -1;
 		locations.normal = -1;
 		locations.texture = -1;
-		
+
 		locations.PVM = -1;
 		locations.materialAmbient = -1;
 		locations.materialDiffuse = -1;
@@ -61,8 +61,8 @@ typedef struct _ObjectGeometry {
 } ObjectGeometry;
 
 typedef struct _ObjectMaterial {
-	glm::vec3        ambient; 
-	glm::vec3        diffuse; 
+	glm::vec3        ambient;
+	glm::vec3        diffuse;
 	glm::vec3        specular;
 	float			 shininess;
 
@@ -72,7 +72,7 @@ class ObjectInstance;
 /**
  * \brief Linear representation of the scene objects.  The objects themselves may represent the subtrees.
  */
-typedef std::vector<ObjectInstance*> ObjectList;  
+typedef std::vector<ObjectInstance*> ObjectList;
 
 class ObjectInstance {
 
@@ -100,7 +100,15 @@ public:
 	 */
 	ObjectInstance(ShaderProgram* shdrPrg = nullptr) : geometry(nullptr), shaderProgram(shdrPrg) {}
 	~ObjectInstance() {}
-  
+
+	virtual void setPosition(float x, float y, float z) {
+		this->localModelMatrix[3] = glm::vec4(x, y, z, 1.0f);
+	}
+
+	virtual void setPosition(glm::vec3 newPosition) {
+		this->localModelMatrix[3] = glm::vec4(newPosition, 1.0f);
+	}
+
 	/**
 	* \brief Recalculates the global matrix and updates all children.
 	*   Derived classes should also call this method (using ObjectInstance::update()).
@@ -130,7 +138,7 @@ public:
 	virtual void draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 		// draw instance geometry using globalModelMatrix
 		// ...
-		
+
 		// process all children
 		for (ObjectInstance* child : children) {   //for (auto child : children) {
 			if (child != nullptr)

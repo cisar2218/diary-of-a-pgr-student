@@ -28,9 +28,13 @@ void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 {
 	if (initialized && (shaderProgram != nullptr)) {
 		
-
 		glUseProgram(shaderProgram->program);
+
+		glActiveTexture(GL_TEXTURE0); // “logical” texture unit
+		glBindTexture(GL_TEXTURE_2D, texture->texture);
+
 		glUniform1i(shaderProgram->locations.textureSampler, 0);
+		glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
 
 		material = new ObjectMaterial;
 		material->ambient = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -202,6 +206,8 @@ SingleMesh::SingleMesh(ShaderProgram* shdrPrg, const std::string& fileName) : Ob
 	}
 	else {
 		if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.PVM != -1)) {
+			texture = new ObjectTexture;
+			texture->enabled = false;
 			initialized = true;
 		}
 		else {

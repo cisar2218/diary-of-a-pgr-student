@@ -63,11 +63,16 @@ struct GameState {
 	int windowWidth;    // set by reshape callback
 	int windowHeight;   // set by reshape callback
 
-	int activeCamera = CAMERA_FREE_IDX;
+	int activeCamera = CAMERA_3_IDX;
 	float cameraElevationAngle; // in degrees = initially 0.0f
 
 	bool keyMap[KEYS_COUNT];    // false
 } gameState;
+
+struct Textures {
+	GLint woodTexture = -1;
+	GLint brickTexture = -1;
+} texturesInited;
 
 // -----------------------  OpenGL stuff ---------------------------------
 
@@ -90,15 +95,12 @@ void loadShaderPrograms()
 		  0
 		};
 
-		/// TEXTURES
-		auto textureUsable = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
-
-		glActiveTexture(GL_TEXTURE0); // select “logical” texture unit 0
-		glBindTexture(GL_TEXTURE_2D, textureUsable); // and bind texture object to it
+		sphereShaderProgram.program = pgr::createProgram(shadersSphere);
+		
 		// get location of the uniform (fragment) shader attributes
 		sphereShaderProgram.locations.textureSampler = glGetUniformLocation(sphereShaderProgram.program, "tex");
+		sphereShaderProgram.locations.textureEnabled = glGetUniformLocation(sphereShaderProgram.program, "texEnabled");
 
-		sphereShaderProgram.program = pgr::createProgram(shadersSphere);
 		sphereShaderProgram.locations.position = glGetAttribLocation(sphereShaderProgram.program, "aPos");
 		sphereShaderProgram.locations.normal = glGetAttribLocation(sphereShaderProgram.program, "aNormal");
 		sphereShaderProgram.locations.textureCoord = glGetAttribLocation(sphereShaderProgram.program, "aTexCoord");
@@ -127,7 +129,8 @@ void loadShaderPrograms()
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
-		printErrIfNotSatisfied(sphereShaderProgram.locations.textureSampler != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
+		// -> textures
+		printErrIfNotSatisfied(sphereShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
 		// -> matrixes
 		printErrIfNotSatisfied(sphereShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
@@ -137,6 +140,10 @@ void loadShaderPrograms()
 		sphereShaderProgram.initialized = true;
 	}
 	
+	{ // INIT TEXTURES
+		texturesInited.woodTexture = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
+		texturesInited.brickTexture = pgr::createTexture("textures/pavement_04_diff_4k.jpg");
+	}
 
 	// common shaders 
 	{
@@ -480,7 +487,9 @@ void initApplication() {
 
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
-	objects.push_back(new SingleMesh(&sphereShaderProgram, "models/untitled.obj"));
+	auto woodenSphere = new SingleMesh(&sphereShaderProgram, "models/untitled.obj");
+	woodenSphere->setTexture(texturesInited.brickTexture);
+	objects.push_back(woodenSphere);
 	auto sphere = new Sphere(&sphereShaderProgram);
 	sphere->setPosition(3.0f, 3.0f, 3.0f);
 	objects.push_back(sphere);

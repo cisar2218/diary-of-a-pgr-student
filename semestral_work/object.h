@@ -19,6 +19,7 @@ typedef struct _ShaderProgram {
 		GLint position;
 		GLint normal;
 		GLint textureCoord;
+		
 		// uniforms locations
 		// -> matrixes
 		GLint PVM;
@@ -31,7 +32,9 @@ typedef struct _ShaderProgram {
 		GLint materialDiffuse;
 		GLint materialSpecular;
 		GLint materialShininess;
+
 		// -> texture
+		GLint textureEnabled;
 		GLint textureSampler;
 	} locations;
 
@@ -47,7 +50,7 @@ typedef struct _ShaderProgram {
 		locations.materialDiffuse = -1;
 		locations.materialSpecular = -1;
 		locations.materialShininess = -1;
-		locations.textureSampler = -1;
+		locations.textureEnabled = -1;
 	}
 
 } ShaderProgram;
@@ -60,7 +63,6 @@ typedef struct _ObjectGeometry {
 	GLuint        elementBufferObject;  ///< identifier for the element buffer object
 	GLuint        vertexArrayObject;    ///< identifier for the vertex array object
 	unsigned int  numTriangles;         ///< number of triangles in the mesh
-
 } ObjectGeometry;
 
 typedef struct _ObjectMaterial {
@@ -68,8 +70,12 @@ typedef struct _ObjectMaterial {
 	glm::vec3        diffuse;
 	glm::vec3        specular;
 	float			 shininess;
-
 } ObjectMaterial;
+
+typedef struct _ObjectTexture {
+	bool enabled;
+	GLint texture;
+} ObjectTexture;
 
 class ObjectInstance;
 /**
@@ -83,6 +89,7 @@ protected:
 
 	ObjectGeometry* geometry;
 	ObjectMaterial* material;
+	ObjectTexture* texture;
 	glm::mat4		localModelMatrix;
 	glm::mat4		globalModelMatrix;
 
@@ -157,5 +164,10 @@ public:
 			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
 		);
 		return glm::transpose(glm::inverse(modelRotationMatrix));
+	}
+
+	virtual void setTexture(GLint textureToSet) {
+		texture->enabled = true;
+		texture->texture = textureToSet;
 	}
 };

@@ -18,7 +18,7 @@ typedef struct _ShaderProgram {
 		// vertex attributes locations
 		GLint position;
 		GLint normal;
-		GLint texture;
+		GLint textureCoord;
 		// uniforms locations
 		// -> matrixes
 		GLint PVM;
@@ -31,6 +31,8 @@ typedef struct _ShaderProgram {
 		GLint materialDiffuse;
 		GLint materialSpecular;
 		GLint materialShininess;
+		// -> texture
+		GLint textureSampler;
 	} locations;
 
 	// ...
@@ -38,13 +40,14 @@ typedef struct _ShaderProgram {
 	_ShaderProgram() : program(0), initialized(false) {
 		locations.position = -1;
 		locations.normal = -1;
-		locations.texture = -1;
+		locations.textureCoord = -1;
 
 		locations.PVM = -1;
 		locations.materialAmbient = -1;
 		locations.materialDiffuse = -1;
 		locations.materialSpecular = -1;
 		locations.materialShininess = -1;
+		locations.textureSampler = -1;
 	}
 
 } ShaderProgram;

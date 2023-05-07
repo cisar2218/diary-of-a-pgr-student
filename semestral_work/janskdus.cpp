@@ -90,10 +90,18 @@ void loadShaderPrograms()
 		  0
 		};
 
+		/// TEXTURES
+		auto textureUsable = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
+
+		glActiveTexture(GL_TEXTURE0); // select “logical” texture unit 0
+		glBindTexture(GL_TEXTURE_2D, textureUsable); // and bind texture object to it
+		// get location of the uniform (fragment) shader attributes
+		sphereShaderProgram.locations.textureSampler = glGetUniformLocation(sphereShaderProgram.program, "tex");
+
 		sphereShaderProgram.program = pgr::createProgram(shadersSphere);
 		sphereShaderProgram.locations.position = glGetAttribLocation(sphereShaderProgram.program, "aPos");
 		sphereShaderProgram.locations.normal = glGetAttribLocation(sphereShaderProgram.program, "aNormal");
-		sphereShaderProgram.locations.texture = glGetAttribLocation(sphereShaderProgram.program, "aTexCoord");
+		sphereShaderProgram.locations.textureCoord = glGetAttribLocation(sphereShaderProgram.program, "aTexCoord");
 
 		// other attributes and uniforms
 		// -> material
@@ -112,13 +120,14 @@ void loadShaderPrograms()
 		// check for error INs
 		printErrIfNotSatisfied(sphereShaderProgram.locations.position != -1, "position attribLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.normal != -1, "normal attribLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.texture != -1, "texture attribLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.textureCoord != -1, "texture attribLocation not found");
 		// check for error UNIFORMs
 		// -> material
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
 		printErrIfNotSatisfied(sphereShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(sphereShaderProgram.locations.textureSampler != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
 		// -> matrixes
 		printErrIfNotSatisfied(sphereShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");

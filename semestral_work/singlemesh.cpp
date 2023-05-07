@@ -27,7 +27,10 @@ void SingleMesh::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	if (initialized && (shaderProgram != nullptr)) {
+		
+
 		glUseProgram(shaderProgram->program);
+		glUniform1i(shaderProgram->locations.textureSampler, 0);
 
 		material = new ObjectMaterial;
 		material->ambient = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -101,26 +104,30 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	glGenBuffers(1, &((*geometry)->vertexBufferObject));
 	glBindBuffer(GL_ARRAY_BUFFER, (*geometry)->vertexBufferObject);
 
-	unsigned vertCount = 6 * mesh->mNumVertices;
-	unsigned vertSize = vertCount * sizeof(float);
+	const unsigned attribPerVert = 8;
+	const unsigned vertCount = attribPerVert * mesh->mNumVertices;
+	const unsigned vertSize = vertCount * sizeof(float);
 	float* vertexes = new float[vertCount];
 
 	for (unsigned int v = 0; v < mesh->mNumVertices; ++v) {
-		vertexes[v * 6 + 0] = mesh->mVertices[v].x;
-		vertexes[v * 6 + 1] = mesh->mVertices[v].y;
-		vertexes[v * 6 + 2] = mesh->mVertices[v].z;
-
-		vertexes[v * 6 + 3] = mesh->mNormals[v].x;
-		vertexes[v * 6 + 4] = mesh->mNormals[v].y;
-		vertexes[v * 6 + 5] = mesh->mNormals[v].z;
+		vertexes[v * attribPerVert + 0] = mesh->mVertices[v].x;
+		vertexes[v * attribPerVert + 1] = mesh->mVertices[v].y;
+		vertexes[v * attribPerVert + 2] = mesh->mVertices[v].z;
+					 
+		vertexes[v * attribPerVert + 3] = mesh->mNormals[v].x;
+		vertexes[v * attribPerVert + 4] = mesh->mNormals[v].y;
+		vertexes[v * attribPerVert + 5] = mesh->mNormals[v].z;
+		
+		if (mesh->HasTextureCoords(v)) {
+			vertexes[v * attribPerVert + 6] = mesh->mTextureCoords[v]->x;
+			vertexes[v * attribPerVert + 7] = mesh->mTextureCoords[v]->y;
+		}
+		vertexes[v * attribPerVert + 6] = 0.0f;
+		vertexes[v * attribPerVert + 7] = 0.0f;
 	}
 
 	glBufferData(GL_ARRAY_BUFFER, vertSize, vertexes, GL_STATIC_DRAW);     // allocate memory for vertices
 	//glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float) * mesh->mNumVertices, mesh->mVertices); // store all vertices
-
-	//if (mesh->HasNormals()) {
-	//	glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float) * mesh->mNumVertices, 3 * sizeof(float) * mesh->mNumVertices, mesh->mNormals); // store all vertices
-	//}
 
 
 	// copy all mesh faces into one big array (assimp supports faces with ordinary number of vertices, we use only 3 -> triangles)
@@ -163,12 +170,13 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1)) {
 
 		glEnableVertexAttribArray(shader->locations.position);
-		glVertexAttribPointer(shader->locations.position, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+		glVertexAttribPointer(shader->locations.position, 3, GL_FLOAT, GL_FALSE, attribPerVert * sizeof(float), (void*)0);
 
-		if (mesh->HasNormals()) {
-			glEnableVertexAttribArray(shader->locations.normal);
-			glVertexAttribPointer(shader->locations.normal, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-		}
+		glEnableVertexAttribArray(shader->locations.normal);
+		glVertexAttribPointer(shader->locations.normal, 3, GL_FLOAT, GL_FALSE, attribPerVert * sizeof(float), (void*)(3 * sizeof(float)));
+
+		glEnableVertexAttribArray(shader->locations.textureCoord);
+		glVertexAttribPointer(shader->locations.textureCoord, 2, GL_FLOAT, GL_FALSE, attribPerVert * sizeof(float), (void*)(6 * sizeof(float)));
 
 		CHECK_GL_ERROR();
 

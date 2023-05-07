@@ -70,15 +70,15 @@ void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
 }
 
-const glm::mat4 Sphere::getModelRotationMatrix() {
-	const glm::mat4 modelRotationMatrix = glm::mat4(
-		globalModelMatrix[0],
-		globalModelMatrix[1],
-		globalModelMatrix[2],
-		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
-	);
-	return glm::transpose(glm::inverse(modelRotationMatrix));
-}
+//const glm::mat4 Sphere::getModelRotationMatrix() {
+//	const glm::mat4 modelRotationMatrix = glm::mat4(
+//		globalModelMatrix[0],
+//		globalModelMatrix[1],
+//		globalModelMatrix[2],
+//		glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+//	);
+//	return glm::transpose(glm::inverse(modelRotationMatrix));
+//}
 
 void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {

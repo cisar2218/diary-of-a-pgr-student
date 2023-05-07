@@ -7,6 +7,7 @@ class SingleMesh : public ObjectInstance
 public:
 
 	SingleMesh(ShaderProgram* shdrPrg = nullptr);
+	SingleMesh(ShaderProgram* shdrPrg, const std::string& fileName);
 	~SingleMesh();
 
 	void update(float elapsedTime, const glm::mat4* parentModelMatrix) override;
@@ -15,6 +16,7 @@ public:
 private:
 
 	bool loadSingleMesh(const std::string& fileName, ShaderProgram* shader, ObjectGeometry** geometry);
+
 
 	bool initialized;  ///< object has the shader with defined locations
 };

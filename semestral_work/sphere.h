@@ -18,5 +18,4 @@ private:
 
 	bool initialized;  ///< object has the shader with defined locations
 	void setMaterial();
-	const glm::mat4 getModelRotationMatrix();
 };

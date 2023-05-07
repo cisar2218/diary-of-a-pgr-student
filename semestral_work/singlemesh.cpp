@@ -29,8 +29,26 @@ void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
-		//glUniformMatrix4fv(shaderProgram->locations.PVMmatrix, 1, GL_FALSE, glm::value_ptr(PVM));
-		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix*viewMatrix*globalModelMatrix));
+		material = new ObjectMaterial;
+		material->ambient = glm::vec3(0.0f, 0.0f, 1.0f);
+		material->diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
+		material->specular = glm::vec3(0.0f, 0.0f, 0.0f);
+		material->shininess = 64.0f;
+
+
+		// uniform material
+		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
+		glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
+		glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
+		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
+
+		// uniform PVM
+		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
+		// uniform V matrix, M matrix, N matrix
+		glm::mat4 Nmatrix = getModelRotationMatrix();
+		glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
+		glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
 
 		glBindVertexArray(geometry->vertexArrayObject);
 		glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);
@@ -82,17 +100,38 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	// vertex buffer object, store all vertex positions
 	glGenBuffers(1, &((*geometry)->vertexBufferObject));
 	glBindBuffer(GL_ARRAY_BUFFER, (*geometry)->vertexBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, 3 * sizeof(float) * mesh->mNumVertices, 0, GL_STATIC_DRAW);     // allocate memory for vertices
-	glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float) * mesh->mNumVertices, mesh->mVertices); // store all vertices
+
+	unsigned vertCount = 6 * mesh->mNumVertices;
+	unsigned vertSize = vertCount * sizeof(float);
+	float* vertexes = new float[vertCount];
+
+	for (unsigned int v = 0; v < mesh->mNumVertices; ++v) {
+		vertexes[v * 6 + 0] = mesh->mVertices[v].x;
+		vertexes[v * 6 + 1] = mesh->mVertices[v].y;
+		vertexes[v * 6 + 2] = mesh->mVertices[v].z;
+
+		vertexes[v * 6 + 3] = mesh->mNormals[v].x;
+		vertexes[v * 6 + 4] = mesh->mNormals[v].y;
+		vertexes[v * 6 + 5] = mesh->mNormals[v].z;
+	}
+
+	glBufferData(GL_ARRAY_BUFFER, vertSize, vertexes, GL_STATIC_DRAW);     // allocate memory for vertices
+	//glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float) * mesh->mNumVertices, mesh->mVertices); // store all vertices
+
+	//if (mesh->HasNormals()) {
+	//	glBufferSubData(GL_ARRAY_BUFFER, 3 * sizeof(float) * mesh->mNumVertices, 3 * sizeof(float) * mesh->mNumVertices, mesh->mNormals); // store all vertices
+	//}
+
 
 	// copy all mesh faces into one big array (assimp supports faces with ordinary number of vertices, we use only 3 -> triangles)
 	unsigned int* indices = new unsigned int[mesh->mNumFaces * 3];
+	
 	for (unsigned int f = 0; f < mesh->mNumFaces; ++f) {
 		indices[f * 3 + 0] = mesh->mFaces[f].mIndices[0];
 		indices[f * 3 + 1] = mesh->mFaces[f].mIndices[1];
 		indices[f * 3 + 2] = mesh->mFaces[f].mIndices[2];
 	}
-
+	
 	// copy our temporary index array to OpenGL and free the array
 	glGenBuffers(1, &((*geometry)->elementBufferObject));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, (*geometry)->elementBufferObject);
@@ -124,7 +163,12 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1)) {
 
 		glEnableVertexAttribArray(shader->locations.position);
-		glVertexAttribPointer(shader->locations.position, 3, GL_FLOAT, GL_FALSE, 0, 0);
+		glVertexAttribPointer(shader->locations.position, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+
+		if (mesh->HasNormals()) {
+			glEnableVertexAttribArray(shader->locations.normal);
+			glVertexAttribPointer(shader->locations.normal, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+		}
 
 		CHECK_GL_ERROR();
 
@@ -138,6 +182,25 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	return validInit;
 }
 
+SingleMesh::SingleMesh(ShaderProgram* shdrPrg, const std::string& fileName) : ObjectInstance(shdrPrg), initialized(false)
+{
+	if (!loadSingleMesh(fileName, shdrPrg, &geometry)) {
+		if (geometry == nullptr) {
+			std::cerr << "SingleMesh::SingleMesh(): geometry not initialized!" << std::endl;
+		}
+		else {
+			std::cerr << "SingleMesh::SingleMesh(): shaderProgram struct not initialized!" << std::endl;
+		}
+	}
+	else {
+		if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.PVM != -1)) {
+			initialized = true;
+		}
+		else {
+			std::cerr << "SingleMesh::SingleMesh(): shaderProgram struct not initialized!" << std::endl;
+		}
+	}
+}
 
 SingleMesh::SingleMesh(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
 {

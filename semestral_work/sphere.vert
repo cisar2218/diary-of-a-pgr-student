@@ -13,8 +13,8 @@ uniform mat4 Vmatrix;       // View                       --> world to eye coord
 uniform mat4 Mmatrix;       // Model                      --> model to world coordinates
 uniform mat4 Nmatrix;       // inverse transposed Mmatrix
 
-bool dirLight = false;
-bool pointLight = true;
+bool dirLight = true;
+bool pointLight = false;
 bool spotLight = false;
 
 
@@ -62,7 +62,7 @@ vec4 getSpotLight(vec3 vertexPosition, vec3 vertexNormal)  {
 
 vec4 getPointLight(vec3 vertexPosition, vec3 vertexNormal)  {
     vec3 ret = vec3(0.0);
-    vec3 lightPosition = (Vmatrix * vec4(1.0, 0.0, 0.0, 0.0)).xyz;
+    vec3 lightPosition = (Vmatrix * vec4(3.0, 0.0, 0.0, 0.0)).xyz;
 
     Material lightMaterial;
     lightMaterial.ambient  = vec3(0.0);

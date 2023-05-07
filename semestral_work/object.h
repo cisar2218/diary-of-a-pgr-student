@@ -137,4 +137,14 @@ public:
 				child->draw(viewMatrix, projectionMatrix);
 		}
 	}
+
+	const glm::mat4 getModelRotationMatrix() {
+		const glm::mat4 modelRotationMatrix = glm::mat4(
+			globalModelMatrix[0],
+			globalModelMatrix[1],
+			globalModelMatrix[2],
+			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
+		);
+		return glm::transpose(glm::inverse(modelRotationMatrix));
+	}
 };

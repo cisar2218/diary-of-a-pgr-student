@@ -480,8 +480,8 @@ void initApplication() {
 
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
-	//objects.push_back(new SingleMesh(&commonShaderProgram));
-	objects.push_back(new Sphere(&sphereShaderProgram));
+	objects.push_back(new SingleMesh(&sphereShaderProgram, "models/untitled.obj"));
+	//objects.push_back(new Sphere(&sphereShaderProgram));
 	 //objects.push_back(new SingleMesh(&commonShaderProgram));
 
 	// init your Application

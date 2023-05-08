@@ -122,3 +122,7 @@ glm::mat4 Camera::getViewMatrix(glm::vec3 direction, glm::vec3 upVector) const {
 glm::mat4 Camera::getProjectionMatrix() const {
     return this->projectionMatrix;
 }
+
+glm::vec3 Camera::getPosition() {
+    return this->position;
+}

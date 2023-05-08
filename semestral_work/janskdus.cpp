@@ -42,6 +42,7 @@
 #include "parameters.h"
 #include "janskdus.h"
 #include "sphere.h"
+#include "skybox.h"
 using namespace std;
 
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
@@ -54,7 +55,7 @@ constexpr char WINDOW_TITLE[] = "PGR: Application Skeleton";
 ObjectList objects;
 
 // shared shader programs
-ShaderProgram commonShaderProgram;
+ShaderProgram skyboxShaderProgram;
 ShaderProgram sphereShaderProgram;
 
 Camera cameras[CAMERA_COUNT];
@@ -67,11 +68,13 @@ struct GameState {
 	float cameraElevationAngle; // in degrees = initially 0.0f
 
 	bool keyMap[KEYS_COUNT];    // false
+	Skybox* skybox = nullptr;
 } gameState;
 
 struct Textures {
 	GLint woodTexture = -1;
 	GLint brickTexture = -1;
+	GLint skyboxTexture = -1;
 } texturesInited;
 
 // -----------------------  OpenGL stuff ---------------------------------
@@ -143,28 +146,41 @@ void loadShaderPrograms()
 	{ // INIT TEXTURES
 		texturesInited.woodTexture = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
 		texturesInited.brickTexture = pgr::createTexture("textures/pavement_04_diff_4k.jpg");
+		texturesInited.skyboxTexture = pgr::createTexture("textures/skybox.jpg");
 	}
 
 	// common shaders 
 	{
-		GLuint shadersSphere[] = {
-		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "simple.vert"),
-		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "simple.frag"),
+		GLuint shadersSkybox[] = {
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "skybox.vert"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "skybox.frag"),
 		  0
 		};
 
-		commonShaderProgram.program = pgr::createProgram(shadersSphere);
-		commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "position");
+		skyboxShaderProgram.program = pgr::createProgram(shadersSkybox);
 
-		// other attributes and uniforms
-		commonShaderProgram.locations.PVM = glGetUniformLocation(commonShaderProgram.program, "PVM");
+
+		// get location of the uniform (fragment) shader attributes
+		skyboxShaderProgram.locations.textureSampler = glGetUniformLocation(skyboxShaderProgram.program, "tex");
+		skyboxShaderProgram.locations.textureEnabled = glGetUniformLocation(skyboxShaderProgram.program, "texEnabled");
+
+		skyboxShaderProgram.locations.position = glGetAttribLocation(skyboxShaderProgram.program, "position");
+		skyboxShaderProgram.locations.textureCoord = glGetAttribLocation(skyboxShaderProgram.program, "texCoord");
+
+		// -> matrixes
+		skyboxShaderProgram.locations.PVM = glGetUniformLocation(skyboxShaderProgram.program, "PVM");
 
 		// check for error INs
-		printErrIfNotSatisfied(commonShaderProgram.locations.position != -1, "position attribLocation not found");
+		printErrIfNotSatisfied(skyboxShaderProgram.locations.position != -1, "[SKYBOX] position attribLocation not found");
+		printErrIfNotSatisfied(skyboxShaderProgram.locations.textureCoord != -1, "[SKYBOX] texture attribLocation not found");
 		// check for error UNIFORMs
-		printErrIfNotSatisfied(commonShaderProgram.locations.PVM != -1, "PVMmatrix attribLocation not found");
+		// -> textures
+		printErrIfNotSatisfied(skyboxShaderProgram.locations.textureEnabled != -1, "[SKYBOX] texture enabled uniformLocation not found");
+		printErrIfNotSatisfied(skyboxShaderProgram.locations.textureSampler != -1, "[SKYBOX] texture sampler uniformLocation not found");
+		// -> matrixes
+		printErrIfNotSatisfied(skyboxShaderProgram.locations.PVM != -1, "[SKYBOX] PVM uniformLocation not found");
 
-		commonShaderProgram.initialized = true;
+		skyboxShaderProgram.initialized = true;
 	}
 }
 
@@ -182,6 +198,8 @@ void cleanupShaderPrograms(void) {
 void drawScene(void)
 {
 	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
+
+	
 
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
@@ -446,7 +464,9 @@ void timerCb(int)
 		cameras[i].currentTime = elapsedTime;
 	}
 
-	
+	gameState.skybox->setPosition(
+		cameras[gameState.activeCamera].getPosition()
+	);
 
 	// update the application state
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
@@ -505,6 +525,11 @@ void initApplication() {
 	sphere->setTexture(texturesInited.woodTexture);
 	objects.push_back(sphere);
 	 //objects.push_back(new SingleMesh(&commonShaderProgram));
+
+	gameState.skybox = new Skybox(&skyboxShaderProgram, "models/skyBox.fbx");
+	gameState.skybox->setTexture(texturesInited.skyboxTexture);
+	gameState.skybox->scale(50.0f);
+	objects.push_back(gameState.skybox);
 
 	// init your Application
 	// - setup the initial application state

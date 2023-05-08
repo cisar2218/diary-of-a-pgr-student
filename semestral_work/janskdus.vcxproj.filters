@@ -22,6 +22,9 @@
     <ClCompile Include="janskdus.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="skybox.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -51,6 +54,9 @@
     <ClInclude Include="janskdus.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
+    <ClInclude Include="skybox.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -74,6 +80,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="sphere.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="skybox.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="skybox.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

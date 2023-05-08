@@ -115,8 +115,12 @@ public:
 		this->localModelMatrix[3] = glm::vec4(x, y, z, 1.0f);
 	}
 
-	virtual void setPosition(glm::vec3 newPosition) {
-		this->localModelMatrix[3] = glm::vec4(newPosition, 1.0f);
+	virtual void scale(float scaleRatioX, float scaleRatioY, float scaleRatioZ) {
+		this->localModelMatrix = glm::scale(localModelMatrix, glm::vec3(scaleRatioX, scaleRatioY, scaleRatioZ));
+	}
+
+	virtual void scale(float scaleRatio) {
+		this->localModelMatrix = glm::scale(localModelMatrix, glm::vec3(scaleRatio));
 	}
 
 	/**
@@ -169,5 +173,9 @@ public:
 	virtual void setTexture(GLint textureToSet) {
 		texture->enabled = true;
 		texture->texture = textureToSet;
+	}
+
+	virtual void setMaterial(ObjectMaterial* materialToSet) {
+		material = materialToSet;
 	}
 };

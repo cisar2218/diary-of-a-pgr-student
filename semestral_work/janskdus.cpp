@@ -487,11 +487,22 @@ void initApplication() {
 
 	//objects.push_back(new Triangle(&commonShaderProgram));
 	//objects.push_back(new Square(&commonShaderProgram));
-	auto woodenSphere = new SingleMesh(&sphereShaderProgram, "models/untitled.obj");
-	woodenSphere->setTexture(texturesInited.brickTexture);
-	objects.push_back(woodenSphere);
+	/*auto woodenSphere = new SingleMesh(&sphereShaderProgram, "models/untitled.obj");
+	woodenSphere->setTexture(texturesInited.woodTexture);
+	objects.push_back(woodenSphere);*/
+	
+	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorCube.obj");
+	//floorCube->scale(0.0f, 0.0f, 0.0f);
+	const float floorWidth = 5.0f;
+	floorCube->scale(floorWidth, 1.0f, floorWidth);
+	floorCube->setPosition(0.0f, -2.0f, 0.0f);
+	floorCube->setTexture(texturesInited.brickTexture);
+
+	objects.push_back(floorCube);
+	
 	auto sphere = new Sphere(&sphereShaderProgram);
-	sphere->setPosition(3.0f, 3.0f, 3.0f);
+	sphere->setPosition(3.0f, 0.0f, 3.0f);
+	sphere->setTexture(texturesInited.woodTexture);
 	objects.push_back(sphere);
 	 //objects.push_back(new SingleMesh(&commonShaderProgram));
 

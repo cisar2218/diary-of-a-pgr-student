@@ -14,7 +14,7 @@ uniform mat4 Mmatrix;       // Model                      --> model to world coo
 uniform mat4 Nmatrix;       // inverse transposed Mmatrix
 
 bool dirLight = true;
-bool pointLight = false;
+bool pointLight = true;
 bool spotLight = false;
 
 

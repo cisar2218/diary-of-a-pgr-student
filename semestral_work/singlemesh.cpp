@@ -9,16 +9,16 @@ void SingleMesh::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	float rotationSpeed = 0.1f;
 	float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
 
-	glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
-	glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angle, xAxis);
+	//glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
+	//glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angle, xAxis);
 
-	glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
-	glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angle, yAxis);
+	//glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
+	//glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angle, yAxis);
 
-	glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
-	glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
+	//glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
+	//glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
 
-	this->localModelMatrix = rotationMatrixX;
+	//this->localModelMatrix = rotationMatrixX;
 
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
@@ -30,24 +30,20 @@ void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 		
 		glUseProgram(shaderProgram->program);
 
-		glActiveTexture(GL_TEXTURE0); // “logical” texture unit
-		glBindTexture(GL_TEXTURE_2D, texture->texture);
-
-		glUniform1i(shaderProgram->locations.textureSampler, 0);
-		glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
-
-		material = new ObjectMaterial;
-		material->ambient = glm::vec3(0.0f, 0.0f, 1.0f);
-		material->diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
-		material->specular = glm::vec3(0.0f, 0.0f, 0.0f);
-		material->shininess = 64.0f;
-
 
 		// uniform material
 		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
 		glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
 		glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
 		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
+		
+		// texture
+		if (texture->enabled) {
+			glActiveTexture(GL_TEXTURE0); // “logical” texture unit
+			glBindTexture(GL_TEXTURE_2D, texture->texture);
+			glUniform1i(shaderProgram->locations.textureSampler, 0);
+		}
+		glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
 
 		// uniform PVM
 		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
@@ -122,12 +118,15 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 		vertexes[v * attribPerVert + 4] = mesh->mNormals[v].y;
 		vertexes[v * attribPerVert + 5] = mesh->mNormals[v].z;
 		
-		if (mesh->HasTextureCoords(v)) {
-			vertexes[v * attribPerVert + 6] = mesh->mTextureCoords[v]->x;
-			vertexes[v * attribPerVert + 7] = mesh->mTextureCoords[v]->y;
+		if (mesh->HasTextureCoords(0)) {
+			aiVector3D texCoord = mesh->mTextureCoords[0][v];
+			vertexes[v * attribPerVert + 6] = texCoord.x;
+			vertexes[v * attribPerVert + 7] = texCoord.y;
 		}
-		vertexes[v * attribPerVert + 6] = 0.0f;
-		vertexes[v * attribPerVert + 7] = 0.0f;
+		else {
+			vertexes[v * attribPerVert + 6] = 0.0f;
+			vertexes[v * attribPerVert + 7] = 0.0f;
+		}
 	}
 
 	glBufferData(GL_ARRAY_BUFFER, vertSize, vertexes, GL_STATIC_DRAW);     // allocate memory for vertices
@@ -196,6 +195,12 @@ bool SingleMesh::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 
 SingleMesh::SingleMesh(ShaderProgram* shdrPrg, const std::string& fileName) : ObjectInstance(shdrPrg), initialized(false)
 {
+	material = new ObjectMaterial;
+	material->ambient = glm::vec3(0.0f, 0.1f, 0.3f);
+	material->diffuse = glm::vec3(0.0f, 0.6f, 0.9f);
+	material->specular = glm::vec3(0.5f, 0.5f, 0.5f);
+	material->shininess = 32.0f;
+
 	if (!loadSingleMesh(fileName, shdrPrg, &geometry)) {
 		if (geometry == nullptr) {
 			std::cerr << "SingleMesh::SingleMesh(): geometry not initialized!" << std::endl;
@@ -230,6 +235,13 @@ SingleMesh::SingleMesh(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initia
 	}
 	else {
 		if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.PVM != -1)) {
+			// sample material
+			material = new ObjectMaterial;
+			material->ambient = glm::vec3(0.0f, 0.1f, 0.3f);
+			material->diffuse = glm::vec3(0.0f, 0.6f, 0.9f);
+			material->specular = glm::vec3(0.5f, 0.5f, 0.5f);
+			material->shininess = 32.0f;
+
 			initialized = true;
 		}
 		else {

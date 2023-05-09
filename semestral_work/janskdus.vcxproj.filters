@@ -31,6 +31,9 @@
     <ClCompile Include="meshMovTex.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="movingObject.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -67,6 +70,9 @@
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="meshMovTex.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="movingObject.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>

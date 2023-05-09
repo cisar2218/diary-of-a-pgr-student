@@ -45,6 +45,8 @@
 #include "skybox.h"
 #include "meshDynTex.h"
 #include "meshMovTex.h"
+#include "movingObject.h"
+
 using namespace std;
 
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
@@ -687,6 +689,11 @@ void initApplication() {
 		objects.push_back(movCube);
 	}
 
+	{ // moving object
+		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
+
+		objects.push_back(movObj);
+	}
 
 	// init your Application
 	// - setup the initial application state

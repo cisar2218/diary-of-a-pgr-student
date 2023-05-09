@@ -157,6 +157,7 @@
     <ClCompile Include="circle.cpp" />
     <ClCompile Include="meshDynTex.cpp" />
     <ClCompile Include="meshMovTex.cpp" />
+    <ClCompile Include="movingObject.cpp" />
     <ClCompile Include="singlemesh.cpp" />
     <ClCompile Include="janskdus.cpp" />
     <ClCompile Include="skybox.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="janskdus.h" />
     <ClInclude Include="meshDynTex.h" />
     <ClInclude Include="meshMovTex.h" />
+    <ClInclude Include="movingObject.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="parameters.h" />
     <ClInclude Include="singlemesh.h" />

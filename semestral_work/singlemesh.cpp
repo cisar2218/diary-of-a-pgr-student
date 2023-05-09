@@ -6,20 +6,7 @@ using namespace std;
 
 void SingleMesh::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// instance specific stuff
-	float rotationSpeed = 0.1f;
-	float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
-
-	//glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
-	//glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angle, xAxis);
-
-	//glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
-	//glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angle, yAxis);
-
-	//glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
-	//glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
-
-	//this->localModelMatrix = rotationMatrixX;
-
+	
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
 }
@@ -29,7 +16,6 @@ void SingleMesh::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 	if (initialized && (shaderProgram != nullptr)) {
 		
 		glUseProgram(shaderProgram->program);
-
 
 		// uniform material
 		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));

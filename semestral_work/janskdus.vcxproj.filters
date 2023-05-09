@@ -34,6 +34,9 @@
     <ClCompile Include="movingObject.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="selectableObject.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -73,6 +76,9 @@
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="movingObject.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="selectableObject.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,31 +1,15 @@
 #include <iostream>
-#include "movingObject.h"
+#include "selectableObject.h"
 
-void MovingObject::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
-	float radius = 5.0f;
-	float x = radius;
-	float z = 0.0f;
-	if (movementEnabled) {
-		float speed = 1.0f;
-		float angle = speed * elapsedTime;
-
-		x = radius * cos(angle);
-		z = radius * sin(angle);
-
-		glm::vec3 currDir = glm::vec3(-sin(angle), 0.0f, cos(angle));
-		float deltaAngle = glm::acos(glm::dot(currDir, this->direction));
-
-		this->rotateYAxis(-glm::degrees(deltaAngle));
-		this->direction = currDir;
-	}
-	this->setPosition(x, 0.0f, z);
+void SelectableObject::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
+	
 
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
 }
 
 
-void MovingObject::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
+void SelectableObject::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 	if (initialized && (shaderProgram != nullptr)) {
 		glUseProgram(shaderProgram->program);
 
@@ -60,12 +44,24 @@ void MovingObject::draw(const glm::mat4& viewMatrix, const glm::mat4& projection
 	}
 }
 
-glm::vec3 MovingObject::getDirection()
+void SelectableObject::setFunction(std::function<void()> func)
 {
-	return this->direction;
+	this->storedFunction = func;
 }
 
-void MovingObject::toggleMovement()
+void SelectableObject::executeFunction()
 {
-	this->movementEnabled = !movementEnabled;
+	if (storedFunction) {
+		storedFunction();
+	}
+}
+
+void SelectableObject::setId(int newId)
+{
+	this->id = newId;
+}
+
+int SelectableObject::getId()
+{
+	return this->id;
 }

@@ -33,6 +33,7 @@
 
 
 #include <iostream>
+#include <functional>
 #include "pgr.h"
 #include "object.h"
 #include "triangle.h"
@@ -46,6 +47,8 @@
 #include "meshDynTex.h"
 #include "meshMovTex.h"
 #include "movingObject.h"
+#include "selectableObject.h"
+#include <unordered_map>
 
 using namespace std;
 
@@ -92,6 +95,61 @@ void printErrIfNotSatisfied(const bool condition, const std::string& errMessage)
 		cerr << errMessage << endl;
 	}
 }
+
+void doPicking(int x, int y) {
+	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+	glClearStencil(0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+	// enable stencil test
+	glEnable(GL_STENCIL_TEST);
+	// if the stencil test and depth test are passed than value in the stencil
+	// buffer is replaced with the object ID (byte 1..255)
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
+
+	std::unordered_map<int, SelectableObject*> selectableObjects;
+
+	int id = 1;
+	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
+		if (object != nullptr) {
+			auto selectableObj = dynamic_cast<SelectableObject*>(object);
+			if (selectableObj) {
+				glStencilFunc(GL_ALWAYS, id, -1);
+				
+				selectableObj->draw(viewMatrix, cameras[gameState.activeCamera].getProjectionMatrix());
+				selectableObj->setId(id);
+
+				selectableObjects[id] = selectableObj;
+				id++;
+			}
+		}
+	}
+	glDisable(GL_STENCIL_TEST);
+
+	// read value from the stencil buffer for one pixel under the mouse cursor
+	unsigned char pixelID;
+	glReadPixels(x, y, 1, 1, GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, &pixelID);
+
+
+	if (pixelID != 0) {
+		auto it = selectableObjects.find(pixelID);
+		if (it != selectableObjects.end()) {
+			SelectableObject* selectedObject = it->second;
+			std::cout << "clicked on object with ID: " << (int)pixelID << std::endl;
+			// TODO process click
+			selectedObject->executeFunction();
+		}
+		else {
+			std::cout << "No SelectableObject found with ID: " << pixelID << std::endl;
+		}
+	}
+	else {
+		std::cout << "clicked on background" << pixelID << std::endl;
+	}
+}
+
 
 /**
  * \brief Load and compile shader programs. Get attribute locations.
@@ -322,8 +380,9 @@ void drawScene(void)
 	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
 
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
-		if (object != nullptr)
+		if (object != nullptr) {
 			object->draw(viewMatrix, cameras[gameState.activeCamera].getProjectionMatrix());
+		}
 	}
 }
 
@@ -370,6 +429,15 @@ void reshapeCb(int newWidth, int newHeight) {
  * \param mouseY mouse (cursor) Y position
  */
 void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
+	if (buttonPressed == GLUT_LEFT_BUTTON) {
+		if (buttonState == GLUT_DOWN) {
+			printf("Left button pressed at (%d, %d)\n", mouseX, mouseY);
+			doPicking(mouseX, mouseY);
+		}
+		else if (buttonState == GLUT_UP) {
+			// Process left button release event
+		}
+	}
 }
 
 /**
@@ -657,6 +725,22 @@ void initApplication() {
 	floorCube->setTexture(texturesInited.brickTexture);
 	objects.push_back(floorCube);
 	}
+
+	{ // selectable and movable pair
+		// moving object
+		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
+		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
+		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovement, movObj);
+
+		// random selectable object
+		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/floorcube.dae");
+		selectableObject->setTexture(texturesInited.brickTexture);
+
+		selectableObject->setFunction(boundFunction);
+		
+		objects.push_back(movObj);
+		objects.push_back(selectableObject);
+	}
 	
 	{ // wood sphere
 	auto sphere = new Sphere(&sphereShaderProgram);
@@ -708,11 +792,7 @@ void initApplication() {
 		objects.push_back(movCube);
 	}
 
-	{ // moving object
-		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
-		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
-		objects.push_back(movObj);
-	}
+	
 
 	// init your Application
 	// - setup the initial application state
@@ -747,7 +827,7 @@ int main(int argc, char** argv) {
 	glutInitContextVersion(pgr::OGL_VER_MAJOR, pgr::OGL_VER_MINOR);
 	glutInitContextFlags(GLUT_FORWARD_COMPATIBLE);
 
-	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
+	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH | GLUT_STENCIL);
 
 	// for each window
 	{
@@ -762,7 +842,7 @@ int main(int argc, char** argv) {
 		glutKeyboardUpFunc(keyboardUpCb);
 		glutSpecialFunc(specialKeyboardCb);     // key pressed
 		glutSpecialUpFunc(specialKeyboardUpCb); // key released
-		// glutMouseFunc(mouseCb);
+		 glutMouseFunc(mouseCb);
 		// glutMotionFunc(mouseMotionCb);
 		glutPassiveMotionFunc(passiveMouseMotionCb);
 

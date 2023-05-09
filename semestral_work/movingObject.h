@@ -16,7 +16,10 @@ public:
 
 	glm::vec3 getDirection();
 
+	void toggleMovement();
+
 private:
+	bool movementEnabled = false;
 	glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
-	float lastElapsedTime;
+	float lastElapsedTime = 0.0f;
 };

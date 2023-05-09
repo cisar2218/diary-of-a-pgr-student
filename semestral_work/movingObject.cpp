@@ -6,7 +6,7 @@ void MovingObject::update(float elapsedTime, const glm::mat4* parentModelMatrix)
 
 	this->lastElapsedTime = elapsedTime;
 
-	float radius = 10.0f;
+	float radius = 5.0f;
 	float speed = 1.0f;
 	float angle = speed * elapsedTime;
 
@@ -59,4 +59,9 @@ void MovingObject::draw(const glm::mat4& viewMatrix, const glm::mat4& projection
 	else {
 		std::cerr << "SingleMesh::draw(): Can't draw, mesh not initialized properly!" << std::endl;
 	}
+}
+
+glm::vec3 MovingObject::getDirection()
+{
+	return this->direction;
 }

@@ -32,6 +32,29 @@ Camera::Camera(const glm::vec3& startPosition, const glm::vec3& startDirection, 
     this->upVector = glm::normalize(worldUp);
 }
 
+void Camera::setCameraFrom(Camera other)
+{
+    this->projectionMatrix = other.projectionMatrix;
+    this->elevationAngle = other.elevationAngle;
+    this->position = other.position;
+    this->direction = other.direction;
+    this->upVector = other.upVector;
+}
+
+void Camera::setRefObject(MovingObject& newRefObj)
+{
+    this->refObj = &newRefObj;
+}
+
+void Camera::setPositionAsReferObj()
+{
+    if (this->refObj != nullptr) {
+        this->position = refObj->getPosition();
+        this->position += 3.0f;
+        this->direction = -1.0f * refObj->getDirection();
+    }
+}
+
 void Camera::rotateHorizontal(float angle)
 {
     glm::mat2x2 rotMat = glm::mat2(
@@ -70,6 +93,11 @@ void Camera::moveBackward(float movement)
 void Camera::setPosition(glm::vec3 newPosition)
 {
     this->position = newPosition;
+}
+
+void Camera::ground()
+{
+    this->position.y = 0.0f;
 }
 
 glm::vec3 Camera::getFront() {

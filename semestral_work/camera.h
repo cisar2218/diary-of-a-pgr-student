@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "movingObject.h"
 
 class Camera {
 private:
@@ -11,6 +12,8 @@ private:
     glm::vec3 position;
     glm::vec3 direction;
     glm::vec3 upVector;
+
+    MovingObject* refObj = nullptr;
 public:
     float currentTime;
 
@@ -18,6 +21,11 @@ public:
     Camera(const glm::vec3& startPosition);
     Camera(const glm::vec3& startPosition, const glm::vec3& startDirection);
     Camera(const glm::vec3& startPosition, const glm::vec3& startDirection, const glm::vec3& startOrientation);
+
+    void setCameraFrom(Camera camera);
+
+    void setRefObject(MovingObject& refObj);
+    void setPositionAsReferObj();
 
     void rotateHorizontal(float angle);
     void increaseElevation(float angle);
@@ -29,6 +37,7 @@ public:
     void moveBackward(float movement);
 
     void setPosition(glm::vec3 newPosition);
+    void ground();
 
     glm::vec3 getFront();
     glm::vec3 getLeft();

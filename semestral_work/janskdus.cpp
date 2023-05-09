@@ -50,7 +50,7 @@
 using namespace std;
 
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
-enum { CAMERA_FREE_IDX, CAMERA_2_IDX, CAMERA_3_IDX, CAMERA_COUNT };
+enum { CAMERA_FREE_IDX, CAMERA_2_IDX, CAMERA_3_IDX, CAMERA_4_MOVING_IDX, CAMERA_COUNT };
 
 constexpr int WINDOW_WIDTH = 500;
 constexpr int WINDOW_HEIGHT = 500;
@@ -483,27 +483,41 @@ void keyboardUpCb(unsigned char keyReleased, int mouseX, int mouseY) {
  */
 void specialKeyboardCb(int specKeyPressed, int mouseX, int mouseY) {
 	switch (specKeyPressed) {
-		case GLUT_KEY_RIGHT:
+		case GLUT_KEY_RIGHT: {
 			gameState.keyMap[KEY_RIGHT_ARROW] = true;
 			break;
-		case GLUT_KEY_LEFT:
+		}
+		case GLUT_KEY_LEFT: {
 			gameState.keyMap[KEY_LEFT_ARROW] = true;
 			break;
-		case GLUT_KEY_UP:
+		}
+		case GLUT_KEY_UP: {
 			gameState.keyMap[KEY_UP_ARROW] = true;
 			break;
-		case GLUT_KEY_DOWN:
+		}
+		case GLUT_KEY_DOWN: {
 			gameState.keyMap[KEY_DOWN_ARROW] = true;
 			break;
-		case GLUT_KEY_F1:
+		}
+		case GLUT_KEY_F1: {
+			int oldActiveCameraIdx = gameState.activeCamera;
 			gameState.activeCamera = CAMERA_FREE_IDX;
+			cameras[gameState.activeCamera].setCameraFrom(cameras[oldActiveCameraIdx]);
+			cameras[gameState.activeCamera].ground();
 			break;
-		case GLUT_KEY_F2:
+		}
+		case GLUT_KEY_F2: {
 			gameState.activeCamera = CAMERA_2_IDX;
 			break;
-		case GLUT_KEY_F3:
+		}
+		case GLUT_KEY_F3: {
 			gameState.activeCamera = CAMERA_3_IDX;
 			break;
+		}
+		case GLUT_KEY_F4: {
+			gameState.activeCamera = CAMERA_4_MOVING_IDX;
+			break;
+		}
 		default:
 			break;
 	}
@@ -555,6 +569,10 @@ void updateCamera(int cameraIdx, float deltaTime) {
 				glm::normalize(moveDir);
 				cameras[CAMERA_FREE_IDX].move(moveDir * CAMERA_FREE_SPEED * deltaTime);
 			}
+			break;
+		}
+		case CAMERA_4_MOVING_IDX: {
+			cameras[CAMERA_4_MOVING_IDX].setPositionAsReferObj();
 			break;
 		}
 		case CAMERA_2_IDX:
@@ -612,6 +630,7 @@ void initObjects() {
 	cameras[CAMERA_FREE_IDX] = Camera(CAMERA_FREE_INIT_POSITION);
 	cameras[CAMERA_2_IDX] = Camera(CAMERA_2_INIT_POSITION, CAMERA_2_INIT_DIRECTION);
 	cameras[CAMERA_3_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
+	cameras[CAMERA_4_MOVING_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
 }
 
 /**
@@ -691,7 +710,7 @@ void initApplication() {
 
 	{ // moving object
 		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
-
+		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
 		objects.push_back(movObj);
 	}
 

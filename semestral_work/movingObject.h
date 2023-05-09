@@ -14,6 +14,8 @@ public:
 
 	void draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) override; 
 
+	glm::vec3 getDirection();
+
 private:
 	glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	float lastElapsedTime;

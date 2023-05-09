@@ -118,6 +118,14 @@ public:
 		this->localModelMatrix[3] = glm::vec4(x, y, z, 1.0f);
 	}
 
+	virtual glm::vec3 getPosition() {
+		return glm::vec3(
+			this->localModelMatrix[3].x,
+			this->localModelMatrix[3].y,
+			this->localModelMatrix[3].z
+		);
+	}
+
 	virtual void scale(float scaleRatioX, float scaleRatioY, float scaleRatioZ) {
 		this->localModelMatrix = glm::scale(localModelMatrix, glm::vec3(scaleRatioX, scaleRatioY, scaleRatioZ));
 	}

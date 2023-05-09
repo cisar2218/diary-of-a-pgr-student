@@ -25,6 +25,9 @@
     <ClCompile Include="skybox.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="meshDynTex.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -57,6 +60,9 @@
     <ClInclude Include="skybox.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
+    <ClInclude Include="meshDynTex.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -86,6 +92,12 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="skybox.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="dynamicTexture.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="dynamicTexture.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="circle.cpp" />
+    <ClCompile Include="meshDynTex.cpp" />
     <ClCompile Include="singlemesh.cpp" />
     <ClCompile Include="janskdus.cpp" />
     <ClCompile Include="skybox.cpp" />
@@ -166,6 +167,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="circle.h" />
     <ClInclude Include="janskdus.h" />
+    <ClInclude Include="meshDynTex.h" />
     <ClInclude Include="object.h" />
     <ClInclude Include="parameters.h" />
     <ClInclude Include="singlemesh.h" />
@@ -175,6 +177,8 @@
     <ClInclude Include="triangle.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dynamicTexture.frag" />
+    <None Include="dynamicTexture.vert" />
     <None Include="simple.frag" />
     <None Include="simple.vert" />
     <None Include="skybox.frag" />

@@ -43,6 +43,7 @@
 #include "janskdus.h"
 #include "sphere.h"
 #include "skybox.h"
+#include "meshDynTex.h"
 using namespace std;
 
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
@@ -57,6 +58,7 @@ ObjectList objects;
 // shared shader programs
 ShaderProgram skyboxShaderProgram;
 ShaderProgram sphereShaderProgram;
+ShaderProgram dynTexShaderProgram;
 
 Camera cameras[CAMERA_COUNT];
 
@@ -75,6 +77,7 @@ struct Textures {
 	GLint woodTexture = -1;
 	GLint brickTexture = -1;
 	GLint skyboxTexture = -1;
+	GLint dynamicTexture = -1;
 } texturesInited;
 
 // -----------------------  OpenGL stuff ---------------------------------
@@ -90,8 +93,7 @@ void printErrIfNotSatisfied(const bool condition, const std::string& errMessage)
  */
 void loadShaderPrograms()
 {
-	// sphere shaders 
-	{
+	{ // sphere shaders 
 		GLuint shadersSphere[] = {
 		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
 		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "sphere.frag"),
@@ -142,11 +144,67 @@ void loadShaderPrograms()
 
 		sphereShaderProgram.initialized = true;
 	}
+
+	{ // dynamic texture shaders 
+		GLuint shadersDynamicTexture[] = {
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "dynamicTexture.vert"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "dynamicTexture.frag"),
+		  0
+		};
+
+		dynTexShaderProgram.program = pgr::createProgram(shadersDynamicTexture);
+
+		// get location of the uniform (fragment) shader attributes
+		dynTexShaderProgram.locations.textureSampler = glGetUniformLocation(dynTexShaderProgram.program, "tex");
+		dynTexShaderProgram.locations.textureEnabled = glGetUniformLocation(dynTexShaderProgram.program, "texEnabled");
+
+		dynTexShaderProgram.locations.position = glGetAttribLocation(dynTexShaderProgram.program, "aPos");
+		dynTexShaderProgram.locations.normal = glGetAttribLocation(dynTexShaderProgram.program, "aNormal");
+		dynTexShaderProgram.locations.textureCoord = glGetAttribLocation(dynTexShaderProgram.program, "aTexCoord");
+
+		// other attributes and uniforms
+		// -> material
+		dynTexShaderProgram.locations.materialAmbient = glGetUniformLocation(dynTexShaderProgram.program, "material.ambient");
+		dynTexShaderProgram.locations.materialDiffuse = glGetUniformLocation(dynTexShaderProgram.program, "material.diffuse");
+		dynTexShaderProgram.locations.materialSpecular = glGetUniformLocation(dynTexShaderProgram.program, "material.specular");
+		dynTexShaderProgram.locations.materialShininess = glGetUniformLocation(dynTexShaderProgram.program, "material.shininess");
+
+		// -> matrixes
+		dynTexShaderProgram.locations.PVM = glGetUniformLocation(dynTexShaderProgram.program, "PVM");
+		dynTexShaderProgram.locations.Vmatrix = glGetUniformLocation(dynTexShaderProgram.program, "Vmatrix");
+		dynTexShaderProgram.locations.Mmatrix = glGetUniformLocation(dynTexShaderProgram.program, "Mmatrix");
+		dynTexShaderProgram.locations.Nmatrix = glGetUniformLocation(dynTexShaderProgram.program, "Nmatrix");
+
+		// -> frame (dyn tex specific)
+		dynTexShaderProgram.locations.frame = glGetUniformLocation(dynTexShaderProgram.program, "frame");
+
+		// check for error INs
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.position != -1, "position attribLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.normal != -1, "normal attribLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.textureCoord != -1, "texture attribLocation not found");
+		// check for error UNIFORMs
+		// -> material
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
+		// -> textures
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.frame != -1, "frame uniformLocation not found");
+		// -> matrixes
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+
+		dynTexShaderProgram.initialized = true;
+	}
 	
 	{ // INIT TEXTURES
 		texturesInited.woodTexture = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
 		texturesInited.brickTexture = pgr::createTexture("textures/pavement_04_diff_4k.jpg");
 		texturesInited.skyboxTexture = pgr::createTexture("textures/skybox.jpg");
+		texturesInited.dynamicTexture = pgr::createTexture("textures/dynamicTexture.png");
 	}
 
 	// common shaders 
@@ -198,8 +256,6 @@ void cleanupShaderPrograms(void) {
 void drawScene(void)
 {
 	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
-
-	
 
 	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
@@ -505,31 +561,52 @@ void initApplication() {
 	initObjects();
 
 
-	//objects.push_back(new Triangle(&commonShaderProgram));
-	//objects.push_back(new Square(&commonShaderProgram));
 	/*auto woodenSphere = new SingleMesh(&sphereShaderProgram, "models/untitled.obj");
 	woodenSphere->setTexture(texturesInited.woodTexture);
 	objects.push_back(woodenSphere);*/
 	
+	{ // floor
 	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorCube.obj");
 	//floorCube->scale(0.0f, 0.0f, 0.0f);
 	const float floorWidth = 5.0f;
 	floorCube->scale(floorWidth, 1.0f, floorWidth);
 	floorCube->setPosition(0.0f, -2.0f, 0.0f);
 	floorCube->setTexture(texturesInited.brickTexture);
-
 	objects.push_back(floorCube);
+	}
 	
+	{ // wood sphere
 	auto sphere = new Sphere(&sphereShaderProgram);
 	sphere->setPosition(3.0f, 0.0f, 3.0f);
 	sphere->setTexture(texturesInited.woodTexture);
 	objects.push_back(sphere);
-	 //objects.push_back(new SingleMesh(&commonShaderProgram));
+	}
 
+	{ // skybox 
 	gameState.skybox = new Skybox(&skyboxShaderProgram, "models/skyBox.fbx");
 	gameState.skybox->setTexture(texturesInited.skyboxTexture);
 	gameState.skybox->scale(50.0f);
 	objects.push_back(gameState.skybox);
+	}
+
+	{ // dynamic texture
+		const int numFrames = 4;
+		MeshDynTex* dynCube = new MeshDynTex(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
+		dynCube->scale(1.0f, 3.0f, 3.0f);
+		dynCube->setPosition(6.0f, 2.0f, 0.0f);
+		dynCube->setTexture(texturesInited.dynamicTexture);
+
+		auto screenMaterial = new ObjectMaterial;
+		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
+		screenMaterial->shininess = 10.0f;
+		
+		dynCube->setMaterial(screenMaterial);
+
+		objects.push_back(dynCube);
+	}
+
 
 	// init your Application
 	// - setup the initial application state

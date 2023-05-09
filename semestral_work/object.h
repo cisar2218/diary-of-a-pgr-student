@@ -36,6 +36,7 @@ typedef struct _ShaderProgram {
 		// -> texture
 		GLint textureEnabled;
 		GLint textureSampler;
+		GLint frame;
 	} locations;
 
 	// ...

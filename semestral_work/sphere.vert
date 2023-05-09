@@ -8,6 +8,7 @@ uniform mat4 PVM;
 
 out vec2 TexCoord;
 out vec4 Color;
+out float Visibility;
 
 uniform mat4 Vmatrix;       // View                       --> world to eye coordinates
 uniform mat4 Mmatrix;       // Model                      --> model to world coordinates
@@ -16,7 +17,7 @@ uniform mat4 Nmatrix;       // inverse transposed Mmatrix
 bool dirLight = true;
 bool pointLight = true;
 bool spotLight = false;
-
+bool fogEnabled = true;
 
 struct Material {
     vec3 ambient;
@@ -26,6 +27,9 @@ struct Material {
 };
 
 uniform Material material;
+
+const float density = 0.015;
+const float gradient = 1.5;
 
 vec4 getSpotLight(vec3 vertexPosition, vec3 vertexNormal)  {
     vec3 ret = vec3(0.0);
@@ -109,12 +113,18 @@ vec4 getDirectionalLight(vec3 vertexPosition, vec3 vertexNormal) {
     return vec4(ret, 1.0);
 }
 
+float computeVisibility(float distance) {
+    float ret = exp(-pow((distance * density), gradient));
+    return clamp(ret, 0.0, 1.0);
+}
+
 void main()
 {
     vec3 position_eye = (Vmatrix * Mmatrix * vec4(aPos, 1.0)).xyz;
     vec3 normal_eye = normalize( (Vmatrix * Nmatrix * vec4(aNormal, 0.0) ).xyz);
-
   
+    // vec3 position_world = vec4(Mmatrix * vec4(aPos, 1.0)).xyz;
+
     vec3 globalAmbientLight = vec3(0.4f); // TODO global ambient light
     vec4 outputColor = vec4(material.ambient * globalAmbientLight, 0.0);
 
@@ -122,6 +132,9 @@ void main()
     if (pointLight) outputColor += getPointLight(position_eye, normal_eye);
     if (spotLight) outputColor += getSpotLight(position_eye, normal_eye);
    
+    if(fogEnabled) Visibility = computeVisibility(length(position_eye));
+    else Visibility = 1.0;
+
     gl_Position = PVM * vec4(aPos, 1);
     Color = outputColor;
     TexCoord = aTexCoord;

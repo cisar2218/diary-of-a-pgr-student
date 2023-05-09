@@ -18,18 +18,11 @@ void main()
     }
 
     int numColSamples = 4;
-    int numRowSamples = 4;
+    int numRowSamples = 1;
 
-    // Calculate the adjusted texture coordinates
-    vec2 offset = vec2(1.0 / float(numColSamples), 1.0 / 1.0);
+    vec2 offset = vec2(1.0 / float(numColSamples), 1.0 / float(numRowSamples));
     vec2 adjustedTexCoord = vec2(TexCoord.x / numColSamples, TexCoord.y);
     adjustedTexCoord = adjustedTexCoord + vec2(frame % numColSamples, adjustedTexCoord.y) * offset;
-    switch (frame) {
-    case 0:
-        break;
-    default:
-        break;
-    }
 
     // Set the final color of the fragment
     // Sample the texture using the adjusted texture coordinates

@@ -44,6 +44,7 @@
 #include "sphere.h"
 #include "skybox.h"
 #include "meshDynTex.h"
+#include "meshMovTex.h"
 using namespace std;
 
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
@@ -59,6 +60,7 @@ ObjectList objects;
 ShaderProgram skyboxShaderProgram;
 ShaderProgram sphereShaderProgram;
 ShaderProgram dynTexShaderProgram;
+ShaderProgram movTexShaderProgram;
 
 Camera cameras[CAMERA_COUNT];
 
@@ -78,6 +80,7 @@ struct Textures {
 	GLint brickTexture = -1;
 	GLint skyboxTexture = -1;
 	GLint dynamicTexture = -1;
+	GLint movingTexture = -1;
 } texturesInited;
 
 // -----------------------  OpenGL stuff ---------------------------------
@@ -147,7 +150,7 @@ void loadShaderPrograms()
 
 	{ // dynamic texture shaders 
 		GLuint shadersDynamicTexture[] = {
-		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "dynamicTexture.vert"),
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
 		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "dynamicTexture.frag"),
 		  0
 		};
@@ -200,11 +203,70 @@ void loadShaderPrograms()
 		dynTexShaderProgram.initialized = true;
 	}
 	
+	{ // moving texture shaders 
+		GLuint shaders[] = {
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "movingTexture.frag"),
+		  0
+		};
+
+		movTexShaderProgram.program = pgr::createProgram(shaders);
+
+		// get location of the uniform (fragment) shader attributes
+		movTexShaderProgram.locations.textureSampler = glGetUniformLocation(movTexShaderProgram.program, "tex");
+		movTexShaderProgram.locations.textureEnabled = glGetUniformLocation(movTexShaderProgram.program, "texEnabled");
+
+		movTexShaderProgram.locations.position = glGetAttribLocation(movTexShaderProgram.program, "aPos");
+		movTexShaderProgram.locations.normal = glGetAttribLocation(movTexShaderProgram.program, "aNormal");
+		movTexShaderProgram.locations.textureCoord = glGetAttribLocation(movTexShaderProgram.program, "aTexCoord");
+
+		// other attributes and uniforms
+		// -> material
+		movTexShaderProgram.locations.materialAmbient = glGetUniformLocation(movTexShaderProgram.program, "material.ambient");
+		movTexShaderProgram.locations.materialDiffuse = glGetUniformLocation(movTexShaderProgram.program, "material.diffuse");
+		movTexShaderProgram.locations.materialSpecular = glGetUniformLocation(movTexShaderProgram.program, "material.specular");
+		movTexShaderProgram.locations.materialShininess = glGetUniformLocation(movTexShaderProgram.program, "material.shininess");
+
+		// -> matrixes
+		movTexShaderProgram.locations.PVM = glGetUniformLocation(movTexShaderProgram.program, "PVM");
+		movTexShaderProgram.locations.Vmatrix = glGetUniformLocation(movTexShaderProgram.program, "Vmatrix");
+		movTexShaderProgram.locations.Mmatrix = glGetUniformLocation(movTexShaderProgram.program, "Mmatrix");
+		movTexShaderProgram.locations.Nmatrix = glGetUniformLocation(movTexShaderProgram.program, "Nmatrix");
+
+		// -> frame (dyn tex specific)
+		movTexShaderProgram.locations.scrollSpeed = glGetUniformLocation(movTexShaderProgram.program, "scrollSpeed");
+		movTexShaderProgram.locations.elapsedTime = glGetUniformLocation(movTexShaderProgram.program, "elapsedTime");
+
+		// check for error INs
+		printErrIfNotSatisfied(movTexShaderProgram.locations.position != -1, "position attribLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.normal != -1, "normal attribLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.textureCoord != -1, "texture attribLocation not found");
+		// check for error UNIFORMs
+		// -> material
+		printErrIfNotSatisfied(movTexShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(movTexShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
+		// -> textures
+		printErrIfNotSatisfied(movTexShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(movTexShaderProgram.locations.scrollSpeed != -1, "scrollSpeed uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.elapsedTime != -1, "elapsedTime uniformLocation not found");
+		// -> matrixes
+		printErrIfNotSatisfied(movTexShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+
+		movTexShaderProgram.initialized = true;
+	}
+
+
 	{ // INIT TEXTURES
 		texturesInited.woodTexture = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
 		texturesInited.brickTexture = pgr::createTexture("textures/pavement_04_diff_4k.jpg");
 		texturesInited.skyboxTexture = pgr::createTexture("textures/skybox.jpg");
 		texturesInited.dynamicTexture = pgr::createTexture("textures/dynamicTexture.png");
+		texturesInited.movingTexture = pgr::createTexture("textures/movingTexture.png");
 	}
 
 	// common shaders 
@@ -566,7 +628,7 @@ void initApplication() {
 	objects.push_back(woodenSphere);*/
 	
 	{ // floor
-	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorCube.obj");
+	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorcube.dae");
 	//floorCube->scale(0.0f, 0.0f, 0.0f);
 	const float floorWidth = 5.0f;
 	floorCube->scale(floorWidth, 1.0f, floorWidth);
@@ -605,6 +667,24 @@ void initApplication() {
 		dynCube->setMaterial(screenMaterial);
 
 		objects.push_back(dynCube);
+	}
+	
+	{ // moving texture
+		MeshMovTex* movCube = new MeshMovTex(&movTexShaderProgram, "models/cubeDynamicTexture.fbx");
+		movCube->rotateYAxis(90.0f);
+		movCube->scale(1.0f, 3.0f, 3.0f);
+		movCube->setPosition(0.0f, 2.0f, 6.0f);
+		movCube->setTexture(texturesInited.movingTexture);
+
+		auto screenMaterial = new ObjectMaterial;
+		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
+		screenMaterial->shininess = 10.0f;
+
+		movCube->setMaterial(screenMaterial);
+
+		objects.push_back(movCube);
 	}
 
 

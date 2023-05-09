@@ -28,6 +28,9 @@
     <ClCompile Include="meshDynTex.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="meshMovTex.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -63,6 +66,9 @@
     <ClInclude Include="meshDynTex.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
+    <ClInclude Include="meshMovTex.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -94,10 +100,10 @@
     <None Include="skybox.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="dynamicTexture.vert">
+    <None Include="dynamicTexture.frag">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="dynamicTexture.frag">
+    <None Include="movingTexture.frag">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

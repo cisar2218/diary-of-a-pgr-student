@@ -37,6 +37,8 @@ typedef struct _ShaderProgram {
 		GLint textureEnabled;
 		GLint textureSampler;
 		GLint frame;
+		GLint scrollSpeed;
+		GLint elapsedTime;
 	} locations;
 
 	// ...
@@ -169,6 +171,12 @@ public:
 			glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)
 		);
 		return glm::transpose(glm::inverse(modelRotationMatrix));
+	}
+
+	void rotateYAxis(float angleInDegrees) {
+		float angleInRadians = glm::radians(angleInDegrees);
+		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
 	}
 
 	virtual void setTexture(GLint textureToSet) {

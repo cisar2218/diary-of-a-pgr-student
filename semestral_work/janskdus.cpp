@@ -86,6 +86,7 @@ struct Textures {
 	GLint skyboxTexture = -1;
 	GLint dynamicTexture = -1;
 	GLint movingTexture = -1;
+	GLint wallRaw = -1;
 } texturesInited;
 
 // -----------------------  OpenGL stuff ---------------------------------
@@ -185,7 +186,6 @@ void loadShaderPrograms()
 		sphereShaderProgram.locations.Vmatrix = glGetUniformLocation(sphereShaderProgram.program, "Vmatrix");
 		sphereShaderProgram.locations.Mmatrix = glGetUniformLocation(sphereShaderProgram.program, "Mmatrix");
 		sphereShaderProgram.locations.Nmatrix = glGetUniformLocation(sphereShaderProgram.program, "Nmatrix");
-		
 
 		// check for error INs
 		printErrIfNotSatisfied(sphereShaderProgram.locations.position != -1, "position attribLocation not found");
@@ -324,6 +324,7 @@ void loadShaderPrograms()
 	{ // INIT TEXTURES
 		texturesInited.woodTexture = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
 		texturesInited.brickTexture = pgr::createTexture("textures/pavement_04_diff_4k.jpg");
+		texturesInited.wallRaw = pgr::createTexture("textures/wallRaw.jpg");
 		texturesInited.skyboxTexture = pgr::createTexture("textures/skybox.jpg");
 		texturesInited.dynamicTexture = pgr::createTexture("textures/dynamicTexture.png");
 		texturesInited.movingTexture = pgr::createTexture("textures/movingTexture.png");
@@ -720,12 +721,43 @@ void initApplication() {
 	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorcube.dae");
 	//floorCube->scale(0.0f, 0.0f, 0.0f);
 	const float floorWidth = 5.0f;
-	floorCube->scale(floorWidth, 1.0f, floorWidth);
-	floorCube->setPosition(0.0f, -2.0f, 0.0f);
+	floorCube->scale(floorWidth);
+	floorCube->setPosition(0.0f, -6.0f, 0.0f);
 	floorCube->setTexture(texturesInited.brickTexture);
 	objects.push_back(floorCube);
 	}
 
+	{ // walls
+		auto wallLeft = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
+		auto wallRight = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
+		auto wallBack = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
+		auto wallTop = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
+
+		wallLeft->scale(5.0f);
+		wallLeft->setZPosition(5.0f);
+		wallLeft->setTexture(texturesInited.brickTexture);
+
+		wallRight->scale(5.0f);
+		wallRight->setZPosition(-5.0f);
+		wallRight->setTexture(texturesInited.brickTexture);
+
+		wallBack->rotateYAxis(90.0f);
+		wallBack->scale(5.0f);
+		wallBack->setXPosition(5.0f);
+		wallBack->setTexture(texturesInited.brickTexture);
+
+		wallTop->rotateXAxis(90.0f);
+		wallTop->scale(6.0f, 6.0f, 2.0f);
+		wallTop->setYPosition(5.5f);
+		wallTop->setTexture(texturesInited.wallRaw);
+
+
+		//objects.push_back(wallLeft);
+		objects.push_back(wallRight);
+		objects.push_back(wallBack);
+		objects.push_back(wallTop);
+
+	}
 	{ // selectable and movable pair
 		// moving object
 		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
@@ -735,11 +767,51 @@ void initApplication() {
 		// random selectable object
 		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/floorcube.dae");
 		selectableObject->setTexture(texturesInited.brickTexture);
-
 		selectableObject->setFunction(boundFunction);
+		selectableObject->setYPosition(2.0f);
 		
 		objects.push_back(movObj);
 		objects.push_back(selectableObject);
+	}
+
+	{
+	 // dynamic texture "TV"
+		const int numFrames = 4;
+		MeshDynTex* dynCube = new MeshDynTex(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
+		dynCube->scale(1.0f, 2.0f, 2.0f);
+		dynCube->setPosition(4.8f, 2.0f, 0.0f);
+		dynCube->setTexture(texturesInited.dynamicTexture);
+
+		auto screenMaterial = new ObjectMaterial;
+		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
+		screenMaterial->shininess = 10.0f;
+		
+		dynCube->setMaterial(screenMaterial);
+
+		objects.push_back(dynCube);
+
+		// button
+		SelectableObject* button = new SelectableObject(&sphereShaderProgram, "models/button.fbx");
+		button->rotateZAxis(90.0f);
+		button->scale(0.2f);
+		button->setXPosition(4.0f);
+		button->setZPosition(-3.0f);
+
+		std::function<void()> boundFunction = std::bind(&MeshDynTex::toggleEnabled, dynCube);
+		button->setFunction(boundFunction);
+
+		ObjectMaterial* matteMetalMaterial = new ObjectMaterial;
+		matteMetalMaterial->ambient = glm::vec3(0.3f, 0.3f, 0.3f);
+		matteMetalMaterial->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+		matteMetalMaterial->specular = glm::vec3(0.1f, 0.1f, 0.1f);
+		matteMetalMaterial->shininess = 20.0f;
+
+		button->setMaterial(matteMetalMaterial);
+
+		objects.push_back(button);
+
 	}
 	
 	{ // wood sphere
@@ -756,29 +828,12 @@ void initApplication() {
 	objects.push_back(gameState.skybox);
 	}
 
-	{ // dynamic texture
-		const int numFrames = 4;
-		MeshDynTex* dynCube = new MeshDynTex(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
-		dynCube->scale(1.0f, 3.0f, 3.0f);
-		dynCube->setPosition(6.0f, 2.0f, 0.0f);
-		dynCube->setTexture(texturesInited.dynamicTexture);
-
-		auto screenMaterial = new ObjectMaterial;
-		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
-		screenMaterial->shininess = 10.0f;
-		
-		dynCube->setMaterial(screenMaterial);
-
-		objects.push_back(dynCube);
-	}
 	
 	{ // moving texture
 		MeshMovTex* movCube = new MeshMovTex(&movTexShaderProgram, "models/cubeDynamicTexture.fbx");
 		movCube->rotateYAxis(90.0f);
-		movCube->scale(1.0f, 3.0f, 3.0f);
-		movCube->setPosition(0.0f, 2.0f, 6.0f);
+		movCube->scale(2.0f, 0.2f, 1.0f);
+		movCube->setPosition(4.8f, -0.4f, 0.0f);
 		movCube->setTexture(texturesInited.movingTexture);
 
 		auto screenMaterial = new ObjectMaterial;

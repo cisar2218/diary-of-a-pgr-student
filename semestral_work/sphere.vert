@@ -98,7 +98,7 @@ vec4 getDirectionalLight(vec3 vertexPosition, vec3 vertexNormal) {
     lightMaterial.diffuse  = vec3(1.0, 1.0, 0.5f);
     lightMaterial.specular = vec3(1.0);
 
-    vec3 lightPosition = (Vmatrix * vec4(-1.0, 1.0, 0.0, 0.0)).xyz;
+    vec3 lightPosition = (Vmatrix * vec4(-1.0, 1.0, -1.0, 0.0)).xyz;
 
     vec3 ret = vec3(0.0);
 

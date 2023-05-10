@@ -118,6 +118,18 @@ public:
 		this->localModelMatrix[3] = glm::vec4(x, y, z, 1.0f);
 	}
 
+	virtual void setXPosition(float x) {
+		this->localModelMatrix[3][0] = x;
+	}
+
+	virtual void setYPosition(float y) {
+		this->localModelMatrix[3][1] = y;
+	}
+
+	virtual void setZPosition(float z) {
+		this->localModelMatrix[3][2] = z;
+	}
+
 	virtual glm::vec3 getPosition() {
 		return glm::vec3(
 			this->localModelMatrix[3].x,
@@ -184,6 +196,18 @@ public:
 	void rotateYAxis(float angleInDegrees) {
 		float angleInRadians = glm::radians(angleInDegrees);
 		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
+		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
+	}
+
+	void rotateXAxis(float angleInDegrees) {
+		float angleInRadians = glm::radians(angleInDegrees);
+		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(1.0f, 0.0f, 0.0f));
+		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
+	}
+
+	void rotateZAxis(float angleInDegrees) {
+		float angleInRadians = glm::radians(angleInDegrees);
+		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
 	}
 

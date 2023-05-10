@@ -27,6 +27,10 @@ void MovingObject::update(float elapsedTime, const glm::mat4* parentModelMatrix)
 
 void MovingObject::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 	if (initialized && (shaderProgram != nullptr)) {
+		// if not moving => drawing disabled
+		if (!this->movementEnabled)
+			return;
+
 		glUseProgram(shaderProgram->program);
 
 		// uniform material

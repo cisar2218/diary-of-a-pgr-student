@@ -7,7 +7,10 @@ using namespace std;
 void MeshDynTex::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// instance specific stuff
 
-	frame = int(elapsedTime) % 4;
+	if (enabled)
+		frame = int(elapsedTime) % 3 + 1;
+	else
+		frame = 0;
 
 	// propagate the update to children
 	ObjectInstance::update(elapsedTime, parentModelMatrix);
@@ -50,6 +53,11 @@ void MeshDynTex::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 	else {
 		std::cerr << "SingleMesh::draw(): Can't draw, mesh not initialized properly!" << std::endl;
 	}
+}
+
+void MeshDynTex::toggleEnabled()
+{
+	this->enabled = !enabled;
 }
 
 

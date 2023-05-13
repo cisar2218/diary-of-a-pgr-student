@@ -4,13 +4,6 @@
 using namespace std;
 
 
-void Skybox::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
-	this->localModelMatrix[3] = glm::vec4(this->position, 1.0f);
-	
-	// propagate the update to children
-	ObjectInstance::update(elapsedTime, parentModelMatrix);
-}
-
 void Skybox::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	if (initialized && (shaderProgram != nullptr)) {
@@ -19,7 +12,7 @@ void Skybox::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 
 		// texture
 		if (texture->enabled) {
-			glActiveTexture(GL_TEXTURE0); // “logical” texture unit
+			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, texture->texture);
 			glUniform1i(shaderProgram->locations.textureSampler, 0);
 		}
@@ -37,9 +30,6 @@ void Skybox::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix
 	}
 }
 
-void Skybox::setPosition(glm::vec3 newPosition) {
-	this->position = newPosition;
-}
 
 
 /** Load one mesh using assimp library (vertices only, for more attributes see method extended version in Asteroids)
@@ -165,8 +155,10 @@ bool Skybox::loadSingleMesh(const std::string& fileName, ShaderProgram* shader, 
 	return validInit;
 }
 
-Skybox::Skybox(ShaderProgram* shdrPrg, const std::string& fileName) : ObjectInstance(shdrPrg), initialized(false)
+Skybox::Skybox(ShaderProgram* shdrPrg, const std::string& fileName) : ObjectInstance(shdrPrg)
 {
+	this->initialized = false;
+
 	if (!loadSingleMesh(fileName, shdrPrg, &geometry)) {
 		if (geometry == nullptr) {
 			std::cerr << "Skybox::Skybox(): geometry not initialized!" << std::endl;
@@ -198,6 +190,5 @@ Skybox::~Skybox() {
 		delete geometry;
 		geometry = nullptr;
 	}
-
 	initialized = false;
 }

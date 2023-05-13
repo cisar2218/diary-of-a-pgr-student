@@ -10,11 +10,6 @@ public:
 	SingleMesh(ShaderProgram* shdrPrg, const std::string& fileName);
 	~SingleMesh();
 
-	void update(float elapsedTime, const glm::mat4* parentModelMatrix) override;
-	void draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) override;
-
 protected:
 	bool loadSingleMesh(const std::string& fileName, ShaderProgram* shader, ObjectGeometry** geometry);
-	bool initialized;  ///< object has the shader with defined locations
-
 };

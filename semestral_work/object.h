@@ -119,6 +119,10 @@ public:
 		this->localModelMatrix[3] = glm::vec4(x, y, z, 1.0f);
 	}
 
+	virtual void setPosition(glm::vec3 newPosition) {
+		this->localModelMatrix[3] = glm::vec4(newPosition, 1.0f);
+	}
+
 	virtual void setXPosition(float x) {
 		this->localModelMatrix[3][0] = x;
 	}

@@ -29,8 +29,7 @@
   */
 
 
-  // TODO: tabulka klaves a jeji obsluha keyPressed/keyReleased a timer
-
+// TODO: tabulka klaves a jeji obsluha keyPressed/keyReleased a timer
 
 #include <iostream>
 #include <functional>

@@ -18,6 +18,10 @@ void MeshDynTex::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 
 void MeshDynTex::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
+	/*
+	glUniform1i(shaderProgram->locations.frame, this->frame);
+	ObjectInstance::draw(viewMatrix,projectionMatrix);
+	*/
 	if (initialized && (shaderProgram != nullptr)) {
 
 		glUseProgram(shaderProgram->program);
@@ -182,6 +186,7 @@ bool MeshDynTex::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 		CHECK_GL_ERROR();
 
 		validInit = true;
+		this->initialized = true;
 	}
 
 	glBindVertexArray(0);

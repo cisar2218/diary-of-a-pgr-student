@@ -759,7 +759,7 @@ void initApplication() {
 		// moving object
 		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
 		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
-		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovement, movObj);
+		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovementEnabled, movObj);
 
 		// random selectable object
 		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/floorcube.dae");

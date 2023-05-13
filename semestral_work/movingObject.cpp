@@ -29,7 +29,7 @@ glm::vec3 MovingObject::getDirection()
 	return this->direction;
 }
 
-void MovingObject::toggleMovement()
+void MovingObject::toggleMovementEnabled()
 {
 	this->movementEnabled = !movementEnabled;
 }

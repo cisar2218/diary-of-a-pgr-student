@@ -4,19 +4,10 @@
     <ClCompile Include="singlemesh.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
-    <ClCompile Include="square.cpp">
-      <Filter>SourceFiles</Filter>
-    </ClCompile>
     <ClCompile Include="camera.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
-    <ClCompile Include="circle.cpp">
-      <Filter>SourceFiles</Filter>
-    </ClCompile>
     <ClCompile Include="sphere.cpp">
-      <Filter>SourceFiles</Filter>
-    </ClCompile>
-    <ClCompile Include="triangle.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
     <ClCompile Include="janskdus.cpp">
@@ -42,9 +33,6 @@
     <ClInclude Include="camera.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="circle.h">
-      <Filter>HeaderFiles</Filter>
-    </ClInclude>
     <ClInclude Include="object.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
@@ -54,13 +42,7 @@
     <ClInclude Include="sphere.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
-    <ClInclude Include="square.h">
-      <Filter>HeaderFiles</Filter>
-    </ClInclude>
     <ClInclude Include="parameters.h">
-      <Filter>HeaderFiles</Filter>
-    </ClInclude>
-    <ClInclude Include="triangle.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="janskdus.h">

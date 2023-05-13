@@ -52,79 +52,11 @@ const unsigned sphereTriangles[] = {
   93, 111, 94,
 }; // end sphereTriangles
 
-void Sphere::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
-	//float rotationSpeed = 1.0f;
-	//float angle = elapsedTime * rotationSpeed; // rotationSpeed is in radians per second
 
-	//glm::vec3 xAxis(1.0f, 0.0f, 0.0f);
-	//glm::mat4 rotationMatrixX = glm::rotate(glm::mat4(1.0f), angle, xAxis);
 
-	//glm::vec3 yAxis(0.0f, 1.0f, 0.0f);
-	//glm::mat4 rotationMatrixY = glm::rotate(glm::mat4(1.0f), angle, yAxis);
-
-	//glm::vec3 zAxis(0.0f, 0.0f, 1.0f);
-	//glm::mat4 rotationMatrixZ = glm::rotate(glm::mat4(1.0f), angle, zAxis);
-
-	////rotationMatrixY[3] = glm::vec4(this->localModelMatrix[3]);
-	//this->localModelMatrix *= rotationMatrixY;
-	// propagate the update to children
-	ObjectInstance::update(elapsedTime, parentModelMatrix);
-}
-
-void Sphere::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg)
 {
-	if (initialized && (shaderProgram != nullptr)) {
-		glUseProgram(shaderProgram->program);
-
-		// uniform material
-		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
-		glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
-		glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
-		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
-
-		// texture
-		if (texture->enabled) {
-			glActiveTexture(GL_TEXTURE0); // “logical” texture unit
-			glBindTexture(GL_TEXTURE_2D, texture->texture);
-			glUniform1i(shaderProgram->locations.textureSampler, 0);
-		}
-		glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
-
-
-		// uniform PVM
-		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
-		// uniform V matrix, M matrix, N matrix
-		glm::mat4 Nmatrix = getModelRotationMatrix();
-		glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
-		glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-		glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
-		
-		glBindVertexArray(geometry->vertexArrayObject);
-		glDrawElements(GL_TRIANGLES, 48*3, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
-	}
-	else {
-		std::cerr << "Sphere::draw(): Can't draw, triangle not initialized properly!" << std::endl;
-	}
-}
-
-void Sphere::setMaterial() {
-	material = new ObjectMaterial;
-	//material->ambient = glm::vec3(0.5f, 0.3f, 0.0f);
-	/*material->ambient = glm::vec3(1.0f, 0.0f, 0.0f);
-	material->diffuse = glm::vec3(1.0f, 0.7f, 0.0f);
-	material->specular = glm::vec3(0.0f, 0.0f, 0.0f);
-	material->shininess = 64.0f;*/
-
-	material->ambient = glm::vec3(0.0f, 0.1f, 0.3f);
-	material->diffuse = glm::vec3(0.0f, 0.6f, 0.9f);
-	material->specular = glm::vec3(0.5f, 0.5f, 0.5f);
-	material->shininess = 32.0f;
-}
-
-Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
-{
-	setMaterial();
+	initialized = false;
 	texture = new ObjectTexture;
 	texture->enabled = false;
 

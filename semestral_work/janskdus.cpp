@@ -36,8 +36,6 @@
 #include <functional>
 #include "pgr.h"
 #include "object.h"
-#include "triangle.h"
-#include "square.h"
 #include "singlemesh.h"
 #include "camera.h"
 #include "parameters.h"
@@ -811,11 +809,18 @@ void initApplication() {
 		button->setMaterial(matteMetalMaterial);
 
 		objects.push_back(button);
-
 	}
 	
 	{ // wood sphere
 	auto sphere = new Sphere(&sphereShaderProgram);
+
+	sphere->setMaterial(
+		glm::vec3(0.0f, 0.1f, 0.3f),
+		glm::vec3(0.0f, 0.6f, 0.9f),
+		glm::vec3(0.5f, 0.5f, 0.5f),
+		32.0f
+	);
+
 	sphere->setPosition(3.0f, 0.0f, 3.0f);
 	sphere->setTexture(texturesInited.woodTexture);
 	objects.push_back(sphere);

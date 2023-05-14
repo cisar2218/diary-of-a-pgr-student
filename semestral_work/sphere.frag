@@ -1,3 +1,5 @@
+// TODO review all light duplicate function in all frag shaders (replace with new version to be sure)
+
 #version 330 core
 
 smooth in vec2 TexCoord;

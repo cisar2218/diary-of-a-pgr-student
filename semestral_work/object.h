@@ -116,6 +116,10 @@ protected:
 
 	ObjectList children;
 
+	glm::vec3 lightColorCombined;
+	const glm::vec3 lightColor1 = glm::vec3(1.0f, 0.8f, 0.5f);  // Red
+	const glm::vec3 lightColor2 = glm::vec3(0.8f, 1.0f, 0.5f);  // Blue
+
 	bool initialized = false;  ///< object has the shader with defined locations
 public:
 
@@ -170,6 +174,9 @@ public:
 	*/
 	virtual void update(const float elapsedTime, const glm::mat4* parentModelMatrix) {
 
+		// update light color
+		this->lightColorCombined = glm::mix(this->lightColor1, this->lightColor2, glm::sin(elapsedTime) / 2.0f + 1);
+
 		// if we have parent, multiply parent's matrix with ours
 		if (parentModelMatrix != nullptr)
 			globalModelMatrix = *parentModelMatrix * localModelMatrix;
@@ -208,7 +215,7 @@ public:
 
 		// uniform light
 		glUniform3fv(shaderProgram->locations.lightAmbient, 1, glm::value_ptr(glm::vec3(0.0f)));
-		glUniform3fv(shaderProgram->locations.lightDiffuse, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.5f)));
+		glUniform3fv(shaderProgram->locations.lightDiffuse, 1, glm::value_ptr(this->lightColorCombined));
 		glUniform3fv(shaderProgram->locations.lightSpecular, 1, glm::value_ptr(glm::vec3(1.0f)));
 		glUniform3fv(shaderProgram->locations.lightPosition, 1, glm::value_ptr(glm::vec3(2.0f, 2.0f, 2.0f)));
 		glUniform3fv(shaderProgram->locations.lightDirection, 1, glm::value_ptr(glm::vec3(0.0f, -1.0f, 0.0f)));

@@ -16,42 +16,11 @@ void MeshMovTex::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 void MeshMovTex::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	if (initialized && (shaderProgram != nullptr)) {
-
-		glUseProgram(shaderProgram->program);
-
-		// uniform material
-		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
-		glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
-		glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
-		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
-
-		// texture
-		if (texture->enabled) {
-			glActiveTexture(GL_TEXTURE0); // “logical” texture unit
-			glBindTexture(GL_TEXTURE_2D, texture->texture);
-			glUniform1i(shaderProgram->locations.textureSampler, 0);
-		}
-		glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
-
 		// moving texture specific
 		glUniform1f(shaderProgram->locations.elapsedTime, this->elapsedTime);
 		glUniform2fv(shaderProgram->locations.scrollSpeed, 1, glm::value_ptr(this->scrollSpeed));
-
-		// uniform PVM
-		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
-		// uniform V matrix, M matrix, N matrix
-		glm::mat4 Nmatrix = getModelRotationMatrix();
-		glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
-		glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-		glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
-
-		glBindVertexArray(geometry->vertexArrayObject);
-		glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);
-		glBindVertexArray(0);
 	}
-	else {
-		std::cerr << "MeshMovTex::draw(): Can't draw, mesh not initialized properly!" << std::endl;
-	}
+	ObjectInstance::draw(viewMatrix, projectionMatrix);
 }
 
 void MeshMovTex::setScrollSpeed(glm::vec2 newSpeed) {
@@ -188,8 +157,9 @@ bool MeshMovTex::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	return validInit;
 }
 
-MeshMovTex::MeshMovTex(ShaderProgram* shdrPrg, const std::string& fileName) : ObjectInstance(shdrPrg), initialized(false)
+MeshMovTex::MeshMovTex(ShaderProgram* shdrPrg, const std::string& fileName) : ObjectInstance(shdrPrg)
 {
+	this->initialized = false;
 	material = new ObjectMaterial;
 	material->ambient = glm::vec3(0.0f, 0.1f, 0.3f);
 	material->diffuse = glm::vec3(0.0f, 0.6f, 0.9f);
@@ -216,8 +186,9 @@ MeshMovTex::MeshMovTex(ShaderProgram* shdrPrg, const std::string& fileName) : Ob
 	}
 }
 
-MeshMovTex::MeshMovTex(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg), initialized(false)
+MeshMovTex::MeshMovTex(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg)
 {
+	this->initialized = false;
 	const char* MODEL_FILE_NAME = "models/floorcube.dae";
 
 	if (!loadSingleMesh(MODEL_FILE_NAME, shdrPrg, &geometry)) {
@@ -255,6 +226,5 @@ MeshMovTex::~MeshMovTex() {
 		delete geometry;
 		geometry = nullptr;
 	}
-
 	initialized = false;
 }

@@ -52,9 +52,9 @@ using namespace std;
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
 enum { CAMERA_FREE_IDX, CAMERA_2_IDX, CAMERA_3_IDX, CAMERA_4_MOVING_IDX, CAMERA_COUNT };
 
-constexpr int WINDOW_WIDTH = 500;
-constexpr int WINDOW_HEIGHT = 500;
-constexpr char WINDOW_TITLE[] = "PGR: Application Skeleton";
+constexpr int WINDOW_WIDTH = 1280;
+constexpr int WINDOW_HEIGHT = 720;
+constexpr char WINDOW_TITLE[] = "PGR: janskdus";
 
 ObjectList objects;
 
@@ -183,6 +183,11 @@ void loadShaderPrograms()
 		sphereShaderProgram.locations.Vmatrix = glGetUniformLocation(sphereShaderProgram.program, "Vmatrix");
 		sphereShaderProgram.locations.Mmatrix = glGetUniformLocation(sphereShaderProgram.program, "Mmatrix");
 		sphereShaderProgram.locations.Nmatrix = glGetUniformLocation(sphereShaderProgram.program, "Nmatrix");
+		// -> lights
+		sphereShaderProgram.locations.lightAmbient = glGetUniformLocation(sphereShaderProgram.program, "dirLight.ambient");
+		sphereShaderProgram.locations.lightDiffuse = glGetUniformLocation(sphereShaderProgram.program, "dirLight.diffuse");
+		sphereShaderProgram.locations.lightSpecular = glGetUniformLocation(sphereShaderProgram.program, "dirLight.specular");
+		sphereShaderProgram.locations.lightPosition = glGetUniformLocation(sphereShaderProgram.program, "dirLight.position");
 
 		// check for error INs
 		printErrIfNotSatisfied(sphereShaderProgram.locations.position != -1, "position attribLocation not found");
@@ -201,10 +206,15 @@ void loadShaderPrograms()
 		printErrIfNotSatisfied(sphereShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
 		printErrIfNotSatisfied(sphereShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+		// -> dir light
+		printErrIfNotSatisfied(sphereShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(sphereShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
 
 		sphereShaderProgram.initialized = true;
 	}
-
+	
+	/*
 	{ // dynamic texture shaders 
 		GLuint shadersDynamicTexture[] = {
 		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
@@ -252,13 +262,14 @@ void loadShaderPrograms()
 		printErrIfNotSatisfied(dynTexShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
 		printErrIfNotSatisfied(dynTexShaderProgram.locations.frame != -1, "frame uniformLocation not found");
 		// -> matrixes
-		printErrIfNotSatisfied(dynTexShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
-		printErrIfNotSatisfied(dynTexShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
-		printErrIfNotSatisfied(dynTexShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
-		printErrIfNotSatisfied(dynTexShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.lightAmbient != -1, "dirlight ambient uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.lightDiffuse != -1, "dirlight diffuse uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.lightSpecular != -1, "dirlight specular uniformLocation not found");
+		printErrIfNotSatisfied(dynTexShaderProgram.locations.lightPosition != -1, "dirlight position uniformLocation not found");
 
 		dynTexShaderProgram.initialized = true;
 	}
+	*/
 	
 	{ // moving texture shaders 
 		GLuint shaders[] = {
@@ -268,6 +279,12 @@ void loadShaderPrograms()
 		};
 
 		movTexShaderProgram.program = pgr::createProgram(shaders);
+
+		// -> frame (mov tex specific)
+		movTexShaderProgram.locations.scrollSpeed = glGetUniformLocation(movTexShaderProgram.program, "scrollSpeed");
+		movTexShaderProgram.locations.elapsedTime = glGetUniformLocation(movTexShaderProgram.program, "elapsedTime");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.scrollSpeed != -1, "scrollSpeed uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.elapsedTime != -1, "elapsedTime uniformLocation not found");
 
 		// get location of the uniform (fragment) shader attributes
 		movTexShaderProgram.locations.textureSampler = glGetUniformLocation(movTexShaderProgram.program, "tex");
@@ -289,10 +306,11 @@ void loadShaderPrograms()
 		movTexShaderProgram.locations.Vmatrix = glGetUniformLocation(movTexShaderProgram.program, "Vmatrix");
 		movTexShaderProgram.locations.Mmatrix = glGetUniformLocation(movTexShaderProgram.program, "Mmatrix");
 		movTexShaderProgram.locations.Nmatrix = glGetUniformLocation(movTexShaderProgram.program, "Nmatrix");
-
-		// -> frame (dyn tex specific)
-		movTexShaderProgram.locations.scrollSpeed = glGetUniformLocation(movTexShaderProgram.program, "scrollSpeed");
-		movTexShaderProgram.locations.elapsedTime = glGetUniformLocation(movTexShaderProgram.program, "elapsedTime");
+		// -> lights
+		movTexShaderProgram.locations.lightAmbient = glGetUniformLocation(movTexShaderProgram.program, "dirLight.ambient");
+		movTexShaderProgram.locations.lightDiffuse = glGetUniformLocation(movTexShaderProgram.program, "dirLight.diffuse");
+		movTexShaderProgram.locations.lightSpecular = glGetUniformLocation(movTexShaderProgram.program, "dirLight.specular");
+		movTexShaderProgram.locations.lightPosition = glGetUniformLocation(movTexShaderProgram.program, "dirLight.position");
 
 		// check for error INs
 		printErrIfNotSatisfied(movTexShaderProgram.locations.position != -1, "position attribLocation not found");
@@ -306,17 +324,18 @@ void loadShaderPrograms()
 		printErrIfNotSatisfied(movTexShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
 		// -> textures
 		printErrIfNotSatisfied(movTexShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
-		printErrIfNotSatisfied(movTexShaderProgram.locations.scrollSpeed != -1, "scrollSpeed uniformLocation not found");
-		printErrIfNotSatisfied(movTexShaderProgram.locations.elapsedTime != -1, "elapsedTime uniformLocation not found");
 		// -> matrixes
 		printErrIfNotSatisfied(movTexShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(movTexShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+		// -> dir light
 		printErrIfNotSatisfied(movTexShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
 		printErrIfNotSatisfied(movTexShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
 		printErrIfNotSatisfied(movTexShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
 
 		movTexShaderProgram.initialized = true;
 	}
-
 
 	{ // INIT TEXTURES
 		texturesInited.woodTexture = pgr::createTexture("textures/wood_floor_deck_diff_4k.jpg");
@@ -406,10 +425,10 @@ void displayCb() {
  * \param newHeight New window height
  */
 void reshapeCb(int newWidth, int newHeight) {
-	// TODO: Take new window size and update the application state,
-	// window and projection.
-
-	// glViewport(...);
+	glViewport(0, 0, newWidth, newHeight);
+	for (Camera& camera : cameras) {
+		camera.setProjectionMatrixRatio(newWidth, newHeight);
+	}
 };
 
 // -----------------------  Mouse ---------------------------------
@@ -697,6 +716,10 @@ void initObjects() {
 	cameras[CAMERA_2_IDX] = Camera(CAMERA_2_INIT_POSITION, CAMERA_2_INIT_DIRECTION);
 	cameras[CAMERA_3_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
 	cameras[CAMERA_4_MOVING_IDX] = Camera(CAMERA_3_INIT_POSITION, CAMERA_3_INIT_DIRECTION);
+
+	for (Camera& camera : cameras) {
+		camera.setProjectionMatrixRatio(WINDOW_WIDTH, WINDOW_HEIGHT);
+	}
 }
 
 /**
@@ -710,10 +733,6 @@ void initApplication() {
 	initObjects();
 
 
-	/*auto woodenSphere = new SingleMesh(&sphereShaderProgram, "models/untitled.obj");
-	woodenSphere->setTexture(texturesInited.woodTexture);
-	objects.push_back(woodenSphere);*/
-	
 	{ // floor
 	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorcube.dae");
 	//floorCube->scale(0.0f, 0.0f, 0.0f);
@@ -758,11 +777,12 @@ void initApplication() {
 	{ // selectable and movable pair
 		// moving object
 		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
+		movObj->setTexture(texturesInited.wallRaw);
 		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
 		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovementEnabled, movObj);
 
 		// random selectable object
-		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/floorcube.dae");
+		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/monster.fbx");
 		selectableObject->setTexture(texturesInited.brickTexture);
 		selectableObject->setFunction(boundFunction);
 		selectableObject->setYPosition(2.0f);
@@ -771,6 +791,8 @@ void initApplication() {
 		objects.push_back(selectableObject);
 	}
 
+	/*
+	
 	{
 	 // dynamic texture "TV"
 		const int numFrames = 4;
@@ -809,7 +831,7 @@ void initApplication() {
 
 		objects.push_back(button);
 	}
-	
+	*/
 	{ // wood sphere
 	auto sphere = new Sphere(&sphereShaderProgram);
 
@@ -832,7 +854,6 @@ void initApplication() {
 	objects.push_back(gameState.skybox);
 	}
 
-	
 	{ // moving texture
 		MeshMovTex* movCube = new MeshMovTex(&movTexShaderProgram, "models/cubeDynamicTexture.fbx");
 		movCube->rotateYAxis(90.0f);

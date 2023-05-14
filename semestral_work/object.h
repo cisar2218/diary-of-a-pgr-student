@@ -39,9 +39,13 @@ typedef struct _ShaderProgram {
 		GLint frame;
 		GLint scrollSpeed;
 		GLint elapsedTime;
-	} locations;
 
-	// ...
+		// -> light
+		GLint lightAmbient;
+		GLint lightDiffuse;
+		GLint lightSpecular;
+		GLint lightPosition;
+	} locations;
 
 	_ShaderProgram() : program(0), initialized(false) {
 		locations.position = -1;
@@ -54,6 +58,11 @@ typedef struct _ShaderProgram {
 		locations.materialSpecular = -1;
 		locations.materialShininess = -1;
 		locations.textureEnabled = -1;
+
+		locations.lightAmbient = -1;
+		locations.lightDiffuse = -1;
+		locations.lightSpecular = -1;
+		locations.lightPosition = -1;
 	}
 
 } ShaderProgram;
@@ -201,6 +210,13 @@ public:
 			glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
 			glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 			glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
+
+			// uniform light
+			glUniform3fv(shaderProgram->locations.lightAmbient, 1, glm::value_ptr(glm::vec3(0.0f)));
+			glUniform3fv(shaderProgram->locations.lightDiffuse, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.5f)));
+			glUniform3fv(shaderProgram->locations.lightSpecular, 1, glm::value_ptr(glm::vec3(1.0f)));
+			glUniform3fv(shaderProgram->locations.lightPosition, 1, glm::value_ptr(glm::vec3(2.0f, 2.0f, 2.0f)));
+
 
 			glBindVertexArray(geometry->vertexArrayObject);
 			glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);

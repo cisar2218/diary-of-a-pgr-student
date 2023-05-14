@@ -2,7 +2,7 @@
 #include "movingObject.h"
 
 void MovingObject::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
-	float radius = 5.0f;
+	float radius = 4.0f;
 	float x = radius;
 	float z = 0.0f;
 	if (movementEnabled) {

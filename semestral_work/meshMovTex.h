@@ -18,6 +18,4 @@ private:
 	float elapsedTime = 0.0f;
 
 	bool loadSingleMesh(const std::string& fileName, ShaderProgram* shader, ObjectGeometry** geometry);
-
-	bool initialized;  ///< object has the shader with defined locations
 };

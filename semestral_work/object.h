@@ -65,6 +65,8 @@ typedef struct _ShaderProgram {
 		locations.lightSpecular = -1;
 		locations.lightPosition = -1;
 		locations.lightDirection = -1;
+
+		locations.elapsedTime = -1;
 	}
 
 } ShaderProgram;

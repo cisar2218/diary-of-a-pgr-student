@@ -46,6 +46,7 @@
 #include "movingObject.h"
 #include "selectableObject.h"
 #include "proceduralTetrahedron.h"
+#include "dynamicMesh.h"
 #include <unordered_map>
 #include <glm/gtx/string_cast.hpp>
 
@@ -65,6 +66,7 @@ ShaderProgram skyboxShaderProgram;
 ShaderProgram sphereShaderProgram;
 ShaderProgram dynTexShaderProgram;
 ShaderProgram movTexShaderProgram;
+ShaderProgram dynamicVertShaderProgram;
 
 Camera cameras[CAMERA_COUNT];
 
@@ -219,6 +221,73 @@ void loadShaderPrograms()
 		sphereShaderProgram.initialized = true;
 	}
 	
+	{ // dynamic mesh shaders 
+		GLuint shadersSphere[] = {
+		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "dynamicMesh.vert"),
+		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "sphere.frag"),
+		  0
+		};
+
+		dynamicVertShaderProgram.program = pgr::createProgram(shadersSphere);
+
+		// dynamic mesh specific
+		dynamicVertShaderProgram.locations.elapsedTime = glGetUniformLocation(dynamicVertShaderProgram.program, "elapsedTime");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.elapsedTime != -1, "elapsedTime uniformLocation not found");
+
+		// get location of the uniform (fragment) shader attributes
+		dynamicVertShaderProgram.locations.textureSampler = glGetUniformLocation(dynamicVertShaderProgram.program, "tex");
+		dynamicVertShaderProgram.locations.textureEnabled = glGetUniformLocation(dynamicVertShaderProgram.program, "texEnabled");
+
+		dynamicVertShaderProgram.locations.position = glGetAttribLocation(dynamicVertShaderProgram.program, "aPos");
+		dynamicVertShaderProgram.locations.normal = glGetAttribLocation(dynamicVertShaderProgram.program, "aNormal");
+		dynamicVertShaderProgram.locations.textureCoord = glGetAttribLocation(dynamicVertShaderProgram.program, "aTexCoord");
+
+		// other attributes and uniforms
+		// -> material
+		dynamicVertShaderProgram.locations.materialAmbient = glGetUniformLocation(dynamicVertShaderProgram.program, "material.ambient");
+		dynamicVertShaderProgram.locations.materialDiffuse = glGetUniformLocation(dynamicVertShaderProgram.program, "material.diffuse");
+		dynamicVertShaderProgram.locations.materialSpecular = glGetUniformLocation(dynamicVertShaderProgram.program, "material.specular");
+		dynamicVertShaderProgram.locations.materialShininess = glGetUniformLocation(dynamicVertShaderProgram.program, "material.shininess");
+
+		// -> matrixes
+		dynamicVertShaderProgram.locations.PVM = glGetUniformLocation(dynamicVertShaderProgram.program, "PVM");
+		dynamicVertShaderProgram.locations.Vmatrix = glGetUniformLocation(dynamicVertShaderProgram.program, "Vmatrix");
+		dynamicVertShaderProgram.locations.Mmatrix = glGetUniformLocation(dynamicVertShaderProgram.program, "Mmatrix");
+		dynamicVertShaderProgram.locations.Nmatrix = glGetUniformLocation(dynamicVertShaderProgram.program, "Nmatrix");
+		// -> lights
+		dynamicVertShaderProgram.locations.lightAmbient = glGetUniformLocation(dynamicVertShaderProgram.program, "spotLight.ambient");
+		dynamicVertShaderProgram.locations.lightDiffuse = glGetUniformLocation(dynamicVertShaderProgram.program, "spotLight.diffuse");
+		dynamicVertShaderProgram.locations.lightSpecular = glGetUniformLocation(dynamicVertShaderProgram.program, "spotLight.specular");
+		dynamicVertShaderProgram.locations.lightPosition = glGetUniformLocation(dynamicVertShaderProgram.program, "spotLight.position");
+		dynamicVertShaderProgram.locations.lightDirection = glGetUniformLocation(dynamicVertShaderProgram.program, "spotLight.direction");
+
+		// check for error INs
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.position != -1, "position attribLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.normal != -1, "normal attribLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.textureCoord != -1, "texture attribLocation not found");
+		// check for error UNIFORMs
+		// -> material
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
+		// -> textures
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
+		// -> matrixes
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+		// -> spot light
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.lightAmbient != -1, "light ambient uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.lightDiffuse != -1, "light diffuse uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.lightSpecular != -1, "light specular uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.lightPosition != -1, "light position uniformLocation not found");
+		printErrIfNotSatisfied(dynamicVertShaderProgram.locations.lightDirection != -1, "light direction uniformLocation not found");
+
+		dynamicVertShaderProgram.initialized = true;
+	}
+
 	{ // dynamic texture shaders 
 		GLuint shadersDynamicTexture[] = {
 		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
@@ -447,6 +516,8 @@ void reshapeCb(int newWidth, int newHeight) {
 	for (Camera& camera : cameras) {
 		camera.setProjectionMatrixRatio(newWidth, newHeight);
 	}
+	gameState.windowWidth = newWidth;
+	gameState.windowHeight = newHeight;
 };
 
 // -----------------------  Mouse ---------------------------------
@@ -904,7 +975,7 @@ objects.push_back(selectableObject);
 			32.0f
 		);
 		tetrahedron->setPosition(-3.0f, 0.5f, -2.5f);
-		tetrahedron->setTexture(texturesInited.skyboxTexture);
+		//tetrahedron->setTexture(texturesInited.skyboxTexture);
 		objects.push_back(tetrahedron);
 
 		std::function<void()> boundFunction = [&]() {
@@ -919,7 +990,7 @@ objects.push_back(selectableObject);
 						32.0f
 					);
 					obj->setPosition(-3.0f, 0.5f, -2.5f);
-					obj->setTexture(texturesInited.skyboxTexture);
+					//obj->setTexture(texturesInited.skyboxTexture);
 				}
 			}
 		};
@@ -930,6 +1001,15 @@ objects.push_back(selectableObject);
 		platform->setPosition(-3.0f, -1.0f, -2.5f);
 		platform->setTexture(texturesInited.wallRaw);
 		objects.push_back(platform);
+	}
+
+	{ // subdivided plane
+		DynamicMesh* plane = new DynamicMesh(&dynamicVertShaderProgram, "models/planeSubdivided.fbx");
+		//DynamicMesh* plane = new DynamicMesh(&dynamicVertShaderProgram, "models/Monster.fbx");
+		plane->rotateYAxis(90.0f);
+		plane->scale(10.0f);
+		plane->setPosition(-30.0f, -10.0f, 0.0f);
+		objects.push_back(plane);
 	}
 	
 

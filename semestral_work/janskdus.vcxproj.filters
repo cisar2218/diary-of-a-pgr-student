@@ -31,6 +31,9 @@
     <ClCompile Include="proceduralTetrahedron.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="dynamicMesh.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -69,6 +72,9 @@
     <ClInclude Include="proceduralTetrahedron.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
+    <ClInclude Include="dynamicMesh.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Shaders">
@@ -104,6 +110,9 @@
       <Filter>Shaders</Filter>
     </None>
     <None Include="movingTexture.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="dynamicMesh.vert">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

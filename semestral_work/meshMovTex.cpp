@@ -16,11 +16,22 @@ void MeshMovTex::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 void MeshMovTex::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
 	if (initialized && (shaderProgram != nullptr)) {
+
+		glUseProgram(shaderProgram->program);
+
+		bindCommonUniforms(viewMatrix, projectionMatrix);
+
 		// moving texture specific
 		glUniform1f(shaderProgram->locations.elapsedTime, this->elapsedTime);
 		glUniform2fv(shaderProgram->locations.scrollSpeed, 1, glm::value_ptr(this->scrollSpeed));
+
+		glBindVertexArray(geometry->vertexArrayObject);
+		glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);
+		glBindVertexArray(0);
 	}
-	ObjectInstance::draw(viewMatrix, projectionMatrix);
+	else {
+		std::cerr << "SingleMesh::draw(): Can't draw, mesh not initialized properly!" << std::endl;
+	}
 }
 
 void MeshMovTex::setScrollSpeed(glm::vec2 newSpeed) {

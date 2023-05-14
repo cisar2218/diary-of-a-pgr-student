@@ -154,6 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="dynamicMesh.cpp" />
     <ClCompile Include="meshDynTex.cpp" />
     <ClCompile Include="meshMovTex.cpp" />
     <ClCompile Include="movingObject.cpp" />
@@ -166,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="dynamicMesh.h" />
     <ClInclude Include="janskdus.h" />
     <ClInclude Include="meshDynTex.h" />
     <ClInclude Include="meshMovTex.h" />
@@ -179,6 +181,7 @@
     <ClInclude Include="sphere.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="dynamicMesh.vert" />
     <None Include="dynamicTexture.frag" />
     <None Include="movingTexture.frag" />
     <None Include="simple.frag" />

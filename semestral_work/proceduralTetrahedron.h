@@ -10,8 +10,8 @@ class Tetrahedron : public ObjectInstance
 public:
 	Tetrahedron(ShaderProgram* shdrPrg = nullptr);
 	~Tetrahedron();
-private:
     void generateVetices();
+private:
     static const int numAttribsPerVertex = 8;
     static const int numVertices = 4;
     float vertices[numVertices * numAttribsPerVertex];

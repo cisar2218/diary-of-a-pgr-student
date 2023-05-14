@@ -47,6 +47,7 @@
 #include "selectableObject.h"
 #include "proceduralTetrahedron.h"
 #include <unordered_map>
+#include <glm/gtx/string_cast.hpp>
 
 using namespace std;
 
@@ -472,6 +473,12 @@ void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
 			// Process left button release event
 		}
 	}
+	else if (buttonPressed == GLUT_RIGHT_BUTTON) {
+		// TODO remove debug for object placing
+		if (buttonState == GLUT_DOWN) {
+			cout << glm::to_string(cameras[gameState.activeCamera].getPosition()) << endl;
+		}
+	}
 }
 
 /**
@@ -800,88 +807,73 @@ void initApplication() {
 
 		// random selectable object
 		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/monster.fbx");
-		selectableObject->setTexture(texturesInited.brickTexture);
-		selectableObject->setFunction(boundFunction);
-		selectableObject->setYPosition(2.0f);
-		
-		objects.push_back(movObj);
-		objects.push_back(selectableObject);
+selectableObject->setTexture(texturesInited.brickTexture);
+selectableObject->setFunction(boundFunction);
+selectableObject->setYPosition(2.0f);
+
+objects.push_back(movObj);
+objects.push_back(selectableObject);
 	}
 
 	{
-	 // dynamic texture "TV"
-		const int numFrames = 4;
-		MeshDynTex* dynCube = new MeshDynTex(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
-		dynCube->scale(1.0f, 2.0f, 2.0f);
-		dynCube->setPosition(4.8f, 2.0f, 0.0f);
-		dynCube->setTexture(texturesInited.dynamicTexture);
+	// dynamic texture "TV"
+	const int numFrames = 4;
+	MeshDynTex* dynCube = new MeshDynTex(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
+	dynCube->scale(1.0f, 2.0f, 2.0f);
+	dynCube->setPosition(4.8f, 2.0f, 0.0f);
+	dynCube->setTexture(texturesInited.dynamicTexture);
 
-		auto screenMaterial = new ObjectMaterial;
-		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
-		screenMaterial->shininess = 10.0f;
-		
-		dynCube->setMaterial(screenMaterial);
+	auto screenMaterial = new ObjectMaterial;
+	screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+	screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
+	screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
+	screenMaterial->shininess = 10.0f;
 
-		objects.push_back(dynCube);
+	dynCube->setMaterial(screenMaterial);
 
-		// button
-		SelectableObject* button = new SelectableObject(&sphereShaderProgram, "models/button.fbx");
-		button->rotateZAxis(90.0f);
-		button->scale(0.2f);
-		button->setXPosition(4.0f);
-		button->setZPosition(-3.0f);
+	objects.push_back(dynCube);
 
-		std::function<void()> boundFunction = std::bind(&MeshDynTex::toggleEnabled, dynCube);
-		button->setFunction(boundFunction);
+	// button
+	SelectableObject* button = new SelectableObject(&sphereShaderProgram, "models/button.fbx");
+	button->rotateZAxis(90.0f);
+	button->scale(0.2f);
+	button->setXPosition(4.0f);
+	button->setZPosition(-3.0f);
 
-		ObjectMaterial* matteMetalMaterial = new ObjectMaterial;
-		matteMetalMaterial->ambient = glm::vec3(0.3f, 0.3f, 0.3f);
-		matteMetalMaterial->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
-		matteMetalMaterial->specular = glm::vec3(0.1f, 0.1f, 0.1f);
-		matteMetalMaterial->shininess = 20.0f;
+	std::function<void()> boundFunction = std::bind(&MeshDynTex::toggleEnabled, dynCube);
+	button->setFunction(boundFunction);
 
-		button->setMaterial(matteMetalMaterial);
+	ObjectMaterial* matteMetalMaterial = new ObjectMaterial;
+	matteMetalMaterial->ambient = glm::vec3(0.3f, 0.3f, 0.3f);
+	matteMetalMaterial->diffuse = glm::vec3(0.4f, 0.4f, 0.4f);
+	matteMetalMaterial->specular = glm::vec3(0.1f, 0.1f, 0.1f);
+	matteMetalMaterial->shininess = 20.0f;
 
-		objects.push_back(button);
+	button->setMaterial(matteMetalMaterial);
+
+	objects.push_back(button);
 	}
 
 	{ // wood sphere
-	auto sphere = new Sphere(&sphereShaderProgram);
+		auto sphere = new Sphere(&sphereShaderProgram);
 
-	sphere->setMaterial(
-		glm::vec3(0.0f, 0.1f, 0.3f),
-		glm::vec3(0.0f, 0.6f, 0.9f),
-		glm::vec3(0.5f, 0.5f, 0.5f),
-		32.0f
-	);
-
-	sphere->setPosition(3.0f, 0.0f, 3.0f);
-	sphere->setTexture(texturesInited.woodTexture);
-	objects.push_back(sphere);
-	}
-
-	{ // tetrahedron
-		auto tetrahedron = new Tetrahedron(&sphereShaderProgram);
-
-		tetrahedron->setMaterial(
+		sphere->setMaterial(
 			glm::vec3(0.0f, 0.1f, 0.3f),
 			glm::vec3(0.0f, 0.6f, 0.9f),
 			glm::vec3(0.5f, 0.5f, 0.5f),
 			32.0f
 		);
 
-		tetrahedron->setPosition(0.0f, 0.0f, 0.0f);
-		tetrahedron->setTexture(texturesInited.skyboxTexture);
-		objects.push_back(tetrahedron);
+		sphere->setPosition(3.0f, 0.0f, 3.0f);
+		sphere->setTexture(texturesInited.woodTexture);
+		objects.push_back(sphere);
 	}
 
 	{ // skybox 
-	gameState.skybox = new Skybox(&skyboxShaderProgram, "models/skyBox.fbx");
-	gameState.skybox->setTexture(texturesInited.skyboxTexture);
-	gameState.skybox->scale(50.0f);
-	objects.push_back(gameState.skybox);
+		gameState.skybox = new Skybox(&skyboxShaderProgram, "models/skyBox.fbx");
+		gameState.skybox->setTexture(texturesInited.skyboxTexture);
+		gameState.skybox->scale(50.0f);
+		objects.push_back(gameState.skybox);
 	}
 
 	{ // moving texture
@@ -902,6 +894,43 @@ void initApplication() {
 		objects.push_back(movCube);
 	}
 
+	{ // platform & tetrahedron [SELECTABLE]
+		Tetrahedron* tetrahedron = new Tetrahedron(&sphereShaderProgram);
+
+		tetrahedron->setMaterial(
+			glm::vec3(0.0f, 0.1f, 0.3f),
+			glm::vec3(0.0f, 0.6f, 0.9f),
+			glm::vec3(0.5f, 0.5f, 0.5f),
+			32.0f
+		);
+		tetrahedron->setPosition(-3.0f, 0.5f, -2.5f);
+		tetrahedron->setTexture(texturesInited.skyboxTexture);
+		objects.push_back(tetrahedron);
+
+		std::function<void()> boundFunction = [&]() {
+			for (auto& obj : objects) {
+				if (dynamic_cast<Tetrahedron*>(obj)) {
+					obj = new Tetrahedron(&sphereShaderProgram);
+					obj = new Tetrahedron(&sphereShaderProgram);
+					obj->setMaterial(
+						glm::vec3(0.0f, 0.1f, 0.3f),
+						glm::vec3(0.0f, 0.6f, 0.9f),
+						glm::vec3(0.5f, 0.5f, 0.5f),
+						32.0f
+					);
+					obj->setPosition(-3.0f, 0.5f, -2.5f);
+					obj->setTexture(texturesInited.skyboxTexture);
+				}
+			}
+		};
+		
+		SelectableObject* platform = new SelectableObject(&sphereShaderProgram, "models/platformRound.fbx");
+
+		platform->setFunction(boundFunction);
+		platform->setPosition(-3.0f, -1.0f, -2.5f);
+		platform->setTexture(texturesInited.wallRaw);
+		objects.push_back(platform);
+	}
 	
 
 	// init your Application

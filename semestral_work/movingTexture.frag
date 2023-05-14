@@ -24,12 +24,10 @@ struct Light {
   vec3  diffuse;
   vec3  specular;
   vec3  position;
-  vec3  spotDirection;
-  float spotCosCutOff;
-  float spotExponent;
+  vec3  direction;
 };
 
-uniform Light dirLight;
+uniform Light spotLight;
 
 struct Material {
     vec3 ambient;
@@ -55,9 +53,9 @@ vec4 getDirectionalLight(vec3 vertexPosition, vec3 vertexNormal) {
     vec3 light_reflection = reflect(-light_norm, vertexNormal);
     vec3 viewer = normalize(-vertexPosition);
 
-    ret += material.ambient * dirLight.ambient;
-    ret += material.diffuse * dirLight.diffuse * max(0.0, dot(vertexNormal, light_norm));
-    ret += material.specular * dirLight.specular * pow(max(0.0, dot(light_reflection, viewer)), material.shininess);
+    ret += material.ambient * spotLight.ambient;
+    ret += material.diffuse * spotLight.diffuse * max(0.0, dot(vertexNormal, light_norm));
+    ret += material.specular * spotLight.specular * pow(max(0.0, dot(light_reflection, viewer)), material.shininess);
 
     return vec4(ret, 1.0);
 }
@@ -65,15 +63,15 @@ vec4 getDirectionalLight(vec3 vertexPosition, vec3 vertexNormal) {
 vec4 getPointLight(vec3 vertexPosition, vec3 vertexNormal) {
     
     vec3 ret = vec3(0.0);
-    vec3 lightPosition = (Vmatrix * vec4(dirLight.position, 1.0)).xyz;
+    vec3 lightPosition = (Vmatrix * vec4(spotLight.position, 1.0)).xyz;
 
     vec3 light_norm = normalize(lightPosition - vertexPosition);
     vec3 light_reflection = reflect(-light_norm, vertexNormal);
     vec3 viewer = normalize(-vertexPosition);
 	
-    ret += material.ambient * dirLight.ambient;
-    ret += material.diffuse * dirLight.diffuse * max(0.0, dot(vertexNormal, light_norm));
-    ret += material.specular * dirLight.specular * pow(max(0.0, dot(light_reflection, viewer)), material.shininess);
+    ret += material.ambient * spotLight.ambient;
+    ret += material.diffuse * spotLight.diffuse * max(0.0, dot(vertexNormal, light_norm));
+    ret += material.specular * spotLight.specular * pow(max(0.0, dot(light_reflection, viewer)), material.shininess);
 
     float distFromLight = distance(lightPosition, vertexPosition);
     float attenConst = 1.0;
@@ -87,19 +85,19 @@ vec4 getPointLight(vec3 vertexPosition, vec3 vertexNormal) {
 }
 
 vec4 getSpotLight(vec3 vertexPosition, vec3 vertexNormal) {
-    vec3 lightPosition = (Vmatrix * vec4(dirLight.position, 1.0)).xyz;
+    vec3 lightPosition = (Vmatrix * vec4(spotLight.position, 1.0)).xyz;
     vec3 ret = vec3(0.0);
 
     vec3 light_norm = normalize(lightPosition - vertexPosition);
     vec3 light_reflection = reflect(-light_norm, vertexNormal); // smer odrazu
     vec3 viewer = normalize(-vertexPosition);
     
-    vec3 spotDir = normalize((Vmatrix * vec4(vec3(0.0, -1.0, 0.0),0.0)).xyz);
+    vec3 spotDir = normalize((Vmatrix * vec4(spotLight.direction,0.0)).xyz);
     float dotAngle = dot(spotDir, -light_norm);
 
-    ret += material.ambient * dirLight.ambient;
-	ret += material.diffuse * dirLight.diffuse * max(dot(vertexNormal, viewer), 0);
-	ret += material.specular * dirLight.specular * pow( max(dot(light_reflection,viewer),0), material.shininess );
+    ret += material.ambient * spotLight.ambient;
+	ret += material.diffuse * spotLight.diffuse * max(dot(vertexNormal, viewer), 0);
+	ret += material.specular * spotLight.specular * pow( max(dot(light_reflection,viewer),0), material.shininess );
     
     float distFromLight = distance(lightPosition, vertexPosition);
     float attenConst = 1.0;

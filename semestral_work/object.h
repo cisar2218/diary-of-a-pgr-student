@@ -45,6 +45,7 @@ typedef struct _ShaderProgram {
 		GLint lightDiffuse;
 		GLint lightSpecular;
 		GLint lightPosition;
+		GLint lightDirection;
 	} locations;
 
 	_ShaderProgram() : program(0), initialized(false) {
@@ -63,6 +64,7 @@ typedef struct _ShaderProgram {
 		locations.lightDiffuse = -1;
 		locations.lightSpecular = -1;
 		locations.lightPosition = -1;
+		locations.lightDirection = -1;
 	}
 
 } ShaderProgram;
@@ -181,6 +183,37 @@ public:
 		}
 	}
 
+	virtual void bindCommonUniforms(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
+		// uniform material
+		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
+		glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
+		glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
+		glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
+
+		// texture
+		if (texture->enabled) {
+			glActiveTexture(GL_TEXTURE0); // “logical” texture unit
+			glBindTexture(GL_TEXTURE_2D, texture->texture);
+			glUniform1i(shaderProgram->locations.textureSampler, 0);
+		}
+		glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
+
+		// uniform PVM
+		glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
+		// uniform V matrix, M matrix, N matrix
+		glm::mat4 Nmatrix = getModelRotationMatrix();
+		glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
+		glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+		glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
+
+		// uniform light
+		glUniform3fv(shaderProgram->locations.lightAmbient, 1, glm::value_ptr(glm::vec3(0.0f)));
+		glUniform3fv(shaderProgram->locations.lightDiffuse, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.5f)));
+		glUniform3fv(shaderProgram->locations.lightSpecular, 1, glm::value_ptr(glm::vec3(1.0f)));
+		glUniform3fv(shaderProgram->locations.lightPosition, 1, glm::value_ptr(glm::vec3(2.0f, 2.0f, 2.0f)));
+		glUniform3fv(shaderProgram->locations.lightDirection, 1, glm::value_ptr(glm::vec3(0.0f, -1.0f, 0.0f)));
+	}
+
 	/**
 	 * \brief Draw instance geometry and calls the draw() on child nodes.
 	 */
@@ -189,35 +222,8 @@ public:
 
 			glUseProgram(shaderProgram->program);
 
-			// uniform material
-			glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
-			glUniform3fv(shaderProgram->locations.materialDiffuse, 1, glm::value_ptr(material->diffuse));
-			glUniform3fv(shaderProgram->locations.materialSpecular, 1, glm::value_ptr(material->specular));
-			glUniform1f(shaderProgram->locations.materialShininess, material->shininess);
-
-			// texture
-			if (texture->enabled) {
-				glActiveTexture(GL_TEXTURE0); // “logical” texture unit
-				glBindTexture(GL_TEXTURE_2D, texture->texture);
-				glUniform1i(shaderProgram->locations.textureSampler, 0);
-			}
-			glUniform1i(shaderProgram->locations.textureEnabled, texture->enabled);
-
-			// uniform PVM
-			glUniformMatrix4fv(shaderProgram->locations.PVM, 1, GL_FALSE, glm::value_ptr(projectionMatrix * viewMatrix * globalModelMatrix));
-			// uniform V matrix, M matrix, N matrix
-			glm::mat4 Nmatrix = getModelRotationMatrix();
-			glUniformMatrix4fv(shaderProgram->locations.Nmatrix, 1, GL_FALSE, glm::value_ptr(Nmatrix));
-			glUniformMatrix4fv(shaderProgram->locations.Vmatrix, 1, GL_FALSE, glm::value_ptr(viewMatrix));
-			glUniformMatrix4fv(shaderProgram->locations.Mmatrix, 1, GL_FALSE, glm::value_ptr(globalModelMatrix));
-
-			// uniform light
-			glUniform3fv(shaderProgram->locations.lightAmbient, 1, glm::value_ptr(glm::vec3(0.0f)));
-			glUniform3fv(shaderProgram->locations.lightDiffuse, 1, glm::value_ptr(glm::vec3(1.0f, 1.0f, 0.5f)));
-			glUniform3fv(shaderProgram->locations.lightSpecular, 1, glm::value_ptr(glm::vec3(1.0f)));
-			glUniform3fv(shaderProgram->locations.lightPosition, 1, glm::value_ptr(glm::vec3(2.0f, 2.0f, 2.0f)));
-
-
+			bindCommonUniforms(viewMatrix, projectionMatrix);
+			
 			glBindVertexArray(geometry->vertexArrayObject);
 			glDrawElements(GL_TRIANGLES, geometry->numTriangles * 3, GL_UNSIGNED_INT, 0);
 			glBindVertexArray(0);

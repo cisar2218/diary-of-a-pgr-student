@@ -20,6 +20,4 @@ private:
 	bool loadSingleMesh(const std::string& fileName, ShaderProgram* shader, ObjectGeometry** geometry);
 
 	bool enabled = false;
-
-	bool initialized;  ///< object has the shader with defined locations
 };

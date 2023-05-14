@@ -45,6 +45,7 @@
 #include "meshMovTex.h"
 #include "movingObject.h"
 #include "selectableObject.h"
+#include "proceduralTetrahedron.h"
 #include <unordered_map>
 
 using namespace std;
@@ -859,6 +860,21 @@ void initApplication() {
 	sphere->setPosition(3.0f, 0.0f, 3.0f);
 	sphere->setTexture(texturesInited.woodTexture);
 	objects.push_back(sphere);
+	}
+
+	{ // tetrahedron
+		auto tetrahedron = new Tetrahedron(&sphereShaderProgram);
+
+		tetrahedron->setMaterial(
+			glm::vec3(0.0f, 0.1f, 0.3f),
+			glm::vec3(0.0f, 0.6f, 0.9f),
+			glm::vec3(0.5f, 0.5f, 0.5f),
+			32.0f
+		);
+
+		tetrahedron->setPosition(0.0f, 0.0f, 0.0f);
+		tetrahedron->setTexture(texturesInited.skyboxTexture);
+		objects.push_back(tetrahedron);
 	}
 
 	{ // skybox 

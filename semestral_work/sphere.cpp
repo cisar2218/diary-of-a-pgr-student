@@ -195,8 +195,6 @@ Sphere::Sphere(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sphereTriangles), sphereTriangles, GL_STATIC_DRAW);
 
 	if ((shaderProgram != nullptr) && shaderProgram->initialized && (shaderProgram->locations.position != -1) && (shaderProgram->locations.PVM != -1)) {
-		//glEnableVertexAttribArray(shaderProgram->locations.position);
-		//glVertexAttribPointer(shaderProgram->locations.position, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 		initialized = true;
 
 		// Position attribute

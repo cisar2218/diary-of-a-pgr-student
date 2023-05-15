@@ -1019,12 +1019,30 @@ void initApplication() {
 
 	{ // sofa
 		SingleMesh* sofa = new SingleMesh(&sphereShaderProgram, "models/sofa.obj");
-		//sofa->rotateYAxis(180.0f);
-		sofa->scale(2.0f);
-
-		sofa->setTexture(texturesInited.wallRaw);
-
+		sofa->rotateYAxis(-30.0f);
+		sofa->scale(1.2f);
+		sofa->setYPosition(-0.5f);
+		sofa->setXPosition(-1.2f);
+		sofa->setZPosition(1.2f);
+		sofa->setMaterial(
+			glm::vec3(0.15f, 0.01f, 0.01f),
+			glm::vec3(0.8f, 0.1f, 0.1f),
+			glm::vec3(0.5f, 0.1f, 0.1f),
+			25.0f
+		);
 		objects.push_back(sofa);
+	}
+
+
+	{ // railing
+		SingleMesh* railing = new SingleMesh(&sphereShaderProgram, "models/railing.fbx");
+
+		railing->rotateYAxis(180.0f);
+		railing->setXPosition(-1.0f);
+		railing->setYPosition(-0.8f);
+		railing->scale(5.0f, 2.0f, 5.0f);
+		railing->setTexture(texturesInited.woodTexture);
+		objects.push_back(railing);
 	}
 
 	{ // subdivided plane
@@ -1070,7 +1088,7 @@ void initApplication() {
 		auto randDisplacementY = std::make_unique<RealGenerator>(MIN_DISPLACEMENT_VERTICAL, MAX_DISPLACEMENT_VERTICAL);
 		
 		auto randScale = std::make_unique<RealGenerator>(SCALE_MIN, SCALE_MAX);
-		auto randRotate = std::make_unique<RealGenerator>(SCALE_MIN, SCALE_MAX);
+		auto randRotate = std::make_unique<RealGenerator>(ANGLE_MIN, ANGLE_MAX);
 
 		for (int z = Z_MIN; z <= Z_MAX; z += Z_STEP) {
 			for (int x = X_MIN; x <= X_MAX; x += X_STEP) {
@@ -1090,7 +1108,6 @@ void initApplication() {
 					0.0f + randDisplacementY->getNext(),
 					float(z) + randDisplacementXZ->getNext()
 				);
-
 				asteroid->setTexture(texturesInited.rock);
 				
 				objects.push_back(asteroid);

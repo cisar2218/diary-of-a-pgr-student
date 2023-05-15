@@ -16,7 +16,7 @@ uniform mat4 Nmatrix;
 
 // Fog settings
 bool fogEnabled = true;
-const float density = 0.05;
+const float density = 0.015;
 const float gradient = 1.5;
 
 

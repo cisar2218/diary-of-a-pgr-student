@@ -1,6 +1,8 @@
 #include <iostream>
 #include <random>
+#include <memory>
 #include "proceduralTetrahedron.h"
+#include "realGenerator.h"
 
 Tetrahedron::Tetrahedron(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg)
 {
@@ -78,8 +80,10 @@ void Tetrahedron::generateVetices()
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(minDistance, maxDistance);
 
+	auto randGen = std::make_shared<RealGenerator>(minDistance, maxDistance);
+
 	for (int i = 0; i < numVertices; ++i) {
-		float randomNumber = float(dis(gen));
+		float randomNumber = randGen->getNext();
 		auto generatedPosition = randomNumber * directions[i];
 
 		vertices[i * numAttribsPerVertex + 0] = generatedPosition.x;

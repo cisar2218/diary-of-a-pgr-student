@@ -34,6 +34,12 @@
     <ClCompile Include="dynamicMesh.cpp">
       <Filter>SourceFiles</Filter>
     </ClCompile>
+    <ClCompile Include="utils.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
+    <ClCompile Include="realGenerator.cpp">
+      <Filter>SourceFiles</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h">
@@ -73,6 +79,12 @@
       <Filter>HeaderFiles</Filter>
     </ClInclude>
     <ClInclude Include="dynamicMesh.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="utils.h">
+      <Filter>HeaderFiles</Filter>
+    </ClInclude>
+    <ClInclude Include="realGenerator.h">
       <Filter>HeaderFiles</Filter>
     </ClInclude>
   </ItemGroup>

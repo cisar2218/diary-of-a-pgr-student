@@ -159,11 +159,13 @@
     <ClCompile Include="meshMovTex.cpp" />
     <ClCompile Include="movingObject.cpp" />
     <ClCompile Include="proceduralTetrahedron.cpp" />
+    <ClCompile Include="realGenerator.cpp" />
     <ClCompile Include="selectableObject.cpp" />
     <ClCompile Include="singlemesh.cpp" />
     <ClCompile Include="janskdus.cpp" />
     <ClCompile Include="skybox.cpp" />
     <ClCompile Include="sphere.cpp" />
+    <ClCompile Include="utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -175,10 +177,12 @@
     <ClInclude Include="object.h" />
     <ClInclude Include="parameters.h" />
     <ClInclude Include="proceduralTetrahedron.h" />
+    <ClInclude Include="realGenerator.h" />
     <ClInclude Include="selectableObject.h" />
     <ClInclude Include="singlemesh.h" />
     <ClInclude Include="skybox.h" />
     <ClInclude Include="sphere.h" />
+    <ClInclude Include="utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="dynamicMesh.vert" />

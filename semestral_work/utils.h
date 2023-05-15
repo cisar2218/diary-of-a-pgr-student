@@ -12,3 +12,4 @@ using namespace std;
 void printErrIfNotSatisfied(const bool condition, const std::string& errMessage);
 
 // startup utils -----------------------------------------------------------------
+shared_ptr<SingleMesh> initSofa(ShaderProgram* shaderProgram);

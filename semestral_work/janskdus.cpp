@@ -507,7 +507,7 @@ void displayCb() {
 void reshapeCb(int newWidth, int newHeight) {
 	glViewport(0, 0, newWidth, newHeight);
 	for (Camera& camera : cameras) {
-		camera.setProjectionMatrixRatio(newWidth, newHeight);
+		camera.setProjectionMatrixRatio(float(newWidth), float(newHeight));
 	}
 	gameState.windowWidth = newWidth;
 	gameState.windowHeight = newHeight;
@@ -995,22 +995,8 @@ void initApplication() {
 		objects.push_back(plane);
 	}
 
-	{ // sofa
-		auto sofa = make_shared<SingleMesh>(&commonShaderProgram, "models/sofa.obj");
-		sofa->rotateYAxis(-30.0f);
-		sofa->scale(1.2f);
-		sofa->setYPosition(-0.5f);
-		sofa->setXPosition(-1.2f);
-		sofa->setZPosition(1.2f);
-		sofa->setMaterial(
-			glm::vec3(0.15f, 0.01f, 0.01f),
-			glm::vec3(0.8f, 0.1f, 0.1f),
-			glm::vec3(0.5f, 0.1f, 0.1f),
-			25.0f
-		);
-		objects.push_back(sofa);
-	}
-
+	auto sofa = initSofa(&commonShaderProgram);
+	objects.push_back(sofa);
 
 	{ // railing
 		auto railing = make_shared<SingleMesh>(&commonShaderProgram, "models/railing.fbx");
@@ -1050,7 +1036,7 @@ void initApplication() {
 		const float MIN_DISPLACEMENT_VERTICAL = -15.0f;
 		const float MAX_DISPLACEMENT_VERTICAL = 15.0f;
 
-		const float SCALE_MIN = 0.2;
+		const float SCALE_MIN = 0.2f;
 		const float SCALE_MAX = 4.2f;
 
 		const float ANGLE_MIN = 0.0f;

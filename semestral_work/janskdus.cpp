@@ -77,6 +77,7 @@ struct GameState {
 
 	bool keyMap[KEYS_COUNT];    // false
 	shared_ptr<Skybox> skybox = nullptr;
+	bool collisionEnabled = false;
 } gameState;
 
 struct Textures {
@@ -602,6 +603,9 @@ void keyboardCb(unsigned char keyPressed, int mouseX, int mouseY) {
 	case 's':
 		gameState.keyMap[KEY_DOWN_ARROW] = true;
 		break;
+	case 'c': // collision toggle
+		gameState.collisionEnabled = !gameState.collisionEnabled;
+		break;
 	default:
 		break;
 	}
@@ -730,6 +734,12 @@ void updateCamera(int cameraIdx, float deltaTime) {
 			if (moveDir.length() != 0.0f) {
 				glm::normalize(moveDir);
 				cameras[CAMERA_FREE_IDX].move(moveDir * CAMERA_FREE_SPEED * deltaTime);
+				if (gameState.collisionEnabled) {
+					auto newPosition = cameras[CAMERA_FREE_IDX].getPosition();
+					newPosition.x = glm::clamp(newPosition.x, -6.0f, 2.5f);
+					newPosition.z = glm::clamp(newPosition.z, -3.2f, 4.4f);
+					cameras[CAMERA_FREE_IDX].setPosition(newPosition);
+				}
 			}
 			break;
 		}
@@ -782,8 +792,6 @@ void timerCb(int)
 	glutPostRedisplay();
 }
 
-
-
 // -----------------------  Application ---------------------------------
 
 // --- OBJs
@@ -798,78 +806,16 @@ void initObjects() {
 		camera.setProjectionMatrixRatio(WINDOW_WIDTH, WINDOW_HEIGHT);
 	}
 
-
-}
-
-/**
- * \brief Initialize application data and OpenGL stuff.
- */
-void initApplication() {
-	// init OpenGL
-	// - all programs (shaders), buffers, textures, ...
-	loadShaderPrograms();
-	glEnable(GL_DEPTH_TEST);
-	initObjects();
-
-	/*
-
-	{ // floor
-	auto floorCube = new SingleMesh(&sphereShaderProgram, "models/floorcube.dae");
-	//floorCube->scale(0.0f, 0.0f, 0.0f);
-	const float floorWidth = 5.0f;
-	floorCube->scale(floorWidth);
-	floorCube->setPosition(0.0f, -6.0f, 0.0f);
-	floorCube->setTexture(texturesInited.brickTexture);
-	objects.push_back(floorCube);
-	}
-
-	{ // walls
-		auto wallLeft = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
-		auto wallRight = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
-		auto wallBack = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
-		auto wallTop = new SingleMesh(&sphereShaderProgram, "models/wall.fbx");
-
-		wallLeft->scale(5.0f);
-		wallLeft->setZPosition(5.0f);
-		wallLeft->setTexture(texturesInited.brickTexture);
-
-		wallRight->scale(5.0f);
-		wallRight->setZPosition(-5.0f);
-		wallRight->setTexture(texturesInited.brickTexture);
-
-		wallBack->rotateYAxis(90.0f);
-		wallBack->scale(5.0f);
-		wallBack->setXPosition(5.0f);
-		wallBack->setTexture(texturesInited.brickTexture);
-
-		wallTop->rotateXAxis(90.0f);
-		wallTop->scale(6.0f, 6.0f, 2.0f);
-		wallTop->setYPosition(5.5f);
-		wallTop->setTexture(texturesInited.wallRaw);
-
-
-		//objects.push_back(wallLeft);
-		objects.push_back(wallRight);
-		objects.push_back(wallBack);
-		objects.push_back(wallTop);
-
-	}
-	*/
 	{ // selectable and movable pair
 		// moving object
-		auto movObj = make_shared<MovingObject>(&commonShaderProgram, "models/floorcube.dae");
+		auto movObj = make_shared<MovingObject>(&commonShaderProgram, "models/cucumber.fbx");
+		
+		//movObj->rotateYAxis(90.0f);
+		movObj->scale(3.0f);
 		movObj->setTexture(texturesInited.wallRaw);
-		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
-		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovementEnabled, movObj);
-
-		// random selectable object
-		auto selectableObject = make_shared<SelectableObject>(&commonShaderProgram, "models/monster.fbx");
-		selectableObject->setTexture(texturesInited.rock);
-		selectableObject->setFunction(boundFunction);
-		selectableObject->setYPosition(2.0f);
-
+		
+		cameras[CAMERA_4_MOVING_IDX].setRefObject(movObj);
 		objects.push_back(movObj);
-		objects.push_back(selectableObject);
 	}
 
 	{
@@ -884,7 +830,7 @@ void initApplication() {
 			glm::vec3(0.1f, 0.1f, 0.1f),
 			glm::vec3(0.8f, 0.8f, 0.8f),
 			glm::vec3(0.2f, 0.2f, 0.2f),
-			10.0f			
+			10.0f
 		);
 
 		objects.push_back(dynCube);
@@ -932,23 +878,8 @@ void initApplication() {
 		objects.push_back(gameState.skybox);
 	}
 
-	{ // moving texture
-		auto movCube = make_shared<MeshMovTex>(&movTexShaderProgram, "models/cubeDynamicTexture.fbx");
-		movCube->rotateYAxis(90.0f);
-		movCube->scale(2.0f, 0.2f, 0.5f);
-		movCube->setPosition(3.5f, -0.4f, 0.0f);
-		movCube->setTexture(texturesInited.movingTexture);
-
-		auto screenMaterial = new ObjectMaterial;
-		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
-		screenMaterial->shininess = 10.0f;
-
-		movCube->setMaterial(screenMaterial);
-
-		objects.push_back(movCube);
-	}
+	auto movTex = initMovTexObj(&movTexShaderProgram, texturesInited.movingTexture);
+	objects.push_back(movTex);
 
 	{ // platform & tetrahedron [SELECTABLE]
 		auto tetrahedron = make_shared<Tetrahedron>(&commonShaderProgram);
@@ -977,7 +908,7 @@ void initApplication() {
 				}
 			}
 		};
-		
+
 		auto platform = make_shared<SelectableObject>(&commonShaderProgram, "models/platformRound.fbx");
 
 		platform->setFunction(boundFunction);
@@ -986,48 +917,28 @@ void initApplication() {
 		objects.push_back(platform);
 	}
 
-	{ // subdivided plane
-		auto plane = make_shared<DynamicMesh>(&dynamicVertShaderProgram, "models/planeSubdivided.fbx");
-		//DynamicMesh* plane = new DynamicMesh(&dynamicVertShaderProgram, "models/Monster.fbx");
-		//plane->rotateYAxis(90.0f);
-		plane->scale(10.0f);
-		plane->setPosition(0.0f, -10.0f, 30.0f);
-		objects.push_back(plane);
-	}
+	auto plane = initPlane(&dynamicVertShaderProgram);
+	objects.push_back(plane);
 
 	auto sofa = initSofa(&commonShaderProgram);
 	objects.push_back(sofa);
 
-	{ // railing
-		auto railing = make_shared<SingleMesh>(&commonShaderProgram, "models/railing.fbx");
+	auto railing = initRailing(&commonShaderProgram, texturesInited.woodTexture);
+	objects.push_back(railing);
 
-		railing->rotateYAxis(180.0f);
-		railing->setXPosition(-1.0f);
-		railing->setYPosition(-0.8f);
-		railing->scale(5.0f, 2.0f, 5.0f);
-		railing->setTexture(texturesInited.woodTexture);
-		objects.push_back(railing);
-	}
+	auto tower = initTower(&commonShaderProgram, texturesInited.wallRaw);
+	objects.push_back(tower);
+	
 
-	{ // subdivided plane
-		auto tower = make_shared<SingleMesh>(&commonShaderProgram, "models/tower.fbx");
-		tower->rotateYAxis(180.0f);
-		tower->setYPosition(-10.25f);
-		tower->scale(20.0f);
-
-		tower->setTexture(texturesInited.wallRaw);
-
-		objects.push_back(tower);
-	}
-
-	{ // ASTEROIDS
+	{
+		// ASTEROIDS
 		const int Z_MIN = -40;
 		const int Z_MAX = 40;
 		const int Z_COUNT = 5;
-		const int Z_STEP = abs(Z_MIN-Z_MAX) / Z_COUNT;
+		const int Z_STEP = abs(Z_MIN - Z_MAX) / Z_COUNT;
 
 		const int X_MIN = -60;
-		const int X_MAX = -20;
+		const int X_MAX = -35;
 		const int X_COUNT = 10;
 		const int X_STEP = abs(X_MIN - X_MAX) / X_COUNT;
 
@@ -1044,7 +955,7 @@ void initApplication() {
 
 		auto randDisplacementXZ = std::make_unique<RealGenerator>(MIN_DISPLACEMENT_HORIZONTAL, MAX_DISPLACEMENT_HORIZONTAL);
 		auto randDisplacementY = std::make_unique<RealGenerator>(MIN_DISPLACEMENT_VERTICAL, MAX_DISPLACEMENT_VERTICAL);
-		
+
 		auto randScale = std::make_unique<RealGenerator>(SCALE_MIN, SCALE_MAX);
 		auto randRotate = std::make_unique<RealGenerator>(ANGLE_MIN, ANGLE_MAX);
 
@@ -1067,11 +978,38 @@ void initApplication() {
 					float(z) + randDisplacementXZ->getNext()
 				);
 				asteroid->setTexture(texturesInited.rock);
-				
+
 				objects.push_back(asteroid);
 			}
 		}
 	}
+
+	{
+
+		 // random selectable object
+		 auto selectableObject = make_shared<SelectableObject>(&commonShaderProgram, "models/monster.fbx");
+		 std::function<void()> boundFunction = std::bind(&SelectableObject::moveUp, selectableObject);
+		 selectableObject->setTexture(texturesInited.rock);
+		 selectableObject->setFunction(boundFunction);
+		 selectableObject->setYPosition(2.0f);
+
+		
+
+		objects.push_back(selectableObject);
+	}
+}
+
+/**
+ * \brief Initialize application data and OpenGL stuff.
+ */
+void initApplication() {
+	// init OpenGL
+	// - all programs (shaders), buffers, textures, ...
+	loadShaderPrograms();
+	glEnable(GL_DEPTH_TEST);
+	initObjects();
+
+	
 	// init your Application
 	// - setup the initial application state
 }

@@ -13,11 +13,7 @@ public:
 	void update(float elapsedTime, const glm::mat4* parentModelMatrix) override;
 
 	glm::vec3 getDirection();
-
-	void toggleMovementEnabled();
-
 private:
-	bool movementEnabled = false;
 	glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
 	float lastElapsedTime = 0.0f;
 };

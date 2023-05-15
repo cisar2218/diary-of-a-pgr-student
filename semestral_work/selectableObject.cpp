@@ -13,6 +13,11 @@ void SelectableObject::executeFunction()
 	}
 }
 
+void SelectableObject::moveUp()
+{
+	this->setYPosition(this->getPosition().y + 0.5f);
+}
+
 void SelectableObject::setId(int newId)
 {
 	this->id = newId;

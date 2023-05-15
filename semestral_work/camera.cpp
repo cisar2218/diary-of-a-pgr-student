@@ -41,9 +41,9 @@ void Camera::setCameraFrom(Camera other)
     this->upVector = other.upVector;
 }
 
-void Camera::setRefObject(MovingObject& newRefObj)
+void Camera::setRefObject(shared_ptr<MovingObject>  newRefObj)
 {
-    this->refObj = &newRefObj;
+    this->refObj = newRefObj;
 }
 
 void Camera::setPositionAsReferObj()

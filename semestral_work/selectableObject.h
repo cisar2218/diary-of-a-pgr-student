@@ -13,6 +13,7 @@ public:
 	
 	void setFunction(std::function<void()> func);
 	void executeFunction();
+	void moveUp();
 
 	void setId(int newId);
 	int getId();

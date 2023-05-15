@@ -1,6 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
+#include <memory>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "movingObject.h"
@@ -13,7 +14,7 @@ private:
     glm::vec3 direction;
     glm::vec3 upVector;
 
-    MovingObject* refObj = nullptr;
+    shared_ptr<MovingObject> refObj = nullptr;
 public:
     float currentTime;
 
@@ -24,7 +25,7 @@ public:
 
     void setCameraFrom(Camera camera);
 
-    void setRefObject(MovingObject& refObj);
+    void setRefObject(shared_ptr<MovingObject> refObj);
     void setPositionAsReferObj();
 
     void rotateHorizontal(float angle);

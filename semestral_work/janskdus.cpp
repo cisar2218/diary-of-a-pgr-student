@@ -95,11 +95,7 @@ struct Textures {
 
 // -----------------------  OpenGL stuff ---------------------------------
 
-void printErrIfNotSatisfied(const bool condition, const std::string& errMessage) {
-	if (!condition) {
-		cerr << errMessage << endl;
-	}
-}
+
 
 void doPicking(int x, int y) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);

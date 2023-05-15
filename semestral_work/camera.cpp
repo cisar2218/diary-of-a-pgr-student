@@ -111,8 +111,11 @@ glm::vec3 Camera::getLeft() {
 void Camera::increaseElevation(float angle)
 {
     this->elevationAngle -= angle;
-    if (fabs(this->elevationAngle) > CAMERA_FREE_ELEVATION_MAX) {
+    if (this->elevationAngle > CAMERA_FREE_ELEVATION_MAX) {
         this->elevationAngle = CAMERA_FREE_ELEVATION_MAX;
+    }
+    else if (this->elevationAngle < -CAMERA_FREE_ELEVATION_MAX) {
+        this->elevationAngle = -CAMERA_FREE_ELEVATION_MAX;
     }
 }
 

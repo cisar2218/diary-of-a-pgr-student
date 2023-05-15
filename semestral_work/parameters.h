@@ -1,6 +1,11 @@
 #pragma once
 
-// CAMERAS
+constexpr int WINDOW_WIDTH = 1280;
+constexpr int WINDOW_HEIGHT = 720;
+constexpr char WINDOW_TITLE[] = "PGR: janskdus";
+
+
+// CAMERAS ---------------------------------------------------------------------------------
 
 // Camera 1 (free camera)
 #define CAMERA_FREE_SPEED 3.0f

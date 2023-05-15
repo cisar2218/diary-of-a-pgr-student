@@ -188,8 +188,6 @@
     <None Include="dynamicMesh.vert" />
     <None Include="dynamicTexture.frag" />
     <None Include="movingTexture.frag" />
-    <None Include="simple.frag" />
-    <None Include="simple.vert" />
     <None Include="skybox.frag" />
     <None Include="skybox.vert" />
     <None Include="sphere.frag" />

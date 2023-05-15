@@ -57,15 +57,11 @@ using namespace std;
 enum { KEY_LEFT_ARROW, KEY_RIGHT_ARROW, KEY_UP_ARROW, KEY_DOWN_ARROW, KEYS_COUNT };
 enum { CAMERA_FREE_IDX, CAMERA_2_IDX, CAMERA_3_IDX, CAMERA_4_MOVING_IDX, CAMERA_COUNT };
 
-constexpr int WINDOW_WIDTH = 1280;
-constexpr int WINDOW_HEIGHT = 720;
-constexpr char WINDOW_TITLE[] = "PGR: janskdus";
-
 ObjectList objects;
 
 // shared shader programs
 ShaderProgram skyboxShaderProgram;
-ShaderProgram sphereShaderProgram;
+ShaderProgram commonShaderProgram;
 ShaderProgram dynTexShaderProgram;
 ShaderProgram movTexShaderProgram;
 ShaderProgram dynamicVertShaderProgram;
@@ -73,7 +69,7 @@ ShaderProgram dynamicVertShaderProgram;
 Camera cameras[CAMERA_COUNT];
 
 struct GameState {
-	int windowWidth = WINDOW_WIDTH;    // set by reshape callback
+	int windowWidth = WINDOW_WIDTH;     // set by reshape callback
 	int windowHeight = WINDOW_HEIGHT;   // set by reshape callback
 
 	int activeCamera = CAMERA_3_IDX;
@@ -94,8 +90,6 @@ struct Textures {
 } texturesInited;
 
 // -----------------------  OpenGL stuff ---------------------------------
-
-
 
 void doPicking(int x, int y) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -151,73 +145,72 @@ void doPicking(int x, int y) {
 	}
 }
 
-
 /**
  * \brief Load and compile shader programs. Get attribute locations.
  */
 void loadShaderPrograms()
 {
 	{ // sphere shaders 
-		GLuint shadersSphere[] = {
+		GLuint shaders[] = {
 		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "sphere.vert"),
 		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "sphere.frag"),
 		  0
 		};
 
-		sphereShaderProgram.program = pgr::createProgram(shadersSphere);
+		commonShaderProgram.program = pgr::createProgram(shaders);
 		
 		// get location of the uniform (fragment) shader attributes
-		sphereShaderProgram.locations.textureSampler = glGetUniformLocation(sphereShaderProgram.program, "tex");
-		sphereShaderProgram.locations.textureEnabled = glGetUniformLocation(sphereShaderProgram.program, "texEnabled");
+		commonShaderProgram.locations.textureSampler = glGetUniformLocation(commonShaderProgram.program, "tex");
+		commonShaderProgram.locations.textureEnabled = glGetUniformLocation(commonShaderProgram.program, "texEnabled");
 
-		sphereShaderProgram.locations.position = glGetAttribLocation(sphereShaderProgram.program, "aPos");
-		sphereShaderProgram.locations.normal = glGetAttribLocation(sphereShaderProgram.program, "aNormal");
-		sphereShaderProgram.locations.textureCoord = glGetAttribLocation(sphereShaderProgram.program, "aTexCoord");
+		commonShaderProgram.locations.position = glGetAttribLocation(commonShaderProgram.program, "aPos");
+		commonShaderProgram.locations.normal = glGetAttribLocation(commonShaderProgram.program, "aNormal");
+		commonShaderProgram.locations.textureCoord = glGetAttribLocation(commonShaderProgram.program, "aTexCoord");
 
 		// other attributes and uniforms
 		// -> material
-		sphereShaderProgram.locations.materialAmbient = glGetUniformLocation(sphereShaderProgram.program, "material.ambient");
-		sphereShaderProgram.locations.materialDiffuse = glGetUniformLocation(sphereShaderProgram.program, "material.diffuse");
-		sphereShaderProgram.locations.materialSpecular = glGetUniformLocation(sphereShaderProgram.program, "material.specular");
-		sphereShaderProgram.locations.materialShininess = glGetUniformLocation(sphereShaderProgram.program, "material.shininess");
+		commonShaderProgram.locations.materialAmbient = glGetUniformLocation(commonShaderProgram.program, "material.ambient");
+		commonShaderProgram.locations.materialDiffuse = glGetUniformLocation(commonShaderProgram.program, "material.diffuse");
+		commonShaderProgram.locations.materialSpecular = glGetUniformLocation(commonShaderProgram.program, "material.specular");
+		commonShaderProgram.locations.materialShininess = glGetUniformLocation(commonShaderProgram.program, "material.shininess");
 
 		// -> matrixes
-		sphereShaderProgram.locations.PVM = glGetUniformLocation(sphereShaderProgram.program, "PVM");
-		sphereShaderProgram.locations.Vmatrix = glGetUniformLocation(sphereShaderProgram.program, "Vmatrix");
-		sphereShaderProgram.locations.Mmatrix = glGetUniformLocation(sphereShaderProgram.program, "Mmatrix");
-		sphereShaderProgram.locations.Nmatrix = glGetUniformLocation(sphereShaderProgram.program, "Nmatrix");
+		commonShaderProgram.locations.PVM = glGetUniformLocation(commonShaderProgram.program, "PVM");
+		commonShaderProgram.locations.Vmatrix = glGetUniformLocation(commonShaderProgram.program, "Vmatrix");
+		commonShaderProgram.locations.Mmatrix = glGetUniformLocation(commonShaderProgram.program, "Mmatrix");
+		commonShaderProgram.locations.Nmatrix = glGetUniformLocation(commonShaderProgram.program, "Nmatrix");
 		// -> lights
-		sphereShaderProgram.locations.lightAmbient = glGetUniformLocation(sphereShaderProgram.program, "spotLight.ambient");
-		sphereShaderProgram.locations.lightDiffuse = glGetUniformLocation(sphereShaderProgram.program, "spotLight.diffuse");
-		sphereShaderProgram.locations.lightSpecular = glGetUniformLocation(sphereShaderProgram.program, "spotLight.specular");
-		sphereShaderProgram.locations.lightPosition = glGetUniformLocation(sphereShaderProgram.program, "spotLight.position");
-		sphereShaderProgram.locations.lightDirection = glGetUniformLocation(sphereShaderProgram.program, "spotLight.direction");
+		commonShaderProgram.locations.lightAmbient = glGetUniformLocation(commonShaderProgram.program, "spotLight.ambient");
+		commonShaderProgram.locations.lightDiffuse = glGetUniformLocation(commonShaderProgram.program, "spotLight.diffuse");
+		commonShaderProgram.locations.lightSpecular = glGetUniformLocation(commonShaderProgram.program, "spotLight.specular");
+		commonShaderProgram.locations.lightPosition = glGetUniformLocation(commonShaderProgram.program, "spotLight.position");
+		commonShaderProgram.locations.lightDirection = glGetUniformLocation(commonShaderProgram.program, "spotLight.direction");
 
 		// check for error INs
-		printErrIfNotSatisfied(sphereShaderProgram.locations.position != -1, "position attribLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.normal != -1, "normal attribLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.textureCoord != -1, "texture attribLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.position != -1, "position attribLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.normal != -1, "normal attribLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.textureCoord != -1, "texture attribLocation not found");
 		// check for error UNIFORMs
 		// -> material
-		printErrIfNotSatisfied(sphereShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
-		printErrIfNotSatisfied(sphereShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(commonShaderProgram.locations.materialAmbient != -1, "material ambient uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.materialDiffuse != -1, "material diffuse uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.materialSpecular != -1, "material specular uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(commonShaderProgram.locations.materialShininess != -1, "material shininess uniformLocation not found"); // RN removed by compiler => -1
 		// -> textures
-		printErrIfNotSatisfied(sphereShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
+		printErrIfNotSatisfied(commonShaderProgram.locations.textureEnabled != -1, "texture sampler uniformLocation not found"); // RN removed by compiler => -1
 		// -> matrixes
-		printErrIfNotSatisfied(sphereShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.PVM != -1, "PVM uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.Vmatrix != -1, "Vmatrix uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.Mmatrix != -1, "Mmatrix uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.Nmatrix != -1, "Nmatrix uniformLocation not found");
 		// -> spot light
-		printErrIfNotSatisfied(sphereShaderProgram.locations.lightAmbient != -1, "light ambient uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.lightDiffuse != -1, "light diffuse uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.lightSpecular != -1, "light specular uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.lightPosition != -1, "light position uniformLocation not found");
-		printErrIfNotSatisfied(sphereShaderProgram.locations.lightDirection != -1, "light direction uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.lightAmbient != -1, "light ambient uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.lightDiffuse != -1, "light diffuse uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.lightSpecular != -1, "light specular uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.lightPosition != -1, "light position uniformLocation not found");
+		printErrIfNotSatisfied(commonShaderProgram.locations.lightDirection != -1, "light direction uniformLocation not found");
 
-		sphereShaderProgram.initialized = true;
+		commonShaderProgram.initialized = true;
 	}
 	
 	{ // dynamic mesh shaders 
@@ -433,8 +426,8 @@ void loadShaderPrograms()
 		texturesInited.rock = pgr::createTexture("textures/rock.jpg");
 	}
 
-	// common shaders 
-	{
+	
+	{ // skybox
 		GLuint shadersSkybox[] = {
 		  pgr::createShaderFromFile(GL_VERTEX_SHADER, "skybox.vert"),
 		  pgr::createShaderFromFile(GL_FRAGMENT_SHADER, "skybox.frag"),
@@ -473,7 +466,7 @@ void loadShaderPrograms()
  */
 void cleanupShaderPrograms(void) {
 
-	pgr::deleteProgramAndShaders(sphereShaderProgram.program);
+	pgr::deleteProgramAndShaders(commonShaderProgram.program);
 }
 
 /**
@@ -540,9 +533,6 @@ void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
 			printf("Left button pressed at (%d, %d)\n", mouseX, mouseY);
 			doPicking(mouseX, mouseY);
 		}
-		else if (buttonState == GLUT_UP) {
-			// Process left button release event
-		}
 	}
 	else if (buttonPressed == GLUT_RIGHT_BUTTON) {
 		// TODO remove debug for object placing
@@ -552,14 +542,6 @@ void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
 	}
 }
 
-/**
- * \brief Handle mouse dragging (mouse move with any button pressed).
- *        This event follows the glutMouseFunc(mouseCb) event.
- * \param mouseX mouse (cursor) X position
- * \param mouseY mouse (cursor) Y position
- */
-void mouseMotionCb(int mouseX, int mouseY) {
-}
 
 /**
  * \brief Handle mouse movement over the window (with no button pressed).
@@ -873,13 +855,13 @@ void initApplication() {
 	*/
 	{ // selectable and movable pair
 		// moving object
-		MovingObject* movObj = new MovingObject(&sphereShaderProgram, "models/floorcube.dae");
+		MovingObject* movObj = new MovingObject(&commonShaderProgram, "models/floorcube.dae");
 		movObj->setTexture(texturesInited.wallRaw);
 		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
 		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovementEnabled, movObj);
 
 		// random selectable object
-		auto selectableObject = new SelectableObject(&sphereShaderProgram, "models/monster.fbx");
+		auto selectableObject = new SelectableObject(&commonShaderProgram, "models/monster.fbx");
 		selectableObject->setTexture(texturesInited.rock);
 		selectableObject->setFunction(boundFunction);
 		selectableObject->setYPosition(2.0f);
@@ -907,7 +889,7 @@ void initApplication() {
 		objects.push_back(dynCube);
 
 		// button
-		SelectableObject* button = new SelectableObject(&sphereShaderProgram, "models/button.fbx");
+		SelectableObject* button = new SelectableObject(&commonShaderProgram, "models/button.fbx");
 		button->rotateZAxis(90.0f);
 		button->scale(0.2f);
 		button->setXPosition(4.0f);
@@ -928,7 +910,7 @@ void initApplication() {
 	}
 
 	{ // wood sphere
-		auto sphere = new Sphere(&sphereShaderProgram);
+		auto sphere = new Sphere(&commonShaderProgram);
 
 		sphere->setMaterial(
 			glm::vec3(0.0f, 0.1f, 0.3f),
@@ -968,7 +950,7 @@ void initApplication() {
 	}
 
 	{ // platform & tetrahedron [SELECTABLE]
-		Tetrahedron* tetrahedron = new Tetrahedron(&sphereShaderProgram);
+		Tetrahedron* tetrahedron = new Tetrahedron(&commonShaderProgram);
 
 		tetrahedron->setMaterial(
 			glm::vec3(0.0f, 0.1f, 0.3f),
@@ -982,8 +964,8 @@ void initApplication() {
 		std::function<void()> boundFunction = [&]() {
 			for (auto& obj : objects) {
 				if (dynamic_cast<Tetrahedron*>(obj)) {
-					obj = new Tetrahedron(&sphereShaderProgram);
-					obj = new Tetrahedron(&sphereShaderProgram);
+					obj = new Tetrahedron(&commonShaderProgram);
+					obj = new Tetrahedron(&commonShaderProgram);
 					obj->setMaterial(
 						glm::vec3(0.0f, 0.1f, 0.3f),
 						glm::vec3(0.0f, 0.6f, 0.9f),
@@ -996,7 +978,7 @@ void initApplication() {
 			}
 		};
 		
-		SelectableObject* platform = new SelectableObject(&sphereShaderProgram, "models/platformRound.fbx");
+		SelectableObject* platform = new SelectableObject(&commonShaderProgram, "models/platformRound.fbx");
 
 		platform->setFunction(boundFunction);
 		platform->setPosition(-3.0f, -1.0f, -2.5f);
@@ -1014,7 +996,7 @@ void initApplication() {
 	}
 
 	{ // sofa
-		SingleMesh* sofa = new SingleMesh(&sphereShaderProgram, "models/sofa.obj");
+		SingleMesh* sofa = new SingleMesh(&commonShaderProgram, "models/sofa.obj");
 		sofa->rotateYAxis(-30.0f);
 		sofa->scale(1.2f);
 		sofa->setYPosition(-0.5f);
@@ -1031,7 +1013,7 @@ void initApplication() {
 
 
 	{ // railing
-		SingleMesh* railing = new SingleMesh(&sphereShaderProgram, "models/railing.fbx");
+		SingleMesh* railing = new SingleMesh(&commonShaderProgram, "models/railing.fbx");
 
 		railing->rotateYAxis(180.0f);
 		railing->setXPosition(-1.0f);
@@ -1042,7 +1024,7 @@ void initApplication() {
 	}
 
 	{ // subdivided plane
-		SingleMesh* tower = new SingleMesh(&sphereShaderProgram, "models/tower.fbx");
+		SingleMesh* tower = new SingleMesh(&commonShaderProgram, "models/tower.fbx");
 		tower->rotateYAxis(180.0f);
 		tower->setYPosition(-10.25f);
 		tower->scale(20.0f);
@@ -1088,7 +1070,7 @@ void initApplication() {
 
 		for (int z = Z_MIN; z <= Z_MAX; z += Z_STEP) {
 			for (int x = X_MIN; x <= X_MAX; x += X_STEP) {
-				SingleMesh* asteroid = new SingleMesh(&sphereShaderProgram, "models/Monster.fbx");
+				SingleMesh* asteroid = new SingleMesh(&commonShaderProgram, "models/Monster.fbx");
 
 				// rand rotate
 				asteroid->rotateXAxis(randRotate->getNext());
@@ -1110,8 +1092,6 @@ void initApplication() {
 			}
 		}
 	}
-	
-
 	// init your Application
 	// - setup the initial application state
 }
@@ -1161,7 +1141,6 @@ int main(int argc, char** argv) {
 		glutSpecialFunc(specialKeyboardCb);     // key pressed
 		glutSpecialUpFunc(specialKeyboardUpCb); // key released
 		 glutMouseFunc(mouseCb);
-		// glutMotionFunc(mouseMotionCb);
 		glutPassiveMotionFunc(passiveMouseMotionCb);
 
 #ifndef SKELETON // @task_1_0

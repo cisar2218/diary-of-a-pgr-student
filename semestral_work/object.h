@@ -219,7 +219,7 @@ public:
 		glUniform3fv(shaderProgram->locations.lightAmbient, 1, glm::value_ptr(glm::vec3(0.0f)));
 		glUniform3fv(shaderProgram->locations.lightDiffuse, 1, glm::value_ptr(this->lightColorCombined));
 		glUniform3fv(shaderProgram->locations.lightSpecular, 1, glm::value_ptr(glm::vec3(1.0f)));
-		glUniform3fv(shaderProgram->locations.lightPosition, 1, glm::value_ptr(glm::vec3(2.0f, 2.0f, 2.0f)));
+		glUniform3fv(shaderProgram->locations.lightPosition, 1, glm::value_ptr(glm::vec3(-3.0f, 2.0f, -2.5f)));
 		glUniform3fv(shaderProgram->locations.lightDirection, 1, glm::value_ptr(glm::vec3(0.0f, -1.0f, 0.0f)));
 	}
 

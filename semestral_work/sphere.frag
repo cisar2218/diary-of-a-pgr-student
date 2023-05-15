@@ -37,7 +37,7 @@ uniform Material material;
 
 // Light settings
 bool dirLightEnabled = true;
-bool pointLightEnabled = false;
+bool pointLightEnabled = true;
 bool spotLightEnabled = true;
 
 
@@ -60,7 +60,8 @@ vec4 getDirectionalLight(vec3 vertexPosition, vec3 vertexNormal) {
 vec4 getPointLight(vec3 vertexPosition, vec3 vertexNormal) {
     
     vec3 ret = vec3(0.0);
-    vec3 lightPosition = (Vmatrix * vec4(spotLight.position, 1.0)).xyz;
+    vec3 pointLightPosition = vec3(0.0, 4.0, 0.0); // world coords
+    vec3 lightPosition = (Vmatrix * vec4(pointLightPosition, 1.0)).xyz;
 
     vec3 light_norm = normalize(lightPosition - vertexPosition);
     vec3 light_reflection = reflect(-light_norm, vertexNormal);
@@ -117,8 +118,10 @@ vec4 getSpotLight(vec3 vertexPosition, vec3 vertexNormal) {
 void main()
 {
     vec3 globalAmbientLight = vec3(0.6);
-    vec4 finalColor = vec4(material.ambient * globalAmbientLight, 1.0);
 
+    vec4 finalColor = vec4(material.ambient * globalAmbientLight, 1.0);
+   
+    
     if (dirLightEnabled) {
         finalColor += getDirectionalLight(Position_eye, Normal_eye);
     }

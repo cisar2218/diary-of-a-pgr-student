@@ -16,7 +16,7 @@ uniform mat4 Nmatrix;
 
 // Fog settings
 bool fogEnabled = true;
-const float density = 0.015;
+const float density = 0.05;
 const float gradient = 1.5;
 
 
@@ -24,6 +24,8 @@ float getVisibility(float distance) {
     float ret = exp(-pow((distance * density), gradient));
     return clamp(ret, 0.0, 1.0);
 }
+
+// TODO revice FOG and LIGHTING in uncommon shaders
 
 void main()
 {

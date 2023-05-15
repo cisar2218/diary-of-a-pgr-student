@@ -76,7 +76,7 @@ struct GameState {
 	float cameraElevationAngle; // in degrees = initially 0.0f
 
 	bool keyMap[KEYS_COUNT];    // false
-	Skybox* skybox = nullptr;
+	shared_ptr<Skybox> skybox = nullptr;
 } gameState;
 
 struct Textures {
@@ -104,12 +104,12 @@ void doPicking(int x, int y) {
 
 	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
 
-	std::unordered_map<int, SelectableObject*> selectableObjects;
+	unordered_map<int, shared_ptr<SelectableObject>> selectableObjects;
 
 	int id = 1;
-	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
+	for (auto object : objects) {   // for (auto object : objects) {
 		if (object != nullptr) {
-			auto selectableObj = dynamic_cast<SelectableObject*>(object);
+			auto selectableObj = dynamic_pointer_cast<SelectableObject>(object);
 			if (selectableObj) {
 				glStencilFunc(GL_ALWAYS, id, -1);
 				
@@ -131,7 +131,7 @@ void doPicking(int x, int y) {
 	if (pixelID != 0) {
 		auto it = selectableObjects.find(pixelID);
 		if (it != selectableObjects.end()) {
-			SelectableObject* selectedObject = it->second;
+			auto selectedObject = it->second;
 			std::cout << "clicked on object with ID: " << (int)pixelID << std::endl;
 			// TODO process click
 			selectedObject->executeFunction();
@@ -476,7 +476,7 @@ void drawScene(void)
 {
 	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
 
-	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
+	for (auto object : objects) {   // for (auto object : objects) {
 		if (object != nullptr) {
 			object->draw(viewMatrix, cameras[gameState.activeCamera].getProjectionMatrix());
 		}
@@ -769,7 +769,7 @@ void timerCb(int)
 	);
 
 	// update the application state
-	for (ObjectInstance* object : objects) {   // for (auto object : objects) {
+	for (auto object : objects) {   // for (auto object : objects) {
 		if (object != nullptr)
 			object->update(elapsedTime, &sceneRootMatrix);
 	}
@@ -797,6 +797,8 @@ void initObjects() {
 	for (Camera& camera : cameras) {
 		camera.setProjectionMatrixRatio(WINDOW_WIDTH, WINDOW_HEIGHT);
 	}
+
+
 }
 
 /**
@@ -855,13 +857,13 @@ void initApplication() {
 	*/
 	{ // selectable and movable pair
 		// moving object
-		MovingObject* movObj = new MovingObject(&commonShaderProgram, "models/floorcube.dae");
+		auto movObj = make_shared<MovingObject>(&commonShaderProgram, "models/floorcube.dae");
 		movObj->setTexture(texturesInited.wallRaw);
 		cameras[CAMERA_4_MOVING_IDX].setRefObject(*movObj);
 		std::function<void()> boundFunction = std::bind(&MovingObject::toggleMovementEnabled, movObj);
 
 		// random selectable object
-		auto selectableObject = new SelectableObject(&commonShaderProgram, "models/monster.fbx");
+		auto selectableObject = make_shared<SelectableObject>(&commonShaderProgram, "models/monster.fbx");
 		selectableObject->setTexture(texturesInited.rock);
 		selectableObject->setFunction(boundFunction);
 		selectableObject->setYPosition(2.0f);
@@ -873,23 +875,22 @@ void initApplication() {
 	{
 		// dynamic texture "TV"
 		const int numFrames = 4;
-		MeshDynTex* dynCube = new MeshDynTex(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
+		auto dynCube = make_shared<MeshDynTex>(&dynTexShaderProgram, "models/cubeDynamicTexture.fbx", numFrames);
 		dynCube->scale(0.4f, 2.0f, 2.0f);
 		dynCube->setPosition(3.5f, 2.0f, 0.0f);
 		dynCube->setTexture(texturesInited.dynamicTexture);
 
-		auto screenMaterial = new ObjectMaterial;
-		screenMaterial->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-		screenMaterial->diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-		screenMaterial->specular = glm::vec3(0.2f, 0.2f, 0.2f);
-		screenMaterial->shininess = 10.0f;
-
-		dynCube->setMaterial(screenMaterial);
+		dynCube->setMaterial(
+			glm::vec3(0.1f, 0.1f, 0.1f),
+			glm::vec3(0.8f, 0.8f, 0.8f),
+			glm::vec3(0.2f, 0.2f, 0.2f),
+			10.0f			
+		);
 
 		objects.push_back(dynCube);
 
 		// button
-		SelectableObject* button = new SelectableObject(&commonShaderProgram, "models/button.fbx");
+		auto button = make_shared<SelectableObject>(&commonShaderProgram, "models/button.fbx");
 		button->rotateZAxis(90.0f);
 		button->scale(0.2f);
 		button->setXPosition(4.0f);
@@ -910,7 +911,7 @@ void initApplication() {
 	}
 
 	{ // wood sphere
-		auto sphere = new Sphere(&commonShaderProgram);
+		auto sphere = make_shared<Sphere>(&commonShaderProgram);
 
 		sphere->setMaterial(
 			glm::vec3(0.0f, 0.1f, 0.3f),
@@ -925,14 +926,14 @@ void initApplication() {
 	}
 
 	{ // skybox 
-		gameState.skybox = new Skybox(&skyboxShaderProgram, "models/skyBox.fbx");
+		gameState.skybox = make_shared<Skybox>(&skyboxShaderProgram, "models/skyBox.fbx");
 		gameState.skybox->setTexture(texturesInited.skyboxTexture);
 		gameState.skybox->scale(60.0f);
 		objects.push_back(gameState.skybox);
 	}
 
 	{ // moving texture
-		MeshMovTex* movCube = new MeshMovTex(&movTexShaderProgram, "models/cubeDynamicTexture.fbx");
+		auto movCube = make_shared<MeshMovTex>(&movTexShaderProgram, "models/cubeDynamicTexture.fbx");
 		movCube->rotateYAxis(90.0f);
 		movCube->scale(2.0f, 0.2f, 0.5f);
 		movCube->setPosition(3.5f, -0.4f, 0.0f);
@@ -950,7 +951,7 @@ void initApplication() {
 	}
 
 	{ // platform & tetrahedron [SELECTABLE]
-		Tetrahedron* tetrahedron = new Tetrahedron(&commonShaderProgram);
+		auto tetrahedron = make_shared<Tetrahedron>(&commonShaderProgram);
 
 		tetrahedron->setMaterial(
 			glm::vec3(0.0f, 0.1f, 0.3f),
@@ -963,9 +964,8 @@ void initApplication() {
 
 		std::function<void()> boundFunction = [&]() {
 			for (auto& obj : objects) {
-				if (dynamic_cast<Tetrahedron*>(obj)) {
-					obj = new Tetrahedron(&commonShaderProgram);
-					obj = new Tetrahedron(&commonShaderProgram);
+				if (dynamic_pointer_cast<Tetrahedron>(obj)) {
+					obj = make_shared<Tetrahedron>(&commonShaderProgram);
 					obj->setMaterial(
 						glm::vec3(0.0f, 0.1f, 0.3f),
 						glm::vec3(0.0f, 0.6f, 0.9f),
@@ -978,7 +978,7 @@ void initApplication() {
 			}
 		};
 		
-		SelectableObject* platform = new SelectableObject(&commonShaderProgram, "models/platformRound.fbx");
+		auto platform = make_shared<SelectableObject>(&commonShaderProgram, "models/platformRound.fbx");
 
 		platform->setFunction(boundFunction);
 		platform->setPosition(-3.0f, -1.0f, -2.5f);
@@ -987,7 +987,7 @@ void initApplication() {
 	}
 
 	{ // subdivided plane
-		DynamicMesh* plane = new DynamicMesh(&dynamicVertShaderProgram, "models/planeSubdivided.fbx");
+		auto plane = make_shared<DynamicMesh>(&dynamicVertShaderProgram, "models/planeSubdivided.fbx");
 		//DynamicMesh* plane = new DynamicMesh(&dynamicVertShaderProgram, "models/Monster.fbx");
 		//plane->rotateYAxis(90.0f);
 		plane->scale(10.0f);
@@ -996,7 +996,7 @@ void initApplication() {
 	}
 
 	{ // sofa
-		SingleMesh* sofa = new SingleMesh(&commonShaderProgram, "models/sofa.obj");
+		auto sofa = make_shared<SingleMesh>(&commonShaderProgram, "models/sofa.obj");
 		sofa->rotateYAxis(-30.0f);
 		sofa->scale(1.2f);
 		sofa->setYPosition(-0.5f);
@@ -1013,7 +1013,7 @@ void initApplication() {
 
 
 	{ // railing
-		SingleMesh* railing = new SingleMesh(&commonShaderProgram, "models/railing.fbx");
+		auto railing = make_shared<SingleMesh>(&commonShaderProgram, "models/railing.fbx");
 
 		railing->rotateYAxis(180.0f);
 		railing->setXPosition(-1.0f);
@@ -1024,16 +1024,10 @@ void initApplication() {
 	}
 
 	{ // subdivided plane
-		SingleMesh* tower = new SingleMesh(&commonShaderProgram, "models/tower.fbx");
+		auto tower = make_shared<SingleMesh>(&commonShaderProgram, "models/tower.fbx");
 		tower->rotateYAxis(180.0f);
 		tower->setYPosition(-10.25f);
 		tower->scale(20.0f);
-		/*tower->setMaterial(
-			glm::vec3(0.2, 0.2, 0.2),
-			glm::vec3(0.8, 1.0, 0.7),
-			glm::vec3(0.1, 0.1, 0.1),
-			10.0f 
-		);*/
 
 		tower->setTexture(texturesInited.wallRaw);
 
@@ -1070,7 +1064,7 @@ void initApplication() {
 
 		for (int z = Z_MIN; z <= Z_MAX; z += Z_STEP) {
 			for (int x = X_MIN; x <= X_MAX; x += X_STEP) {
-				SingleMesh* asteroid = new SingleMesh(&commonShaderProgram, "models/Monster.fbx");
+				auto asteroid = make_shared<SingleMesh>(&commonShaderProgram, "models/Monster.fbx");
 
 				// rand rotate
 				asteroid->rotateXAxis(randRotate->getNext());

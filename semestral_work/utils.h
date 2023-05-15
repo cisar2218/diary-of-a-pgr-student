@@ -2,6 +2,7 @@
 
 #include <random>
 #include <iostream>
+#include <memory>
 #include <unordered_map>
 #include "pgr.h"
 #include "selectableObject.h"

@@ -97,7 +97,7 @@ class ObjectInstance;
 /**
  * \brief Linear representation of the scene objects.  The objects themselves may represent the subtrees.
  */
-typedef std::vector<ObjectInstance*> ObjectList;
+typedef std::vector<std::shared_ptr<ObjectInstance>> ObjectList;
 
 class ObjectInstance {
 
@@ -186,7 +186,7 @@ public:
 			globalModelMatrix = localModelMatrix;
 
 		// update all children
-		for (ObjectInstance* child : children) {
+		for (auto child : children) {
 			if (child != nullptr)
 				child->update(elapsedTime, &globalModelMatrix);
 		}

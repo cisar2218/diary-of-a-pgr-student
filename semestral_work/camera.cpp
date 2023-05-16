@@ -7,12 +7,18 @@
 #include <iostream>
 using namespace std;
 
+/**
+ * \brief Default constructor
+ *
+ * Initializes a camera at the origin, pointing along the z-axis, with the y-axis as the up direction.
+ */
 Camera::Camera()
 {
     this->position = glm::vec3(0.0f, 0.0f, 0.0f);
     this->direction = glm::vec3(0.0f, 0.0f, 1.0f);
     this->upVector = glm::vec3(0.0f, 1.0f, 0.0f);
 }
+
 
 Camera::Camera(const glm::vec3& startPosition) {
     this->position = startPosition;
@@ -32,6 +38,11 @@ Camera::Camera(const glm::vec3& startPosition, const glm::vec3& startDirection, 
     this->upVector = glm::normalize(worldUp);
 }
 
+/**
+ * \brief Copy camera properties from another camera
+ *
+ * \param other The camera to copy properties from
+ */
 void Camera::setCameraFrom(Camera other)
 {
     this->projectionMatrix = other.projectionMatrix;
@@ -40,6 +51,7 @@ void Camera::setCameraFrom(Camera other)
     this->direction = other.direction;
     this->upVector = other.upVector;
 }
+
 
 void Camera::setRefObject(shared_ptr<MovingObject>  newRefObj)
 {
@@ -55,6 +67,11 @@ void Camera::setPositionAsReferObj()
     }
 }
 
+/**
+ * \brief Rotate the camera horizontally
+ *
+ * \param angle The angle to rotate, in radians
+ */
 void Camera::rotateHorizontal(float angle)
 {
     glm::mat2x2 rotMat = glm::mat2(
@@ -65,21 +82,35 @@ void Camera::rotateHorizontal(float angle)
     this->direction = glm::normalize(glm::vec3(rotated2dVec.x, 0.0f ,rotated2dVec.y));
 }
 
+/**
+ * \brief Move the camera by specified step
+ *
+ * \param step to move (size and direction)
+ */
 void Camera::move(glm::vec3 movement) {
     this->position += movement;
 }
 
+/**
+ * \brief Move the camera to the right
+ */
 void Camera::moveRight(float movement) {
     glm::vec3 left = glm::cross(this->direction, this->upVector);
     this->move(left * -movement);
 }
 
+/**
+ * \brief Move the camera to the left
+ */
 void Camera::moveLeft(float movement)
 {
     glm::vec3 left = glm::cross(this->direction, this->upVector);
     this->move(left * movement);
 }
 
+/**
+ * \brief Move camera in current direction by specified step size
+ */
 void Camera::moveForward(float movement)
 {
     this->move(direction * -movement);
@@ -100,6 +131,11 @@ void Camera::ground()
     this->position.y = 0.0f;
 }
 
+/**
+ * \brief Get the camera's front direction
+ *
+ * \return The camera's front direction
+ */
 glm::vec3 Camera::getFront() {
     return this->direction;
 }
@@ -108,6 +144,11 @@ glm::vec3 Camera::getLeft() {
     return glm::cross(this->direction, this->upVector);
 }
 
+/**
+ * \brief Increase the camera's elevation angle
+ *
+ * \param angle The angle to increase by, in radians
+ */
 void Camera::increaseElevation(float angle)
 {
     this->elevationAngle -= angle;
@@ -119,6 +160,11 @@ void Camera::increaseElevation(float angle)
     }
 }
 
+/**
+ * \brief Get the camera's view matrix
+ *
+ * \return The camera's view matrix
+ */
 glm::mat4 Camera::getViewMatrix() const {
     return glm::lookAt(
         this->position,
@@ -127,6 +173,11 @@ glm::mat4 Camera::getViewMatrix() const {
     );
 }
 
+/**
+ * \brief Get the camera's view matrix
+ *
+ * \return The camera's view matrix that include elevation
+ */
 glm::mat4 Camera::getViewMatrixElevated()
 {
     glm::vec3 rotationAxis = this->getLeft();
@@ -135,10 +186,18 @@ glm::mat4 Camera::getViewMatrixElevated()
     glm::vec3 newUpVector = glm::vec3(cameraTransform * glm::vec4(this->upVector, 0.0f));
     glm::vec3 cameraViewDirection = glm::vec3(cameraTransform * glm::vec4(this->direction, 0.0f));
 
-    return this->getViewMatrix(cameraViewDirection, newUpVector);
+    return this->getViewMatrixElevated(cameraViewDirection, newUpVector);
 }
 
-glm::mat4 Camera::getViewMatrix(glm::vec3 direction, glm::vec3 upVector) const {
+/**
+ * \brief Get the camera's view matrix
+ * 
+ * \param direction of object
+ * \param upvector of object
+ *
+ * \return The camera's view matrix that include elevation
+ */
+glm::mat4 Camera::getViewMatrixElevated(glm::vec3 direction, glm::vec3 upVector) const {
     return glm::lookAt(
         this->position,
         this->position - direction,
@@ -154,11 +213,23 @@ glm::vec3 Camera::getPosition() {
     return this->position;
 }
 
+/**
+ * \brief Set the camera's projection matrix based on a given aspect ratio.
+ *
+ * \param width and height of the vieport
+ * \param ratio The aspect ratio (width divided by height)
+ */
 void Camera::setProjectionMatrixRatio(float ratio)
 {
     this->projectionMatrix = glm::perspective(glm::radians(45.0f), ratio, 1.0f, 150.0f);
 }
 
+/**
+ * \brief Set the camera's projection matrix based on a given aspect ratio.
+ *
+ * \param width of the viewport
+ * \param height of the viewport
+ */
 void Camera::setProjectionMatrixRatio(float width, float height)
 {
     this->projectionMatrix = glm::perspective(glm::radians(45.0f), width / height, 1.0f, 150.0f);

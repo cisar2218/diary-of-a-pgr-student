@@ -15,5 +15,5 @@ public:
 	glm::vec3 getDirection();
 private:
 	glm::vec3 direction = glm::vec3(1.0f, 0.0f, 0.0f);
-	float lastElapsedTime = 0.0f;
+	float startTime = -1.0f;
 };

@@ -3,8 +3,7 @@
 
 using namespace std;
 
-
-/** Load one mesh using assimp library (vertices only, for more attributes see method extended version in Asteroids)
+/** Load one mesh using assimp library
  * \param fileName [in] file to open/load
  * \param shader [in] vao will connect loaded data to shader
  * \param geometry

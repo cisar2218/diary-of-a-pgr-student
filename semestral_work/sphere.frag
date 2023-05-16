@@ -74,7 +74,7 @@ vec4 getPointLight(vec3 vertexPosition, vec3 vertexNormal) {
     float distFromLight = distance(lightPosition, vertexPosition);
     float attenConst = 1.0;
     float attenLin = 0.5;
-    float attenQuad = 0.1;  // TODO set to ~1.5
+    float attenQuad = 1.5;
     
     float attenFactor = 1.0 / (attenConst + attenLin * distFromLight 
         + attenQuad * distFromLight*distFromLight);
@@ -104,11 +104,11 @@ vec4 getSpotLight(vec3 vertexPosition, vec3 vertexNormal) {
     
     float spotCoef = max(0.0, dot(-light_norm, spotDir));
 
-    float cutoff = 0.85; // TODO
+    float cutoff = 0.85;
     if (spotCoef < cutoff) {
         ret*= 0.0;
     } else {
-        float spotExponent = 1.5; // TODO
+        float spotExponent = 1.5;
         ret *= pow(spotCoef, spotExponent);
     }
     return vec4(ret, 1.0);

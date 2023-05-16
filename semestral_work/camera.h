@@ -46,7 +46,7 @@ public:
 
     glm::mat4 getViewMatrix() const;
     glm::mat4 getViewMatrixElevated();
-    glm::mat4 getViewMatrix(glm::vec3 direction, glm::vec3 upVector) const;
+    glm::mat4 getViewMatrixElevated(glm::vec3 direction, glm::vec3 upVector) const;
     glm::mat4 getProjectionMatrix() const;
     glm::vec3 getPosition();
 

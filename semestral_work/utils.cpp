@@ -1,6 +1,12 @@
 #include "utils.h"
 #include "movingObject.h"
 
+/**
+ * \brief Print error message when condition is false.
+ *
+ * \param condition
+ * \param error message to be print if condition is false
+ */
 void printErrIfNotSatisfied(const bool condition, const std::string& errMessage) {
 	if (!condition) {
 		cerr << errMessage << endl;

@@ -1,35 +1,11 @@
 //----------------------------------------------------------------------------------------
 /**
- * \file    toyshop.cpp : This file contains the 'main' function and callbacks.
+ * \file    janskdus.cpp : This file contains the 'main' function and callbacks.
 			Program execution begins and ends there.
  * \author  Dušan Jánsky
  * \date    2022/04/02
  * \brief   Semestral work for PGR class.
  */
-
- /**
-  * \brief	\mainpage Documentation of the skeleton for the Computer graphics course on FEE and FIT CTU CZ
-  *
-  * This is the skeleton of an OpenGL application written in FreeGLUT and PGR framework.
-  * It serves as a starter boiler-plate code for a semester project - a simple interactive application.
-  * Write your code into the functions prepared. Add your data (models, textures, ...) and logic.
-  *
-  *
-  * Comment your code using the [doxygen](https://www.doxygen.nl/index.html) documenting system style.
-  * Create "doxygen" directory, make it current by "cd doxygen", prepare a configuration file with "doxygen -g" and edit the details.
-  *
-  * Start by renaming of this file from skeleton.cpp to <your_name>.cpp and the project to <your_name>.vcxproj
-  *
-  * In <your_name>.vcxproj:
-  *   - rename skeleton in <RootNamespace>skeleton</RootNamespace> to <your_name>
-  *   - replace skeleton.cpp in <ClCompile Include="skeleton.cpp" /> to <your_name>.cpp
-  *
-  * Start coding and documenting. Generate the documentation by the command "doxygen" in the "doxygen" directory.
-  *
-  */
-
-
-// TODO: tabulka klaves a jeji obsluha keyPressed/keyReleased a timer
 
 #include <iostream>
 #include <functional>
@@ -68,6 +44,9 @@ ShaderProgram dynamicVertShaderProgram;
 
 Camera cameras[CAMERA_COUNT];
 
+/**
+ * \brief Global states of the scene.
+ */
 struct GameState {
 	int windowWidth = WINDOW_WIDTH;     // set by reshape callback
 	int windowHeight = WINDOW_HEIGHT;   // set by reshape callback
@@ -80,6 +59,9 @@ struct GameState {
 	bool collisionEnabled = false;
 } gameState;
 
+/**
+ * \brief Set of textures used in the scene.
+ */
 struct Textures {
 	GLint woodTexture = -1;
 	GLint brickTexture = -1;
@@ -92,15 +74,18 @@ struct Textures {
 
 // -----------------------  OpenGL stuff ---------------------------------
 
+/**
+ * \brief Scan screen for selectable objects, select selectable object if found.
+ *
+ * \param X coord of the mouse
+ * \param Y coord of the mouse
+ */
 void doPicking(int x, int y) {
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glClearStencil(0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-	// enable stencil test
 	glEnable(GL_STENCIL_TEST);
-	// if the stencil test and depth test are passed than value in the stencil
-	// buffer is replaced with the object ID (byte 1..255)
 	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
 	glm::mat4 viewMatrix = cameras[gameState.activeCamera].getViewMatrixElevated();
@@ -108,7 +93,7 @@ void doPicking(int x, int y) {
 	unordered_map<int, shared_ptr<SelectableObject>> selectableObjects;
 
 	int id = 1;
-	for (auto object : objects) {   // for (auto object : objects) {
+	for (auto object : objects) {
 		if (object != nullptr) {
 			auto selectableObj = dynamic_pointer_cast<SelectableObject>(object);
 			if (selectableObj) {
@@ -134,7 +119,6 @@ void doPicking(int x, int y) {
 		if (it != selectableObjects.end()) {
 			auto selectedObject = it->second;
 			std::cout << "clicked on object with ID: " << (int)pixelID << std::endl;
-			// TODO process click
 			selectedObject->executeFunction();
 		}
 		else {
@@ -466,8 +450,11 @@ void loadShaderPrograms()
  * \brief Delete all shader program objects.
  */
 void cleanupShaderPrograms(void) {
-
+	pgr::deleteProgramAndShaders(skyboxShaderProgram.program);
 	pgr::deleteProgramAndShaders(commonShaderProgram.program);
+	pgr::deleteProgramAndShaders(dynTexShaderProgram.program);
+	pgr::deleteProgramAndShaders(movTexShaderProgram.program);
+	pgr::deleteProgramAndShaders(dynamicVertShaderProgram.program);
 }
 
 /**
@@ -517,7 +504,6 @@ void reshapeCb(int newWidth, int newHeight) {
 // -----------------------  Mouse ---------------------------------
 // three events - mouse click, mouse drag, and mouse move with no button pressed
 
-// 
 /**
  * \brief React to mouse button press and release (mouse click).
  * When the user presses and releases mouse buttons in the window, each press
@@ -531,7 +517,6 @@ void reshapeCb(int newWidth, int newHeight) {
 void mouseCb(int buttonPressed, int buttonState, int mouseX, int mouseY) {
 	if (buttonPressed == GLUT_LEFT_BUTTON) {
 		if (buttonState == GLUT_DOWN) {
-			printf("Left button pressed at (%d, %d)\n", mouseX, mouseY);
 			doPicking(mouseX, mouseY);
 		}
 	}
@@ -566,9 +551,6 @@ void passiveMouseMotionCb(int mouseX, int mouseY) {
 			break;
 		}
 	}
-
-	// create display event to redraw window contents if needed (and not handled in the timer callback)
-	// glutPostRedisplay();
 }
 
 
@@ -591,6 +573,7 @@ void keyboardCb(unsigned char keyPressed, int mouseX, int mouseY) {
 	}
 	cout << "Pressed key: " << keyPressed << endl;
 	switch (keyPressed) {
+		//> movement START
 	case 'd':
 		gameState.keyMap[KEY_RIGHT_ARROW] = true;
 		break;
@@ -603,6 +586,8 @@ void keyboardCb(unsigned char keyPressed, int mouseX, int mouseY) {
 	case 's':
 		gameState.keyMap[KEY_DOWN_ARROW] = true;
 		break;
+		//< movement END
+
 	case 'c': // collision toggle
 		gameState.collisionEnabled = !gameState.collisionEnabled;
 		break;
@@ -638,7 +623,6 @@ void keyboardUpCb(unsigned char keyReleased, int mouseX, int mouseY) {
 	}
 }
 
-//
 /**
  * \brief Handle the non-ASCII key pressed event (such as arrows or F1).
  *  The special keyboard callback is triggered when keyboard function (Fx) or directional
@@ -689,6 +673,14 @@ void specialKeyboardCb(int specKeyPressed, int mouseX, int mouseY) {
 	}
 }
 
+/**
+ * \brief Handle the non-ASCII key pressed event (such as arrows or F1).
+ *  The special keyboard callback is triggered when keyboard function (Fx) or directional
+ *  keys are released.
+ * \param specKeyPressed int value of a predefined glut constant such as GLUT_KEY_UP
+ * \param mouseX mouse (cursor) X position
+ * \param mouseY mouse (cursor) Y position
+ */
 void specialKeyboardUpCb(int specKeyReleased, int mouseX, int mouseY) {
 	switch (specKeyReleased) {
 	case GLUT_KEY_RIGHT:
@@ -708,6 +700,11 @@ void specialKeyboardUpCb(int specKeyReleased, int mouseX, int mouseY) {
 	}
 }
 
+/**
+ * \brief Updates given camera position and other properties.
+ * \param index of camera
+ * \param delta time
+ */
 void updateCamera(int cameraIdx, float deltaTime) {
 	switch (cameraIdx)
 	{
@@ -762,7 +759,7 @@ void updateCamera(int cameraIdx, float deltaTime) {
  */
 void timerCb(int)
 {
-#ifndef SKELETON // @task_1_0
+
 	const glm::mat4 sceneRootMatrix = glm::mat4(1.0f);
 	float elapsedTime = 0.001f * static_cast<float>(glutGet(GLUT_ELAPSED_TIME)); // milliseconds => seconds
 
@@ -779,11 +776,10 @@ void timerCb(int)
 	);
 
 	// update the application state
-	for (auto object : objects) {   // for (auto object : objects) {
+	for (auto object : objects) {
 		if (object != nullptr)
 			object->update(elapsedTime, &sceneRootMatrix);
 	}
-#endif // task_1_0
 
 	// and plan a new event
 	glutTimerFunc(33, timerCb, 0);
@@ -794,7 +790,9 @@ void timerCb(int)
 
 // -----------------------  Application ---------------------------------
 
-// --- OBJs
+/**
+ * \brief Place objects to the scene
+ */
 void initObjects() {
 	// CAMERAS
 	cameras[CAMERA_FREE_IDX] = Camera(CAMERA_FREE_INIT_POSITION);
@@ -806,6 +804,7 @@ void initObjects() {
 		camera.setProjectionMatrixRatio(WINDOW_WIDTH, WINDOW_HEIGHT);
 	}
 
+	// OTHERS
 	{ // selectable and movable pair
 		// moving object
 		auto movObj = make_shared<MovingObject>(&commonShaderProgram, "models/cucumber.fbx");
@@ -832,7 +831,6 @@ void initObjects() {
 			glm::vec3(0.2f, 0.2f, 0.2f),
 			10.0f
 		);
-
 		objects.push_back(dynCube);
 
 		// button
@@ -985,15 +983,12 @@ void initObjects() {
 	}
 
 	{
-
 		 // random selectable object
 		 auto selectableObject = make_shared<SelectableObject>(&commonShaderProgram, "models/monster.fbx");
 		 std::function<void()> boundFunction = std::bind(&SelectableObject::moveUp, selectableObject);
 		 selectableObject->setTexture(texturesInited.rock);
 		 selectableObject->setFunction(boundFunction);
 		 selectableObject->setYPosition(2.0f);
-
-		
 
 		objects.push_back(selectableObject);
 	}
@@ -1009,7 +1004,6 @@ void initApplication() {
 	glEnable(GL_DEPTH_TEST);
 	initObjects();
 
-	
 	// init your Application
 	// - setup the initial application state
 }
@@ -1018,12 +1012,7 @@ void initApplication() {
  * \brief Delete all OpenGL objects and application data.
  */
 void finalizeApplication(void) {
-
-	// cleanUpObjects();
-
-	// delete buffers
-	// cleanupModels();
-
+	objects.clear();
 	// delete shaders
 	cleanupShaderPrograms();
 }
@@ -1061,13 +1050,8 @@ int main(int argc, char** argv) {
 		 glutMouseFunc(mouseCb);
 		glutPassiveMotionFunc(passiveMouseMotionCb);
 
-#ifndef SKELETON // @task_1_0
 		glutTimerFunc(33, timerCb, 0);
-#else
-		// glutTimerFunc(33, timerCb, 0);
-#endif // task_1_0
-
-}
+	}
 	// end for each window 
 
 	// initialize pgr-framework (GL, DevIl, etc.)
@@ -1082,9 +1066,6 @@ int main(int argc, char** argv) {
 
 	// Infinite loop handling the events
 	glutMainLoop();
-
-	// code after glutLeaveMainLoop()
-	// cleanup
 
 	return EXIT_SUCCESS;
 }

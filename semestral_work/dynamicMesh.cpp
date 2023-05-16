@@ -2,6 +2,7 @@
 
 #include "dynamicMesh.h"
 
+
 void DynamicMesh::update(float elapsedTime, const glm::mat4* parentModelMatrix)
 {
 	this->elapsedTime = elapsedTime;

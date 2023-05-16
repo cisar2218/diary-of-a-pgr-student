@@ -12,7 +12,7 @@ typedef struct _ShaderProgram {
 	bool initialized;
 
 	/**
-	  * \brief Indices of the vertex shader inputs (locations)
+	  * \brief Indices of the vertex shader inputs (locations).
 	  */
 	struct {
 		// vertex attributes locations
@@ -81,6 +81,9 @@ typedef struct _ObjectGeometry {
 	unsigned int  numTriangles;         ///< number of triangles in the mesh
 } ObjectGeometry;
 
+/**
+ * \brief Material of the object (Phong reflection model).
+ */
 typedef struct _ObjectMaterial {
 	glm::vec3        ambient;
 	glm::vec3        diffuse;
@@ -88,8 +91,11 @@ typedef struct _ObjectMaterial {
 	float			 shininess;
 } ObjectMaterial;
 
+/**
+ * \brief Texture of the object.
+ */
 typedef struct _ObjectTexture {
-	bool enabled;
+	bool enabled;                       ///< if object has texture
 	GLint texture;
 } ObjectTexture;
 
@@ -106,13 +112,9 @@ protected:
 	ObjectGeometry* geometry;
 	ObjectMaterial* material;
 	ObjectTexture* texture;
+
 	glm::mat4		localModelMatrix;
 	glm::mat4		globalModelMatrix;
-
-	// dynamic objects
-	// glm::vec3 direction;
-	// float     speed;
-	// ...
 
 	ShaderProgram* shaderProgram;
 
@@ -160,10 +162,20 @@ public:
 		);
 	}
 
+	/**
+	* \brief scales object by given ratios
+	* \param ratio for X scale
+	* \param ratio for Y scale
+	* \param ratio for Z scale
+	*/
 	virtual void scale(float scaleRatioX, float scaleRatioY, float scaleRatioZ) {
 		this->localModelMatrix = glm::scale(localModelMatrix, glm::vec3(scaleRatioX, scaleRatioY, scaleRatioZ));
 	}
 
+	/**
+	* \brief scale object by given ratio
+	* \param uniform ratio scale
+	*/
 	virtual void scale(float scaleRatio) {
 		this->localModelMatrix = glm::scale(localModelMatrix, glm::vec3(scaleRatio));
 	}
@@ -192,6 +204,12 @@ public:
 		}
 	}
 
+	/**
+	* \brief Bind uniforms used in common shader.
+	*   
+	* \param view matrix of camera
+	* \param projection matrix of camera
+	*/
 	virtual void bindCommonUniforms(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 		// uniform material
 		glUniform3fv(shaderProgram->locations.materialAmbient, 1, glm::value_ptr(material->ambient));
@@ -242,6 +260,9 @@ public:
 		}
 	}
 
+	/**
+	* \return rotation matrix of object
+	*/
 	const glm::mat4 getModelRotationMatrix() {
 		const glm::mat4 modelRotationMatrix = glm::mat4(
 			globalModelMatrix[0],
@@ -252,33 +273,58 @@ public:
 		return glm::transpose(glm::inverse(modelRotationMatrix));
 	}
 
+	/**
+	* \brief Rotate object around Y axis
+	*/
 	void rotateYAxis(float angleInDegrees) {
 		float angleInRadians = glm::radians(angleInDegrees);
 		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(0.0f, 1.0f, 0.0f));
 		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
 	}
 
+	/**
+	* \brief Rotate object around X axis
+	*/
 	void rotateXAxis(float angleInDegrees) {
 		float angleInRadians = glm::radians(angleInDegrees);
 		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(1.0f, 0.0f, 0.0f));
 		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
 	}
 
+	/**
+	* \brief Rotate object around Z axis
+	*/
 	void rotateZAxis(float angleInDegrees) {
 		float angleInRadians = glm::radians(angleInDegrees);
 		glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angleInRadians, glm::vec3(0.0f, 0.0f, 1.0f));
 		this->localModelMatrix = this->localModelMatrix * rotationMatrix;
 	}
 
+	/**
+	* \brief Bind given texture to this object
+	* 
+	* \param valid texture created e.g by pgr::createTexture(...);
+	*/
 	virtual void setTexture(GLint textureToSet) {
 		texture->enabled = true;
 		texture->texture = textureToSet;
 	}
 
+	/**
+	* \brief Sets given material to this object (Phong reflection model)
+	*/
 	virtual void setMaterial(ObjectMaterial* materialToSet) {
 		material = materialToSet;
 	}
 
+	/**
+	* \brief Sets given properties to material of this object (Phong reflection model)
+	* 
+	* \param ambient color
+	* \param diffuse color
+	* \param specular color
+	* \param shininess
+	*/
 	virtual void setMaterial(glm::vec3 ambient, glm::vec3 diffuse, glm::vec3 specular, float shininess) {
 		material = new ObjectMaterial;
 		material->ambient = ambient;

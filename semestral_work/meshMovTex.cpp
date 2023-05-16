@@ -3,7 +3,11 @@
 
 using namespace std;
 
-
+/**
+ * \brief Set given elapsed time as elapsed time.
+ *
+ * Also calls ObjectInstatance::update(..) on the top.
+ */
 void MeshMovTex::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
 	// instance specific stuff
 
@@ -34,11 +38,14 @@ void MeshMovTex::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 	}
 }
 
+/**
+ * \brief Set scroll speed of moving texture.
+ */
 void MeshMovTex::setScrollSpeed(glm::vec2 newSpeed) {
 	this->scrollSpeed = newSpeed;
 }
 
-/** Load one mesh using assimp library (vertices only, for more attributes see method extended version in Asteroids)
+/** Load one mesh using assimp library - custom for moving texture
  * \param fileName [in] file to open/load
  * \param shader [in] vao will connect loaded data to shader
  * \param geometry

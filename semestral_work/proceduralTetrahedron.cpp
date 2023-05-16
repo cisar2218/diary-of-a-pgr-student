@@ -54,17 +54,13 @@ Tetrahedron::Tetrahedron(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg)
 }
 
 
-Tetrahedron ::~Tetrahedron() {
-	glDeleteVertexArrays(1, &(geometry->vertexArrayObject));
-	glDeleteBuffers(1, &(geometry->elementBufferObject));
-	glDeleteBuffers(1, &(geometry->vertexBufferObject));
-
-	delete geometry;
-	geometry = nullptr;
-
-	initialized = false;
-}
-
+/**
+ * \brief Generate tetrahedron vertexes
+ *
+ * Tetrahedron verteces are generated as random multiplications of independent vectors
+ * that are set manualy to achieve reasonable shape. This way we achieve random position
+ * of vertexes.
+ */
 void Tetrahedron::generateVetices()
 {
 	glm::vec2 texCoords[] = {
@@ -98,4 +94,15 @@ void Tetrahedron::generateVetices()
 		vertices[i * numAttribsPerVertex + 6] = texCoords[i % 3].x;
 		vertices[i * numAttribsPerVertex + 7] = texCoords[i % 3].y;
 	}
+}
+
+Tetrahedron ::~Tetrahedron() {
+	glDeleteVertexArrays(1, &(geometry->vertexArrayObject));
+	glDeleteBuffers(1, &(geometry->elementBufferObject));
+	glDeleteBuffers(1, &(geometry->vertexBufferObject));
+
+	delete geometry;
+	geometry = nullptr;
+
+	initialized = false;
 }

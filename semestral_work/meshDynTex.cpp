@@ -3,10 +3,12 @@
 
 using namespace std;
 
-
+/**
+ * \brief Set frame (when dynamic texture enabled)
+ * 
+ * Also calls ObjectInstatance::update(..) on the top.
+ */
 void MeshDynTex::update(float elapsedTime, const glm::mat4* parentModelMatrix) {
-	// instance specific stuff
-
 	if (enabled)
 		frame = int(elapsedTime) % 3 + 1;
 	else
@@ -36,13 +38,16 @@ void MeshDynTex::draw(const glm::mat4& viewMatrix, const glm::mat4& projectionMa
 	}
 }
 
+/**
+ * \brief Toggle whether dynamic texture (frame switching) is on/off
+ */
 void MeshDynTex::toggleEnabled()
 {
 	this->enabled = !enabled;
 }
 
 
-/** Load one mesh using assimp library (vertices only, for more attributes see method extended version in Asteroids)
+/** Load one mesh using assimp library - custom for dynamic texture
  * \param fileName [in] file to open/load
  * \param shader [in] vao will connect loaded data to shader
  * \param geometry
@@ -109,8 +114,6 @@ bool MeshDynTex::loadSingleMesh(const std::string& fileName, ShaderProgram* shad
 	}
 
 	glBufferData(GL_ARRAY_BUFFER, vertSize, vertexes, GL_STATIC_DRAW);     // allocate memory for vertices
-	//glBufferSubData(GL_ARRAY_BUFFER, 0, 3 * sizeof(float) * mesh->mNumVertices, mesh->mVertices); // store all vertices
-
 
 	// copy all mesh faces into one big array (assimp supports faces with ordinary number of vertices, we use only 3 -> triangles)
 	unsigned int* indices = new unsigned int[mesh->mNumFaces * 3];

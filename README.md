@@ -12,6 +12,42 @@ I am not very interested in computer graphic, that's why I created this repozito
 I will describe list of topics. If topic is advance I will go into more details. Basics are basics. I won't waste much time on them.
 ### 1) Week
 - Good resource for users who "know but don't remember" is [this](https://www.khronos.org/files/opengl-quick-reference-card.pdf) cheatsheet (specific for version, be careful).
+#### **CPU Role in Compute Graphic**
+- C++ (depending on project ofc)
+- **OpenGL**:
+  - Multiplatform independent standard.
+  - Set of tools for rendering of 3D data and textures in to a 2D image
+  - prepares block of data for passing to GPU
+  - enable/disable particular functions
+  - works like state machine: setup different things (that are read and rendered)
+- Prepares the data for GPU (shaders).
+- Sends everything to the graphics card.
+- Sets the OpenGL state.
+- Sends the “draw” commands.
+- Handles user interaction (keyboard, mouse).
+- Controls animations.
+#### **GPU Role in Compute Graphic**
+- GLSL
+- Accepts data from the host.
+- 60x per second
+  - Clears the image memory
+  - „draws a new image“
+- Works in parallel
+  - Vertices, Primitives, fragments
+  - Runs shaders for each of them
+#### **Framebuffer Role in Compute Graphic**
+- Framebuffer = memory for the image
+- Stores the rendered 2D image
+- Has more layers: Color, Depth, ...
+- Image is sent to the monitor
+- 60x per second
+
+#### **Bottleneck** is limited bandwidth
+- Between graphic card and monitor. => CPU send data for precomputing; Significant portion of data is discarded.
+
+#### **Rasterization Pipeline**
+- Just learn it in detail.
+
 #### Vectors
 - Vector operations (sum, scale etc.)
 - Vector lenght - the distance from the starting point to the ending point.

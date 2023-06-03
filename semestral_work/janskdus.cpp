@@ -930,35 +930,14 @@ void initObjects() {
 
 	{
 		// ASTEROIDS
-		const int Z_MIN = -40;
-		const int Z_MAX = 40;
-		const int Z_COUNT = 5;
-		const int Z_STEP = abs(Z_MIN - Z_MAX) / Z_COUNT;
+		auto randDisplacementXZ = std::make_unique<RealGenerator>(ASTEROIDS_MIN_DISPLACEMENT_HORIZONTAL, ASTEROIDS_MAX_DISPLACEMENT_HORIZONTAL);
+		auto randDisplacementY = std::make_unique<RealGenerator>(ASTEROIDS_MIN_DISPLACEMENT_VERTICAL, ASTEROIDS_MAX_DISPLACEMENT_VERTICAL);
 
-		const int X_MIN = -60;
-		const int X_MAX = -35;
-		const int X_COUNT = 10;
-		const int X_STEP = abs(X_MIN - X_MAX) / X_COUNT;
+		auto randScale = std::make_unique<RealGenerator>(ASTEROIDS_SCALE_MIN, ASTEROIDS_SCALE_MAX);
+		auto randRotate = std::make_unique<RealGenerator>(ASTEROIDS_ANGLE_MIN, ASTEROIDS_ANGLE_MAX);
 
-		const float MIN_DISPLACEMENT_HORIZONTAL = 1.0f;
-		const float MAX_DISPLACEMENT_HORIZONTAL = 3.0f;
-		const float MIN_DISPLACEMENT_VERTICAL = -15.0f;
-		const float MAX_DISPLACEMENT_VERTICAL = 15.0f;
-
-		const float SCALE_MIN = 0.2f;
-		const float SCALE_MAX = 4.2f;
-
-		const float ANGLE_MIN = 0.0f;
-		const float ANGLE_MAX = 180.0f;
-
-		auto randDisplacementXZ = std::make_unique<RealGenerator>(MIN_DISPLACEMENT_HORIZONTAL, MAX_DISPLACEMENT_HORIZONTAL);
-		auto randDisplacementY = std::make_unique<RealGenerator>(MIN_DISPLACEMENT_VERTICAL, MAX_DISPLACEMENT_VERTICAL);
-
-		auto randScale = std::make_unique<RealGenerator>(SCALE_MIN, SCALE_MAX);
-		auto randRotate = std::make_unique<RealGenerator>(ANGLE_MIN, ANGLE_MAX);
-
-		for (int z = Z_MIN; z <= Z_MAX; z += Z_STEP) {
-			for (int x = X_MIN; x <= X_MAX; x += X_STEP) {
+		for (int z = ASTEROIDS_Z_MIN; z <= ASTEROIDS_Z_MAX; z += ASTEROIDS_Z_STEP) {
+			for (int x = ASTEROIDS_X_MIN; x <= ASTEROIDS_X_MAX; x += ASTEROIDS_X_STEP) {
 				auto asteroid = make_shared<SingleMesh>(&commonShaderProgram, "models/Monster.fbx");
 
 				// rand rotate
@@ -999,13 +978,9 @@ void initObjects() {
  */
 void initApplication() {
 	// init OpenGL
-	// - all programs (shaders), buffers, textures, ...
 	loadShaderPrograms();
 	glEnable(GL_DEPTH_TEST);
 	initObjects();
-
-	// init your Application
-	// - setup the initial application state
 }
 
 /**

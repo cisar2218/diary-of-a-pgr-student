@@ -25,8 +25,6 @@ float getVisibility(float distance) {
     return clamp(ret, 0.0, 1.0);
 }
 
-// TODO revice FOG and LIGHTING in uncommon shaders
-
 void main()
 {
     Position_eye = (Vmatrix * Mmatrix * vec4(aPos, 1.0)).xyz;

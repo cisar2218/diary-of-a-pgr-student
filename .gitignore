@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+
+# Custom
+template
+doxygen
+.blend
+.blend1
+
 # User-specific files
 *.rsuser
 *.suo

@@ -1,5 +1,6 @@
 #include <iostream>
 #include "movingObject.h"
+#include "parameters.h"
 
 /**
  * \brief Moves and rotates this object on the circle path.
@@ -11,8 +12,8 @@ void MovingObject::update(float elapsedTime, const glm::mat4* parentModelMatrix)
 		startTime = elapsedTime;
 	}
 
-	float radius = 15.0f;
-	float speed = 1.0f;
+	float radius = MOVING_OBJECT_RADIUS;
+	float speed = MOVING_OBJECT_SPEED;
 	float angle = speed * (elapsedTime - startTime);
 
 	float x = radius * cos(angle);

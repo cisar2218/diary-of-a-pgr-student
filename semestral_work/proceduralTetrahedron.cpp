@@ -3,6 +3,7 @@
 #include <memory>
 #include "proceduralTetrahedron.h"
 #include "realGenerator.h"
+#include "parameters.h"
 
 Tetrahedron::Tetrahedron(ShaderProgram* shdrPrg) : ObjectInstance(shdrPrg)
 {
@@ -69,8 +70,8 @@ void Tetrahedron::generateVetices()
 		glm::vec2(1.0f, 1.0),
 	};
 
-	float minDistance = 0.2f;
-	float maxDistance = 1.2f;
+	float minDistance = TETRAHEDRON_MIN_DIST;
+	float maxDistance = TETRAHEDRON_MAX_DIST;
 
 	std::random_device rd;
 	std::mt19937 gen(rd());

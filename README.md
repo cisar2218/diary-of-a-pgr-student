@@ -67,7 +67,9 @@ I will describe list of topics. If topic is advance I will go into more details.
 - *swizzling* - for example if i want to swap `vec.x` and `vec.z` I can do `vec = vec.zyx`
 - I may describe how to use shader in opengl by example in the future. Maybe I will copy and comment parts of code that I will write in the future.
 
-### 2) Week - recap of linear algebra
+### 2) Week
+
+#### recap of linear algebra
 - **Rotation** matrix (MX) (cheat sheet bellow)
 ![image](https://user-images.githubusercontent.com/69775422/222754955-a7eb850f-e41d-4673-8299-635ce212c32c.png)
 - **Transformation** MX and **Translation** MX (cheat sheet bellow): middle one is translation matrix. The last one is transformation matrix.
@@ -76,6 +78,63 @@ I will describe list of topics. If topic is advance I will go into more details.
 - Linear independence
 - Basis, [change of basis](https://youtu.be/P2LTAUO1TdA)
 
+#### Shaders
+- 'uniform' - values that can be modified from codebase (glUniform...). Uniforms can be accessed from both VS, FS
+- Between VS and FS there is a interpolation. So basicaly exact positions are transformed (interpolated) into fragments.
+##### 1. Vertex Shader (VS)
+- 'in' - inputs for buffer values (vert. positions, normals, tex. coords)
+- 'out' - binded to 'in's for FS
+##### 2. Vertex Shader (FS)
+- 'in' - binded to 'out's of VS
+- output is fragment data
+
+#### Buffers
+- vertex array – format of the vertex data and connection to VS inputs
+- action workflow:
+  1. glGenBuffer
+  2. glBindBuffer
+  3. glBufferData
+  ...
+  n. glDeleteBuffer (when app finished: delete reference to the buffer)
+- see example, it's clearer: [semestral work - buffers example](#buffers---object-loading-from-source)
+
+#### Drawing
+- `glDrawArrays(array_ptr, count)` draw a linear sequence of 𝑛 vertices
+- `glDrawElements(...)` draw a random sequence of 𝑛 vertices according to the indices; (for arguments see official docs, or find examples)
+
+#### Primitives
+- opengl uses right handed coord sys
+- height is `y` axis
+- left, down: 0,0 (origin); right, top: (width, height) (max)
+- primitives:
+  - points
+  - lines
+  - line strip
+  - line loop
+  - triangles
+  - triangle strip
+  - triangle fan
+#### Face orientation (inc. back face culling)
+- whether face is draw when indexed clockwise (CC) or counterCW (CCW)
+- after `glEnable(GL_CULL_FACE);` all the faces that are not front-faces are discarded
+
+#### **Exam Topics**
+##### W2
+- Passing vertex data to GPU
+- attribute variables, uniforms
+- buffers (VBO, VAO, EBO)
+- Buffer organization
+- geometry as sequence x indexed vertices
+- order of vertex attributes in buffers
+- (sequential block, interleaved)
+- Drawing loop
+- Primitives
+- Back face culling
+
+#### **Random notes**
+- shared normals => smooth edges (rounding); individual => sharp edges (no rounding)
+
+
 ## Semestral work
 ### Bindings
 - **F1** - switch to free camera
@@ -83,6 +142,7 @@ I will describe list of topics. If topic is advance I will go into more details.
 - **F3** - switch to 2nd static camera
 - **ARROWS** - free camera movement
 - **MOUSE MOVEMENT** - free camera rotation
+  
 ### Buffers - Object loading (from source)
 One of task required is to load object from source, that has at least 30 triangles. I want to demostrate role of different buffers and how to use them.
 

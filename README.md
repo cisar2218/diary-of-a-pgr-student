@@ -198,7 +198,7 @@ return matrix; // need to inverse (my note)
   - attenuationFactor = 1.0/ (constAtt + dist * linAtt + quadAtt * dist^2)
   - dist = distance |light, vertex|
 - reflector - spotlight cutoff angle
-
+- r = v - 2 * dot(v,n)*n, where n is normal, v is camera (viewer)
 
 ##### Shading
 - flat X phong
@@ -208,6 +208,21 @@ return matrix; // need to inverse (my note)
 - transformations overview (categories)
 ![transformations](images/transformations.png)
 - gimbal lock - where all tree axis in same face
+
+##### Textures
+- classic textures: coords <0,1> X <0,1>
+- non-normalized textures: coords<0,n> X <0,m>
+- multitexturing = more textures on one object (e.g.: bricks, grass)
+- **cube mapping**: +6 images, +ez creation, -6 textures at once, -single position in the scene
+- replace vs modulate:
+  - replace will replace computed color of fragment with texture
+  - modulate will do `finColor = computed_color * texture` => modulate better
+- **texture inverse mapping:**
+  - interpolate texture values between texels
+  - because without holes can appear;
+  - **pixel screen coords ->** point world coords -> texture param. coords -> **texture image coords**
+![inverse maping](images/inverse_mapping.png)
+
 
 #### **Exam Topics**
 ##### W2

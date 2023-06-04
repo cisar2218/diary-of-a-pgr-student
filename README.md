@@ -128,7 +128,7 @@ I will describe list of topics. If topic is advance I will go into more details.
 - Usage: `glBind(...)`
 - Removement: `glDelete(...)`
 
-### 2) Week
+### 3) Week
 #### MVP Matrixes
 - Input are model coordinates
 1. model matrix: model coords -> world
@@ -144,7 +144,7 @@ I will describe list of topics. If topic is advance I will go into more details.
 
 #### Transformation matrixes
 - see how the operations affect the matrixes
-- SRT Order (to don't mess things up): scale, rotation, transition
+- **SRT Order** (to don't mess things up): scale, rotation, transition
 - rotation: axis matrix coord remains equal to one
   - e.g.: rotate around x-axis the coords of M[0,0] = 1 in a rotation matrix
 
@@ -153,23 +153,61 @@ I will describe list of topics. If topic is advance I will go into more details.
   - Eye (-Front??) = position of the viewpoint
   - Center (camera position) = any point along the desired line of sight (center, as it projects to the central screen pixel)
   - Up vector
-  ```cpp
-  vec3 z = -normalize(front);
-  if (isVectorNull(z)) z = vec3(0.0, 0.0, 1.0);
+```cpp
+vec3 z = -normalize(front);
+if (isVectorNull(z)) z = vec3(0.0, 0.0, 1.0);
 
-  vec3 x = normalize(cross(up, z));
-  if (isVectorNull(x)) x = vec3(1.0, 0.0, 0.0);
+vec3 x = normalize(cross(up, z));
+if (isVectorNull(x)) x = vec3(1.0, 0.0, 0.0);
 
-  vec3 y = cross(z, x);
+vec3 y = cross(z, x);
 
-  mat4 matrix = mat4(
-    x.x, x.y, x.z, 0.0,                     // column 1
-    y.x, y.y, y.z, 0.0,                     // column 2
-    z.x, z.y, z.z, 0.0,                     // column 3
-    position.x, position.y, position.z, 1.0 // column 4
-  );
-  return matrix; // need to inverse
-  ```
+mat4 matrix = mat4(
+  x.x, x.y, x.z, 0.0,                     // column 1
+  y.x, y.y, y.z, 0.0,                     // column 2
+  z.x, z.y, z.z, 0.0,                     // column 3
+  position.x, position.y, position.z, 1.0 // column 4
+);
+return matrix; // need to inverse (my note)
+```
+
+### 4) Week - Lighting and shading models in OpenGL
+- additive color model is used in computer grafics
+- triplet 0<=r,g,b<=1
+- illumination (lighting) models: emperical and physical
+- physical model e.g.: Lambert for diffuse
+- emperical model e.g.: Phong illumination model (specular, ambient)
+##### illumination model - inputs
+- normal vector `n`
+- direction of light `l`
+- reflected light direction `r`
+- view (camera, eye)
+- material params
+
+##### Phong illumination model
+- ambient + specular + diffuse = phong reflection
+
+- ambient = light of enviroment; ambientreflected = ambientlight * ambientMaterial
+- diffuse = Lambertian (from lights); max (cos alpha, 0) * diffuseLight * diffuseMat, where alpha = angle [l,n]
+- specular = [max (cos beta, 0) ]^shininess_material * specularlight * specularmaterial, where beta is angle [r,c] (reflection, camera/eye)
+
+##### Light sources
+- directional = ambient + diffuse + specular (reflexted)
+- point (attenuation towards the source)
+  - attenuation = attenuationFactor * (ambientreflected + diffusereflected + specularreflected)
+  - attenuationFactor = 1.0/ (constAtt + dist * linAtt + quadAtt * dist^2)
+  - dist = distance |light, vertex|
+- reflector - spotlight cutoff angle
+
+
+##### Shading
+- flat X phong
+- face, vertex, fragment
+
+##### 5) Week
+- transformations overview (categories)
+![transformations](images/transformations.png)
+- gimbal lock - where all tree axis in same face
 
 #### **Exam Topics**
 ##### W2
@@ -194,6 +232,21 @@ Combination of transformations
 - Order of matrix multiplications, decomposition of 𝑇𝐿
 - Order of transformations in OpenGL
 Limitations of matrices: gimbal lock, interpolation of rotations
+
+##### W4
+- Illumination (lighting) model (for point in the scene)
+  - Lambertian diffuse illumination model
+  - Phong empirical illumination model
+- complete equation and equations for each component
+- ambient, diffuse, specular, and emissive
+- Normals
+  - usage in graphics, computation for a triangle mesh
+  - normal matrix for non-rigid transformations
+- Shading models (flat, Gouraud, Phong)
+- Lights types: directional and positional – point light, reflector
+- Gamma correction
+
+
 
 #### **Random notes**
 - shared normals => smooth edges (rounding); individual => sharp edges (no rounding)

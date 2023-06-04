@@ -116,20 +116,84 @@ I will describe list of topics. If topic is advance I will go into more details.
   - triangle fan
 #### Face orientation (inc. back face culling)
 - whether face is draw when indexed clockwise (CC) or counterCW (CCW)
-- after `glEnable(GL_CULL_FACE);` all the faces that are not front-faces are discarded
+- after `glEnable(GL_CULL_FACE);` all the faces that are not front-faces are discarded  
+
+### 2) Week
+#### Objects
+- Creation
+  - generate object name → GLuint `glGenXXX(..., &objectName)`
+  1. bind object for initialization – glBindXXX (target, objectName)
+  2. copy data into the object `glBufferData()`, `glTexImage2D()`, ...
+  3. + set OpenGL state
+- Usage: `glBind(...)`
+- Removement: `glDelete(...)`
+
+### 2) Week
+#### MVP Matrixes
+- Input are model coordinates
+1. model matrix: model coords -> world
+2. view matrix: world coords -> camera
+   - "eye"(=camera) coords
+3. projection matrix: make perspective projection
+   - cliping
+4. perspective division "1/w" (4th coordinate)
+   - normalized device coords
+5. viewport transformation "Vp"
+   - window coords
+- Output are window coordinates
+
+#### Transformation matrixes
+- see how the operations affect the matrixes
+- SRT Order (to don't mess things up): scale, rotation, transition
+- rotation: axis matrix coord remains equal to one
+  - e.g.: rotate around x-axis the coords of M[0,0] = 1 in a rotation matrix
+
+#### View Matrix V/E^(-1)
+- LookAt creates the view matrix
+  - Eye (-Front??) = position of the viewpoint
+  - Center (camera position) = any point along the desired line of sight (center, as it projects to the central screen pixel)
+  - Up vector
+  ```cpp
+  vec3 z = -normalize(front);
+  if (isVectorNull(z)) z = vec3(0.0, 0.0, 1.0);
+
+  vec3 x = normalize(cross(up, z));
+  if (isVectorNull(x)) x = vec3(1.0, 0.0, 0.0);
+
+  vec3 y = cross(z, x);
+
+  mat4 matrix = mat4(
+    x.x, x.y, x.z, 0.0,                     // column 1
+    y.x, y.y, y.z, 0.0,                     // column 2
+    z.x, z.y, z.z, 0.0,                     // column 3
+    position.x, position.y, position.z, 1.0 // column 4
+  );
+  return matrix; // need to inverse
+  ```
 
 #### **Exam Topics**
 ##### W2
 - Passing vertex data to GPU
-- attribute variables, uniforms
-- buffers (VBO, VAO, EBO)
+  - attribute variables, uniforms
+  - buffers (VBO, VAO, ...)
 - Buffer organization
-- geometry as sequence x indexed vertices
-- order of vertex attributes in buffers
-- (sequential block, interleaved)
+  - geometry as sequence x indexed vertices
+  - order of vertex attributes in buffers (sequential block, interleaved)
 - Drawing loop
 - Primitives
 - Back face culling
+
+##### W3
+Fundamental concepts (point, vector, bases, coordinate frames, coordinates)
+Matrices representing transformations
+- Recognize the matrix type (linear, affine, projection)
+- Derive/write matrices for: 𝑅𝑥, 𝑅𝑦 , 𝑅𝑧 , 𝑆, 𝑇, 𝑉𝑝, 𝑃 (explain 1/𝑤)
+reference frames (change of: lookAt, on curve;
+transf. with respect to: axes, virtual trackball)
+Combination of transformations
+- Order of matrix multiplications, decomposition of 𝑇𝐿
+- Order of transformations in OpenGL
+Limitations of matrices: gimbal lock, interpolation of rotations
 
 #### **Random notes**
 - shared normals => smooth edges (rounding); individual => sharp edges (no rounding)

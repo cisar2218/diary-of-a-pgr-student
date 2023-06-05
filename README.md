@@ -207,7 +207,7 @@ return matrix; // need to inverse (my note)
 ##### 5) Week
 - transformations overview (categories)
 ![transformations](images/transformations.png)
-- gimbal lock - where all tree axis in same face
+- gimbal lock - where 2 axis in the same line
 
 ##### Textures
 - classic textures: coords <0,1> X <0,1>
@@ -223,6 +223,23 @@ return matrix; // need to inverse (my note)
   - **pixel screen coords ->** point world coords -> texture param. coords -> **texture image coords**
 ![inverse maping](images/inverse_mapping.png)
 
+##### Selection / Picking of displayed objects
+- variants:
+  1. bounding boxes
+  2. scene structure traversal (if point belogs to a structure in a scene)
+  3. sub-regions of a window around objects
+  4. store IDs in colors
+   - swaping buffers front/back
+   - need to redraw whole scene every time user clicks (when scene not static)
+  5. IDs in stencil buffer
+
+
+##### Virtual trackball
+1. save P1
+2. determinate rotation axis `n` (P1 x P2)
+3. rotate around axis about alpha angle
+4. set P1 = P2
+5. draw scene, repeat to 1.
 
 #### **Exam Topics**
 ##### W2
